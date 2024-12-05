@@ -6,6 +6,14 @@ import { AppService } from './app.service';
 
 import { EnvConfiguration } from './config/env.config';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { AuthModule } from './auth/auth.module';
+import { PersonalModule } from './personal/personal.module';
+import { ProveedoresModule } from './proveedores/proveedores.module';
+import { ProductosModule } from './productos/productos.module';
+import { TrabajosModule } from './trabajos/trabajos.module';
+import { VentasModule } from './ventas/ventas.module';
+import { OpticasModule } from './opticas/opticas.module';
+import { TratamientosModule } from './tratamientos/tratamientos.module';
 
 
 @Module({
@@ -20,7 +28,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
     password: process.env.DB_PASSWORD,
     autoLoadEntities: true,
     synchronize: true
-  }),
+  }), AuthModule, PersonalModule, ProveedoresModule, ProductosModule, TrabajosModule, VentasModule, OpticasModule, TratamientosModule,
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -1,6 +1,5 @@
-// opticas/entities/optica.entity.ts
+import { Venta } from 'src/mventas/ventas/entities/venta.entity';
 import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm';
-import { Venta } from '../../ventas/entities/venta.entity';
 
 @Entity('opticas')
 export class Optica {
@@ -16,7 +15,7 @@ export class Optica {
   @Column()
   numero: string;
 
-  @Column()
+  @Column({ default: true })
   activo: boolean;
 
   @OneToMany(() => Venta, (venta) => venta.optica)

@@ -1,19 +1,18 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
+import { TypeOrmModule } from '@nestjs/typeorm';
 
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 
 import { EnvConfiguration } from './config/env.config';
-import { TypeOrmModule } from '@nestjs/typeorm';
-import { AuthModule } from './auth/auth.module';
-import { PersonalModule } from './personal/personal.module';
-import { ProveedoresModule } from './proveedores/proveedores.module';
-import { ProductosModule } from './productos/productos.module';
-import { TrabajosModule } from './trabajos/trabajos.module';
-import { VentasModule } from './ventas/ventas.module';
+import { CommonModule } from './common/common.module';
+import { RolesPermisosModule } from './roles-permisos/roles-permisos.module';
+import { UsuariosPersonalModule } from './usuarios-personal/usuarios-personal.module';
+import { ProveedoresProductosModule } from './proveedores-productos/proveedores-productos.module';
+import { MventasModule } from './mventas/mventas.module';
 import { OpticasModule } from './opticas/opticas.module';
-import { TratamientosModule } from './tratamientos/tratamientos.module';
+import { MtrabajosModule } from './mtrabajos/mtrabajos.module';
 
 
 @Module({
@@ -27,8 +26,8 @@ import { TratamientosModule } from './tratamientos/tratamientos.module';
     username: process.env.DB_USERNAME,
     password: process.env.DB_PASSWORD,
     autoLoadEntities: true,
-    synchronize: true
-  }), AuthModule, PersonalModule, ProveedoresModule, ProductosModule, TrabajosModule, VentasModule, OpticasModule, TratamientosModule,
+    synchronize: true,    
+  }), CommonModule, RolesPermisosModule, UsuariosPersonalModule, ProveedoresProductosModule, MventasModule, OpticasModule, MtrabajosModule, 
   ],
   controllers: [AppController],
   providers: [AppService],

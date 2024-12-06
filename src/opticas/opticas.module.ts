@@ -10,6 +10,8 @@ import { Optica } from './entities/optica.entity';
   ],
   controllers: [OpticasController],
   providers: [OpticasService],
-  exports: [TypeOrmModule, OpticasService]
+  exports:[
+    TypeOrmModule
+]
 })
 export class OpticasModule {}

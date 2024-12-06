@@ -7,9 +7,6 @@ export class CreateDetalleVentaDto {
   @IsDecimal()
   precio_unitario: number;
 
-  @IsDecimal()
-  total_parcial: number;
-
   @IsUUID()
   @IsOptional()
   id_venta?: string;

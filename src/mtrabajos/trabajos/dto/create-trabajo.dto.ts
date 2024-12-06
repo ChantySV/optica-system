@@ -1,8 +1,6 @@
 import { IsDate, IsDecimal, IsBoolean, IsOptional, IsUUID } from 'class-validator';
 
 export class CreateTrabajoDto {
-  @IsDate()
-  fecha_entrada: Date;
 
   @IsDate()
   fecha_salida: Date;
@@ -15,10 +13,8 @@ export class CreateTrabajoDto {
   activo?: boolean;
 
   @IsUUID()
-  @IsOptional()
-  id_detalleTrabajo?: string;
+  id_detalleTrabajo: string;
 
   @IsUUID()
-  @IsOptional()
-  id_personal?: string;
+  id_personal: string;
 }

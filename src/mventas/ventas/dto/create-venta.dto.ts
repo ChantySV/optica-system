@@ -4,9 +4,6 @@ export class CreateVentaDto {
   @IsDecimal()
   monto_total: number;
 
-  @IsDate()
-  fecha_venta: Date;
-
   @IsBoolean()
   @IsOptional()
   activo?: boolean;

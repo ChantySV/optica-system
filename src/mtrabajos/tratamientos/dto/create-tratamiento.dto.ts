@@ -5,7 +5,8 @@ export class CreateTratamientoDto {
   nombre: string;
 
   @IsString()
-  descripcion: string;
+  @IsOptional()
+  descripcion?: string;
 
   @IsBoolean()
   @IsOptional()

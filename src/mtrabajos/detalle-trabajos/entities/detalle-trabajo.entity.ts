@@ -4,6 +4,7 @@ import {
   Column,
   ManyToOne,
   JoinColumn,
+  OneToOne,
 } from 'typeorm';
 import { Tratamiento } from 'src/mtrabajos/tratamientos/entities/tratamiento.entity';
 import { Producto } from 'src/proveedores-productos/productos/entities/producto.entity';

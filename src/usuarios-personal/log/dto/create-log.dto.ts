@@ -1,16 +1,15 @@
-import { IsString, IsDate, IsUUID, IsOptional } from 'class-validator';
+import { IsString, IsUUID, IsNotEmpty, IsOptional } from 'class-validator';
 
 export class CreateLogDto {
-  @IsString()
-  accion: string;
-
-  @IsDate()
-  fecha_hora: Date;
-
-  @IsString()
-  ip_origen: string;
-
   @IsUUID()
-  @IsOptional()
-  id_usuario?: string;
+  @IsNotEmpty()
+  id_usuario: string; // Clave foránea hacia Usuario
+
+  @IsString()
+  @IsOptional() // Es opcional porque la columna `accion` permite valores nulos
+  accion?: string;
+
+  @IsString()
+  @IsNotEmpty()
+  ip_origen: string; // Dirección IP de origen
 }

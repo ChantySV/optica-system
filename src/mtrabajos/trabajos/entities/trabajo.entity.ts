@@ -1,4 +1,4 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn, OneToOne } from 'typeorm';
 import { Personal } from 'src/usuarios-personal/personal/entities/personal.entity';
 import { DetalleTrabajo } from 'src/mtrabajos/detalle-trabajos/entities/detalle-trabajo.entity';
 
@@ -8,7 +8,7 @@ export class Trabajo {
   @PrimaryGeneratedColumn('uuid')
   id_trabajo: string;
 
-  @ManyToOne(() => DetalleTrabajo, (detalleTrabajo) => detalleTrabajo.id_detalleTrabajo, { nullable: false })
+  @OneToOne(() => DetalleTrabajo, (detalleTrabajo) => detalleTrabajo.id_detalleTrabajo, { nullable: false })
   @JoinColumn({ name: 'id_detalleTrabajo' })
   detalleTrabajo: DetalleTrabajo;
 
@@ -21,7 +21,7 @@ export class Trabajo {
   @Column('decimal')
   costo: number;
 
-  @ManyToOne(() => Personal, (personal) => personal.trabajos, { nullable: false })
+  @OneToOne(() => Personal, (personal) => personal.trabajos, { nullable: false })
   @JoinColumn({ name: 'id_personal' })
   personal: Personal;
 

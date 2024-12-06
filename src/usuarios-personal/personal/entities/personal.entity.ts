@@ -1,4 +1,10 @@
-import { Entity, PrimaryColumn, Column, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  OneToMany,
+  OneToOne,
+} from 'typeorm';
 import { Usuario } from 'src/usuarios-personal/usuarios/entities/usuario.entity';
 import { Trabajo } from 'src/mtrabajos/trabajos/entities/trabajo.entity';
 
@@ -7,26 +13,26 @@ export class Personal {
   @PrimaryGeneratedColumn('uuid')
   id_personal: string;
 
-  @Column('varchar' )
+  @Column('varchar')
   nombres: string;
 
   @Column('varchar')
   apellido_paterno: string;
 
-  @Column( 'varchar', { nullable: true } )
+  @Column('varchar', { nullable: true })
   apellido_materno: string;
 
-  @Column( 'varchar', { nullable: true } )
+  @Column('varchar', { nullable: true })
   email: string;
 
-  @Column( 'int', { nullable: false } )
+  @Column('int', { nullable: false })
   telefono: number;
 
-  @Column( 'boolean', { default: true } )
+  @Column('boolean', { default: true })
   activo: boolean;
 
-  @OneToMany(() => Usuario, (usuario) => usuario.personal)
-  usuarios: Usuario[];
+  @OneToOne(() => Usuario, (usuario) => usuario.personal)
+  usuario: Usuario; // Cambiado de usuarios[] a usuario
 
   @OneToMany(() => Trabajo, (trabajo) => trabajo.personal)
   trabajos: Trabajo[];

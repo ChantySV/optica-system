@@ -8,16 +8,16 @@ export class Producto {
   @PrimaryGeneratedColumn('uuid')
   id_producto: string;
 
-  @Column()
+  @Column( 'varchar' )
   nombre: string;
 
-  @Column()
+  @Column( 'int' )
   stock: number;
 
-  @Column('decimal')
+  @Column( 'decimal' )
   precio_compra: number;
 
-  @Column('decimal')
+  @Column( 'decimal' )
   precio_venta: number;
 
   @Column({ default: true })

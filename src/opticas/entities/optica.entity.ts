@@ -6,13 +6,13 @@ export class Optica {
   @PrimaryGeneratedColumn('uuid')
   id_optica: string;
 
-  @Column()
+  @Column( 'varchar' )
   nombre: string;
 
-  @Column()
+  @Column( 'varchar', { nullable: true } )
   direccion: string;
 
-  @Column()
+  @Column( 'varchar', { nullable: true } )
   numero: string;
 
   @Column({ default: true })

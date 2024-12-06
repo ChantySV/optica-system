@@ -7,10 +7,10 @@ export class Role {
   @PrimaryGeneratedColumn('uuid')
   id_rol: string;
 
-  @Column({ unique: true })
+  @Column( 'varchar', { unique: true } )
   nombre_rol: string;
 
-  @Column({ default: true })
+  @Column( 'boolean', { default: true })
   activo: boolean;
 
   @OneToMany(() => Usuario, (usuario) => usuario.role)

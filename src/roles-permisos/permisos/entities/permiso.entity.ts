@@ -6,13 +6,13 @@ export class Permiso {
   @PrimaryGeneratedColumn('uuid')
   id_permiso: string;
 
-  @Column({ unique: true })
+  @Column( 'varchar', { unique: true } )
   nombre_opcion: string;
 
-  @Column({ unique: true })
+  @Column( 'varchar', { unique: true } )
   ruta_opcion: string;
 
-  @Column({ default: true })
+  @Column( 'boolean', { default: true } )
   activo: boolean;
 
   @OneToMany(() => RolePermiso, (rolePermiso) => rolePermiso.permiso)

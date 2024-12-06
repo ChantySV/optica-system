@@ -7,22 +7,22 @@ export class Personal {
   @PrimaryGeneratedColumn('uuid')
   id_personal: string;
 
-  @Column()
+  @Column('varchar' )
   nombres: string;
 
-  @Column()
+  @Column('varchar')
   apellido_paterno: string;
 
-  @Column()
+  @Column( 'varchar', { nullable: true } )
   apellido_materno: string;
 
-  @Column()
+  @Column( 'varchar', { nullable: true } )
   email: string;
 
-  @Column()
+  @Column( 'int', { nullable: false } )
   telefono: number;
 
-  @Column({ default: true })
+  @Column( 'boolean', { default: true } )
   activo: boolean;
 
   @OneToMany(() => Usuario, (usuario) => usuario.personal)

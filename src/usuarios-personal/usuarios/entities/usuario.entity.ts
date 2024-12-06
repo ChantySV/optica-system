@@ -8,20 +8,20 @@ export class Usuario {
   @PrimaryGeneratedColumn('uuid')
   id_usuario: string;
 
-  @Column({ unique: true })
+  @Column( 'varchar' )
   nombre_usuario: string;
 
-  @Column()
+  @Column( 'varchar' )
   contraseña: string;
 
-  @Column({ default: true })
+  @Column( 'boolean', { default: true } )
   activo: boolean;
 
-  @ManyToOne(() => Role, (role) => role.usuarios)
+  @ManyToOne(() => Role, (role) => role.usuarios, { nullable: false })
   @JoinColumn({ name: 'id_rol' })
   role: Role;
 
-  @ManyToOne(() => Personal, (personal) => personal.usuarios)
+  @ManyToOne(() => Personal, (personal) => personal.usuarios, { nullable: false })
   @JoinColumn({ name: 'id_personal' })
   personal: Personal;
 

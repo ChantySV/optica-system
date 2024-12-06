@@ -9,11 +9,11 @@ export class Proveedor {
   @Column()
   nombre: string;
 
-  @Column()
+  @Column( 'varchar', { nullable: true } )
   numero: string;
 
-  @Column()
-  empresa: string;
+  @Column( 'varchar' )
+  direccion_web: string;
 
   @Column({ default: true })
   activo: boolean;

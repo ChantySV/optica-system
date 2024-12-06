@@ -7,16 +7,16 @@ export class Log {
   @PrimaryGeneratedColumn('uuid')
   id_log: string;
 
-  @ManyToOne(() => Usuario, (usuario) => usuario.logs)
+  @ManyToOne(() => Usuario, (usuario) => usuario.logs, { nullable: false })
   @JoinColumn({ name: 'id_usuario' })
   usuario: Usuario;
 
-  @Column()
+  @Column('varchar',{ nullable: true })
   accion: string;
 
-  @Column()
+  @Column('timestamp', { default: ( () => 'CURRENT_TIMESTAMP' )})
   fecha_hora: Date;
 
-  @Column()
+  @Column('varchar')
   ip_origen: string;
 }

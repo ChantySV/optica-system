@@ -6,13 +6,13 @@ export class Tratamiento {
   @PrimaryGeneratedColumn('uuid')
   id_tratamiento: string;
 
-  @Column()
+  @Column( 'varchar' )
   nombre: string;
 
-  @Column()
+  @Column( 'varchar', { nullable: true } )
   descripcion: string;
 
-  @Column({ default: true })
+  @Column( 'boolean', { default: true } )
   activo: boolean;
 
   @OneToMany(() => DetalleTrabajo, (detalleTrabajo) => detalleTrabajo.tratamiento)

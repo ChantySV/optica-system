@@ -1,7 +1,13 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn } from 'typeorm';
-import { Color } from 'src/mtrabajos/colores/entities/colore.entity';
-import { Producto } from 'src/proveedores-productos/productos/entities/producto.entity';
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  ManyToOne,
+  JoinColumn,
+} from 'typeorm';
 import { Tratamiento } from 'src/mtrabajos/tratamientos/entities/tratamiento.entity';
+import { Producto } from 'src/proveedores-productos/productos/entities/producto.entity';
+import { Color } from 'src/mtrabajos/colores/entities/colore.entity';
 
 @Entity('detalleTrabajos')
 export class DetalleTrabajo {
@@ -11,33 +17,67 @@ export class DetalleTrabajo {
   @Column()
   distancia: boolean;
 
-  @Column('decimal')
-  esferico_derecho: number;
+  @Column('decimal', { nullable: true })
+  esferico_derecho?: number;
 
-  @Column('decimal')
-  esferico_izquierdo: number;
+  @Column('decimal', { nullable: true })
+  esferico_izquierdo?: number;
 
-  @Column('decimal')
-  cilindro_derecho: number;
+  @Column('decimal', { nullable: true })
+  cilindro_derecho?: number;
 
-  @Column('decimal')
-  cilindro_izquierdo: number;
+  @Column('decimal', { nullable: true })
+  cilindro_izquierdo?: number;
 
-  @Column()
-  eje_derecho: number;
+  @Column({ type: 'int', nullable: true })
+  eje_derecho?: number;
 
-  @Column()
-  eje_izquierdo: number;
+  @Column({ type: 'int', nullable: true })
+  eje_izquierdo?: number;
 
-  @ManyToOne(() => Tratamiento, (tratamiento) => tratamiento.detalleTrabajos)
+  @Column({ type: 'int', nullable: true })
+  prisma_izquierdo?: number;
+
+  @Column({ type: 'int', nullable: true })
+  prisma_derecho?: number;
+
+  @Column({ type: 'int', nullable: true })
+  base_izquierdo?: number;
+
+  @Column({ type: 'int', nullable: true })
+  base_derecho?: number;
+
+  @Column({ type: 'int', nullable: true })
+  adicion_izquierdo?: number;
+
+  @Column({ type: 'int', nullable: true })
+  adicion_derecho?: number;
+
+  @Column({ type: 'int', nullable: true })
+  altura_izquierdo?: number;
+
+  @Column({ type: 'int', nullable: true })
+  altura_derecho?: number;
+
+  @Column({ type: 'decimal', nullable: true })
+  dip_izquierdo?: number;
+
+  @Column({ type: 'int', nullable: true })
+  dip_derecho?: number;
+
+  @ManyToOne(() => Tratamiento, (tratamiento) => tratamiento.detalleTrabajos, {
+    nullable: true,
+  })
   @JoinColumn({ name: 'id_tratamiento' })
-  tratamiento: Tratamiento;
+  tratamiento?: Tratamiento;
 
-  @ManyToOne(() => Producto, (producto) => producto.detalleTrabajos)
+  @ManyToOne(() => Producto, (producto) => producto.detalleTrabajos, {
+    nullable: false,
+  })
   @JoinColumn({ name: 'id_producto' })
-  producto: Producto;
+  producto?: Producto;
 
-  @ManyToOne(() => Color, (color) => color.detalleTrabajos)
+  @ManyToOne(() => Color, (color) => color.detalleTrabajos, { nullable: true })
   @JoinColumn({ name: 'id_color' })
-  color: Color;
+  color?: Color;
 }

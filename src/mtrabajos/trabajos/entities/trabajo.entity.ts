@@ -8,12 +8,12 @@ export class Trabajo {
   @PrimaryGeneratedColumn('uuid')
   id_trabajo: string;
 
-  @ManyToOne(() => DetalleTrabajo, (detalleTrabajo) => detalleTrabajo.id_detalleTrabajo)
+  @ManyToOne(() => DetalleTrabajo, (detalleTrabajo) => detalleTrabajo.id_detalleTrabajo, { nullable: false })
   @JoinColumn({ name: 'id_detalleTrabajo' })
   detalleTrabajo: DetalleTrabajo;
 
-  @Column('date')
-  fecha_entrada: Date;
+  @Column('timestamp', { default: ( () => 'CURRENT_TIMESTAMP' )} )
+  fecha_entrada = Date;
 
   @Column('date')
   fecha_salida: Date;
@@ -21,10 +21,10 @@ export class Trabajo {
   @Column('decimal')
   costo: number;
 
-  @ManyToOne(() => Personal, (personal) => personal.trabajos)
+  @ManyToOne(() => Personal, (personal) => personal.trabajos, { nullable: false })
   @JoinColumn({ name: 'id_personal' })
   personal: Personal;
 
-  @Column({ default: true })
+  @Column({ default: true, nullable:true })
   activo: boolean;
 }

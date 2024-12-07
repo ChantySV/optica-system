@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, ParseUUIDPipe } from '@nestjs/common';
 import { ColoresService } from './colores.service';
 import { CreateColoreDto } from './dto/create-colore.dto';
 import { UpdateColoreDto } from './dto/update-colore.dto';
@@ -17,18 +17,13 @@ export class ColoresController {
     return this.coloresService.findAll();
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.coloresService.findOne(+id);
-  }
-
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateColoreDto: UpdateColoreDto) {
-    return this.coloresService.update(+id, updateColoreDto);
+  update(@Param('id', ParseUUIDPipe) id: string, @Body() updateColoreDto: UpdateColoreDto) {
+    return this.coloresService.update(id, updateColoreDto);
   }
 
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.coloresService.remove(+id);
+  @Patch(':id/disable')
+  remove(@Param('id', ParseUUIDPipe) id: string) {
+    return this.coloresService.remove(id);
   }
 }

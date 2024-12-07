@@ -17,19 +17,19 @@ import { MtrabajosModule } from './mtrabajos/mtrabajos.module';
 
 @Module({
   imports: [
-    ConfigModule.forRoot({ load: [ EnvConfiguration ], }), 
-  TypeOrmModule.forRoot({
-    type: 'postgres',
-    host: process.env.DB_HOST,
-    port: +process.env.DB_PORT,
-    database: process.env.DB_NAME,
-    username: process.env.DB_USERNAME,
-    password: process.env.DB_PASSWORD,
-    autoLoadEntities: true,
-    synchronize: true,    
-  }), CommonModule, RolesPermisosModule, UsuariosPersonalModule, ProveedoresProductosModule, MventasModule, OpticasModule, MtrabajosModule, 
+    ConfigModule.forRoot({ load: [EnvConfiguration], }),
+    TypeOrmModule.forRoot({
+      type: 'postgres',
+      host: process.env.DB_HOST,
+      port: +process.env.DB_PORT,
+      database: process.env.DB_NAME,
+      username: process.env.DB_USERNAME,
+      password: process.env.DB_PASSWORD,
+      autoLoadEntities: true,
+      synchronize: true,
+    }), CommonModule, RolesPermisosModule, UsuariosPersonalModule, ProveedoresProductosModule, MventasModule, OpticasModule, MtrabajosModule,
   ],
   controllers: [AppController],
   providers: [AppService],
 })
-export class AppModule {}
+export class AppModule { }

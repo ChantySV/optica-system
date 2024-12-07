@@ -1,4 +1,4 @@
-import { IsBoolean, IsOptional, IsString } from "class-validator";
+import { IsBoolean, IsOptional, IsString, IsUUID } from "class-validator";
 
 export class CreateColoreDto {
     @IsString()
@@ -6,5 +6,5 @@ export class CreateColoreDto {
 
     @IsBoolean()
     @IsOptional()
-    activo?: boolean; // Opcional porque tiene valor por defecto
+    activo?: boolean;
 }

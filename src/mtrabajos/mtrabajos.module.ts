@@ -10,19 +10,22 @@ import { Color } from './colores/entities/colore.entity';
 import { DetalleTrabajo } from './detalle-trabajos/entities/detalle-trabajo.entity';
 import { Trabajo } from './trabajos/entities/trabajo.entity';
 import { Tratamiento } from './tratamientos/entities/tratamiento.entity';
+import { CommonModule } from 'src/common/common.module';
 
 @Module({
-    imports:[
-        TypeOrmModule.forFeature([
-            Color, DetalleTrabajo, Trabajo, Tratamiento
-        ]),
+    imports:[        
         ColoresModule,
         DetalleTrabajosModule,
         TratamientosModule,
         TrabajosModule,
+        CommonModule
     ],
     exports:[
-        TypeOrmModule
+        ColoresModule,
+        DetalleTrabajosModule,
+        TratamientosModule,
+        TrabajosModule,
+        CommonModule
     ]
 })
 export class MtrabajosModule {}

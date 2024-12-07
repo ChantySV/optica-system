@@ -5,13 +5,10 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { Optica } from './entities/optica.entity';
 
 @Module({
-  imports:[
-    TypeOrmModule.forFeature([ Optica ])
+  imports:[TypeOrmModule.forFeature([ Optica ])
   ],
   controllers: [OpticasController],
   providers: [OpticasService],
-  exports:[
-    TypeOrmModule
-]
+  exports:[ OpticasService ]
 })
 export class OpticasModule {}

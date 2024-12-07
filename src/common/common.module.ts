@@ -1,4 +1,9 @@
-import { Module } from '@nestjs/common';
+import { Global, Module } from '@nestjs/common';
+import { ErrorHandleService } from './services/error-handle/error-handle.service';
 
-@Module({})
+@Global()
+@Module({
+  providers: [ErrorHandleService],
+  exports:[ErrorHandleService]
+})
 export class CommonModule {}

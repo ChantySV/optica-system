@@ -7,10 +7,12 @@ import { DetalleVenta } from './detalle-ventas/entities/detalle-venta.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([
-      Venta, DetalleVenta
-    ]),
-    VentasModule, 
-    DetalleVentasModule]
+    VentasModule,
+    DetalleVentasModule
+  ],
+  exports: [
+    VentasModule,
+    DetalleVentasModule
+  ]
 })
-export class MventasModule {}
+export class MventasModule { }

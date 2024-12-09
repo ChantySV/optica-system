@@ -19,16 +19,16 @@ export class DetalleVentasController {
 
   @Get(':id')
   findOne(@Param('id') id: string) {
-    return this.detalleVentasService.findOne(+id);
+    return this.detalleVentasService.findOne(id);
   }
 
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateDetalleVentaDto: UpdateDetalleVentaDto) {
-    return this.detalleVentasService.update(+id, updateDetalleVentaDto);
+    return this.detalleVentasService.update(id, updateDetalleVentaDto);
   }
 
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.detalleVentasService.remove(+id);
-  }
+  // @Delete(':id')
+  // remove(@Param('id') id: string) {
+  //   return this.detalleVentasService.remove(id);
+  // }
 }

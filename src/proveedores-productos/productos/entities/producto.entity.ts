@@ -24,8 +24,8 @@ export class Producto {
   activo: boolean;
 
   @OneToMany(() => ProductoProveedor, (productoProveedor) => productoProveedor.producto)
-  productosProveedores: ProductoProveedor[];
+  productosProveedores: ProductoProveedor;
 
   @OneToMany(() => DetalleTrabajo, (detalleTrabajo) => detalleTrabajo.producto)
-  detalleTrabajos: DetalleTrabajo[];
+  detalleTrabajos: DetalleTrabajo;
 }

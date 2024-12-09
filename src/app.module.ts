@@ -13,6 +13,7 @@ import { ProveedoresProductosModule } from './proveedores-productos/proveedores-
 import { MventasModule } from './mventas/mventas.module';
 import { OpticasModule } from './opticas/opticas.module';
 import { MtrabajosModule } from './mtrabajos/mtrabajos.module';
+import { SeedModule } from './seed/seed.module';
 
 
 @Module({
@@ -27,7 +28,7 @@ import { MtrabajosModule } from './mtrabajos/mtrabajos.module';
       password: process.env.DB_PASSWORD,
       autoLoadEntities: true,
       synchronize: true,
-    }), CommonModule, RolesPermisosModule, UsuariosPersonalModule, ProveedoresProductosModule, MventasModule, OpticasModule, MtrabajosModule,
+    }), CommonModule, RolesPermisosModule, UsuariosPersonalModule, ProveedoresProductosModule, MventasModule, OpticasModule, MtrabajosModule, SeedModule,
   ],
   controllers: [AppController],
   providers: [AppService],

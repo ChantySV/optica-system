@@ -19,16 +19,16 @@ export class TrabajosController {
 
   @Get(':id')
   findOne(@Param('id') id: string) {
-    return this.trabajosService.findOne(+id);
+    return this.trabajosService.findOne(id);
   }
 
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateTrabajoDto: UpdateTrabajoDto) {
-    return this.trabajosService.update(+id, updateTrabajoDto);
+    return this.trabajosService.update(id, updateTrabajoDto);
   }
 
   @Delete(':id')
   remove(@Param('id') id: string) {
-    return this.trabajosService.remove(+id);
+    return this.trabajosService.remove(id);
   }
 }

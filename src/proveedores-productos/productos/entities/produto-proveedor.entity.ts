@@ -7,11 +7,11 @@ export class ProductoProveedor {
   @PrimaryGeneratedColumn('uuid')
   id_productoProveedor: string;
 
-  @ManyToOne(() => Producto, (producto) => producto.productosProveedores)
+  @ManyToOne(() => Producto, (producto) => producto.productosProveedores, { nullable: false })
   @JoinColumn({ name: 'id_producto' })
   producto: Producto;
 
-  @ManyToOne(() => Proveedor, (proveedor) => proveedor.productosProveedores)
+  @ManyToOne(() => Proveedor, (proveedor) => proveedor.productosProveedores, { nullable: false })
   @JoinColumn({ name: 'id_proveedor' })
   proveedor: Proveedor;
 }

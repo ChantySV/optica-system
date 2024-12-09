@@ -5,7 +5,7 @@ export class CreateUsuarioDto {
   nombre_usuario: string;
 
   @IsString()
-  contraseña: string;
+  contrasenha: string;
 
   @IsBoolean()
   @IsOptional()

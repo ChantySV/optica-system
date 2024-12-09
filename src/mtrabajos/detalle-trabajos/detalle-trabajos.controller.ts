@@ -19,16 +19,16 @@ export class DetalleTrabajosController {
 
   @Get(':id')
   findOne(@Param('id') id: string) {
-    return this.detalleTrabajosService.findOne(+id);
+    return this.detalleTrabajosService.findOne(id);
   }
 
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateDetalleTrabajoDto: UpdateDetalleTrabajoDto) {
-    return this.detalleTrabajosService.update(+id, updateDetalleTrabajoDto);
+    return this.detalleTrabajosService.update(id, updateDetalleTrabajoDto);
   }
 
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.detalleTrabajosService.remove(+id);
-  }
+  // @Delete(':id')
+  // remove(@Param('id') id: string) {
+  //   return this.detalleTrabajosService.remove(+id);
+  // }
 }

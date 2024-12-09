@@ -3,8 +3,8 @@ import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm';
 
 @Entity('proveedores')
 export class Proveedor {
-  @PrimaryGeneratedColumn()
-  id_proveedor: number;
+  @PrimaryGeneratedColumn('uuid')
+  id_proveedor: string;
 
   @Column()
   nombre: string;
@@ -19,5 +19,5 @@ export class Proveedor {
   activo: boolean;
 
   @OneToMany(() => ProductoProveedor, (productoProveedor) => productoProveedor.proveedor)
-  productosProveedores: ProductoProveedor[];
+  productosProveedores: ProductoProveedor;
 }

@@ -8,6 +8,9 @@ import { Permiso } from './entities/permiso.entity';
   imports:[TypeOrmModule.forFeature([ Permiso ])],
   controllers: [ PermisosController ],
   providers: [ PermisosService ],
-  exports: [ PermisosService ]
+  exports: [ 
+    PermisosService,
+    TypeOrmModule
+   ]
 })
 export class PermisosModule {}

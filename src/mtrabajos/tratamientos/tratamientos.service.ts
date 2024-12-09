@@ -1,26 +1,81 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { ErrorHandleService } from 'src/common/services/error-handle/error-handle.service';
+
+import { Tratamiento } from './entities/tratamiento.entity';
 import { CreateTratamientoDto } from './dto/create-tratamiento.dto';
 import { UpdateTratamientoDto } from './dto/update-tratamiento.dto';
 
 @Injectable()
 export class TratamientosService {
-  create(createTratamientoDto: CreateTratamientoDto) {
-    return 'This action adds a new tratamiento';
+  constructor(
+    @InjectRepository(Tratamiento)
+    private readonly tratamientoRepository: Repository<Tratamiento>,
+    private readonly errorHandleService: ErrorHandleService,
+  ) {}
+
+  // Crear un nuevo tratamiento
+  async create(createTratamientoDto: CreateTratamientoDto): Promise<Tratamiento> {
+    try {
+      const tratamiento = this.tratamientoRepository.create(createTratamientoDto);
+      return await this.tratamientoRepository.save(tratamiento);
+    } catch (error) {
+      this.errorHandleService.errorHandle(error);
+    }
   }
 
-  findAll() {
-    return `This action returns all tratamientos`;
+  // Obtener todos los tratamientos activos
+  async findAll(): Promise<Tratamiento[]> {
+    try {
+      return await this.tratamientoRepository.find({ where: { activo: true } });
+    } catch (error) {
+      this.errorHandleService.errorHandle(error);
+    }
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} tratamiento`;
+  // Obtener un tratamiento por ID
+  async findOne(id: string): Promise<Tratamiento> {
+    try {
+      const tratamiento = await this.tratamientoRepository.findOne({ where: { id_tratamiento: id, activo: true } });
+
+      if (!tratamiento) {
+        throw new NotFoundException(`Tratamiento con ID "${id}" no encontrado`);
+      }
+
+      return tratamiento;
+    } catch (error) {
+      this.errorHandleService.errorHandle(error);
+    }
   }
 
-  update(id: number, updateTratamientoDto: UpdateTratamientoDto) {
-    return `This action updates a #${id} tratamiento`;
+  // Actualizar un tratamiento
+  async update(id: string, updateTratamientoDto: UpdateTratamientoDto): Promise<Tratamiento> {
+    try {
+      const tratamiento = await this.tratamientoRepository.preload({
+        id_tratamiento: id,
+        ...updateTratamientoDto,
+      });
+
+      if (!tratamiento) {
+        throw new NotFoundException(`Tratamiento con ID "${id}" no encontrado`);
+      }
+
+      return await this.tratamientoRepository.save(tratamiento);
+    } catch (error) {
+      this.errorHandleService.errorHandle(error);
+    }
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} tratamiento`;
+  // Desactivar (eliminar lógicamente) un tratamiento
+  async remove(id: string): Promise<Tratamiento> {
+    try {
+      const tratamiento = await this.findOne(id);
+
+      tratamiento.activo = false; // Desactivación lógica
+      return await this.tratamientoRepository.save(tratamiento);
+    } catch (error) {
+      this.errorHandleService.errorHandle(error);
+    }
   }
 }

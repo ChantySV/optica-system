@@ -5,13 +5,18 @@ import { ProductosService } from './productos.service';
 import { ProductosController } from './productos.controller';
 import { Producto } from './entities/producto.entity';
 import { ProductoProveedor } from './entities/produto-proveedor.entity';
+import { ProveedoresModule } from '../proveedores/proveedores.module';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([ Producto, ProductoProveedor ]), // Registra la entidad Producto
+    TypeOrmModule.forFeature([ Producto, ProductoProveedor ]), 
+    ProveedoresModule
   ],
   controllers: [ ProductosController ],
   providers: [ ProductosService ],
-  exports: [ ProductosService ], // Exporta el servicio si es necesario
+  exports: [ 
+    ProductosService, 
+    TypeOrmModule 
+  ], 
 })
 export class ProductosModule {}

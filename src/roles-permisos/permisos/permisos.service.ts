@@ -1,26 +1,80 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { Permiso } from './entities/permiso.entity';
 import { CreatePermisoDto } from './dto/create-permiso.dto';
 import { UpdatePermisoDto } from './dto/update-permiso.dto';
+import { ErrorHandleService } from 'src/common/services/error-handle/error-handle.service';
 
 @Injectable()
 export class PermisosService {
-  create(createPermisoDto: CreatePermisoDto) {
-    return 'This action adds a new permiso';
+  constructor(
+    @InjectRepository(Permiso)
+    private readonly permisoRepository: Repository<Permiso>,
+    private readonly errorHandleService: ErrorHandleService,
+  ) {}
+
+  async create(createPermisoDto: CreatePermisoDto): Promise<Permiso> {
+    try {
+      const permiso = this.permisoRepository.create(createPermisoDto);
+      return await this.permisoRepository.save(permiso);
+    } catch (error) {
+      this.errorHandleService.errorHandle(error);
+    }
   }
 
-  findAll() {
-    return `This action returns all permisos`;
+  async findAll(): Promise<Permiso[]> {
+    try {
+      return await this.permisoRepository.find({
+        where: { activo: true },
+        relations: ['rolePermisos'],
+      });
+    } catch (error) {
+      this.errorHandleService.errorHandle(error);
+    }
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} permiso`;
+  async findOne(id: string): Promise<Permiso> {
+    try {
+      const permiso = await this.permisoRepository.findOne({
+        where: { id_permiso: id, activo: true },
+        relations: ['rolePermisos'],
+      });
+
+      if (!permiso) {
+        throw new NotFoundException(`Permiso con ID "${id}" no encontrado`);
+      }
+
+      return permiso;
+    } catch (error) {
+      this.errorHandleService.errorHandle(error);
+    }
   }
 
-  update(id: number, updatePermisoDto: UpdatePermisoDto) {
-    return `This action updates a #${id} permiso`;
+  async update(id: string, updatePermisoDto: UpdatePermisoDto): Promise<Permiso> {
+    try {
+      const permiso = await this.permisoRepository.preload({
+        id_permiso: id,
+        ...updatePermisoDto,
+      });
+
+      if (!permiso) {
+        throw new NotFoundException(`Permiso con ID "${id}" no encontrado`);
+      }
+
+      return await this.permisoRepository.save(permiso);
+    } catch (error) {
+      this.errorHandleService.errorHandle(error);
+    }
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} permiso`;
+  async remove(id: string): Promise<Permiso> {
+    try {
+      const permiso = await this.findOne(id);
+      permiso.activo = false; 
+      return await this.permisoRepository.save(permiso);
+    } catch (error) {
+      this.errorHandleService.errorHandle(error);
+    }
   }
 }

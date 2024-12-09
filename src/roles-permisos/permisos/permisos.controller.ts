@@ -19,16 +19,16 @@ export class PermisosController {
 
   @Get(':id')
   findOne(@Param('id') id: string) {
-    return this.permisosService.findOne(+id);
+    return this.permisosService.findOne(id);
   }
 
   @Patch(':id')
   update(@Param('id') id: string, @Body() updatePermisoDto: UpdatePermisoDto) {
-    return this.permisosService.update(+id, updatePermisoDto);
+    return this.permisosService.update(id, updatePermisoDto);
   }
 
   @Delete(':id')
   remove(@Param('id') id: string) {
-    return this.permisosService.remove(+id);
+    return this.permisosService.remove(id);
   }
 }

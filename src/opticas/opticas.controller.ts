@@ -19,16 +19,16 @@ export class OpticasController {
 
   @Get(':id')
   findOne(@Param('id') id: string) {
-    return this.opticasService.findOne(+id);
+    return this.opticasService.findOne(id);
   }
 
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateOpticaDto: UpdateOpticaDto) {
-    return this.opticasService.update(+id, updateOpticaDto);
+    return this.opticasService.update(id, updateOpticaDto);
   }
 
   @Delete(':id')
   remove(@Param('id') id: string) {
-    return this.opticasService.remove(+id);
+    return this.opticasService.remove(id);
   }
 }

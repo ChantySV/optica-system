@@ -1,26 +1,81 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 import { CreatePersonalDto } from './dto/create-personal.dto';
 import { UpdatePersonalDto } from './dto/update-personal.dto';
+import { Personal } from './entities/personal.entity';
+import { ErrorHandleService } from 'src/common/services/error-handle/error-handle.service';
 
 @Injectable()
 export class PersonalService {
-  create(createPersonalDto: CreatePersonalDto) {
-    return 'This action adds a new personal';
+  constructor(
+    @InjectRepository(Personal)
+    private readonly personalRepository: Repository<Personal>,
+
+    private readonly errorHandleService: ErrorHandleService,
+  ) {}
+
+  async create(createPersonalDto: CreatePersonalDto): Promise<Personal> {
+    try {
+      const personal = this.personalRepository.create(createPersonalDto); 
+      return await this.personalRepository.save(personal); 
+    } catch (error) {
+      this.errorHandleService.errorHandle(error); 
+    }
   }
 
-  findAll() {
-    return `This action returns all personal`;
+  async findAll(): Promise<Personal[]> {
+    try {
+      return await this.personalRepository.find({
+        where: { activo: true },
+        relations: ['usuario', 'trabajos'], 
+      });
+    } catch (error) {
+      this.errorHandleService.errorHandle(error); 
+    }
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} personal`;
+  async findOne(id: string): Promise<Personal> {
+    try {
+      const personal = await this.personalRepository.findOne({
+        where: { id_personal: id, activo: true },
+        relations: ['usuario', 'trabajos'],
+      });
+
+      if (!personal) {
+        throw new NotFoundException(`Personal con ID "${id}" no encontrado`);
+      }
+
+      return personal;
+    } catch (error) {
+      this.errorHandleService.errorHandle(error);
+    }
   }
 
-  update(id: number, updatePersonalDto: UpdatePersonalDto) {
-    return `This action updates a #${id} personal`;
-  }
+  async update(id: string, updatePersonalDto: UpdatePersonalDto): Promise<Personal> {
+    try {
+      const personal = await this.personalRepository.preload({
+        id_personal: id,
+        ...updatePersonalDto,
+      });
 
-  remove(id: number) {
-    return `This action removes a #${id} personal`;
+      if (!personal) {
+        throw new NotFoundException(`Personal con ID "${id}" no encontrado`);
+      }
+
+      return await this.personalRepository.save(personal);
+    } catch (error) {
+      this.errorHandleService.errorHandle(error); 
+    }
+  }  
+   
+  async remove(id: string): Promise<Personal> {
+    try {
+      const personal = await this.findOne(id);
+      personal.activo = false; 
+      return await this.personalRepository.save(personal);
+    } catch (error) {
+      this.errorHandleService.errorHandle(error); 
+    }
   }
 }

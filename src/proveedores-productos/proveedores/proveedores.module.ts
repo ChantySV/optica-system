@@ -7,10 +7,13 @@ import { Proveedor } from './entities/proveedore.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([ Proveedor ]), // Registra la entidad Proveedor
+    TypeOrmModule.forFeature([Proveedor]),
   ],
   controllers: [ProveedoresController],
   providers: [ProveedoresService],
-  exports: [ProveedoresService],
+  exports: [
+    ProveedoresService,
+    TypeOrmModule
+  ],
 })
-export class ProveedoresModule {}
+export class ProveedoresModule { }

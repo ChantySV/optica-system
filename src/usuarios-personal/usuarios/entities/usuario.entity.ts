@@ -20,7 +20,7 @@ export class Usuario {
   nombre_usuario: string;
 
   @Column('varchar')
-  contraseña: string;
+  contrasenha: string;
 
   @Column('boolean', { default: true })
   activo: boolean;

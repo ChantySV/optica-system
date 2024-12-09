@@ -7,11 +7,9 @@ export class CreateDetalleVentaDto {
   @IsDecimal()
   precio_unitario: number;
 
-  @IsUUID()
-  @IsOptional()
-  id_venta?: string;
+  @IsUUID()  
+  id_venta: string;
 
-  @IsUUID()
-  @IsOptional()
-  id_trabajo?: string;
+  @IsUUID()  
+  id_trabajo: string;
 }

@@ -12,8 +12,8 @@ export class Trabajo {
   @JoinColumn({ name: 'id_detalleTrabajo' })
   detalleTrabajo: DetalleTrabajo;
 
-  @Column('timestamp', { default: ( () => 'CURRENT_TIMESTAMP' )} )
-  fecha_entrada = Date;
+  @Column('date', { default: ( () => 'CURRENT_DATE' )} )
+  fecha_entrada: Date;
 
   @Column('date')
   fecha_salida: Date;

@@ -16,10 +16,10 @@ export class Usuario {
   @PrimaryGeneratedColumn('uuid')
   id_usuario: string;
 
-  @Column('varchar')
+  @Column('varchar', { unique: true })
   nombre_usuario: string;
 
-  @Column('varchar')
+  @Column('varchar', { select: false })
   contrasenha: string;
 
   @Column('boolean', { default: true })

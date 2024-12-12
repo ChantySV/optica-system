@@ -7,6 +7,7 @@ import { ProveedoresModule } from 'src/proveedores-productos/proveedores/proveed
 import { ProductosModule } from 'src/proveedores-productos/productos/productos.module';
 import { UsuariosModule } from 'src/usuarios-personal/usuarios/usuarios.module';
 import { PersonalModule } from 'src/usuarios-personal/personal/personal.module';
+import { CommonModule } from 'src/common/common.module';
 
 @Module({
   imports: [ 
@@ -15,7 +16,8 @@ import { PersonalModule } from 'src/usuarios-personal/personal/personal.module';
     ProveedoresModule,
     ProductosModule,
     UsuariosModule,
-    PersonalModule,
+    PersonalModule, 
+    CommonModule,
     
    ],
   controllers: [SeedController],

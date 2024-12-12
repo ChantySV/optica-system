@@ -7,17 +7,25 @@ export class ErrorHandleService {
     constructor() {
     }
 
-    public errorHandle(error: any) {
-
+    public errorHandle(error: any): never {
         if (!error) {
-            throw new BadRequestException('Se produjo un error, pero no se proporcionaron detalles.');
-          }         
-
-        if (error.code === '23505')
-            throw new BadRequestException(error.detail);        
-        
-        this.logger.error(error);
-        throw new InternalServerErrorException('Unexpected Error');
-    }
+          this.logger.error('Error desconocido sin detalles.');
+          throw new BadRequestException('Se produjo un error, pero no se proporcionaron detalles.');
+        }
+            
+        if (error.code) {
+          this.logger.error(`Código de error detectado: ${error.code}`, error.stack);
     
+          switch (error.code) {
+            case '23505': 
+              throw new BadRequestException(`Duplicidad de datos: ${error.detail}`);
+            // Puedes agregar más casos según lo necesario
+            default:
+              throw new InternalServerErrorException(`Error desconocido: ${error.message}`);
+          }
+        }
+            
+        this.logger.error('Error inesperado', error.stack);
+        throw new InternalServerErrorException('Ocurrió un error inesperado.');
+      }
 }

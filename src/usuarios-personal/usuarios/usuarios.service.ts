@@ -1,12 +1,19 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { JwtService } from '@nestjs/jwt';
+
 import { Repository } from 'typeorm';
-import { CreateUsuarioDto } from './dto/create-usuario.dto';
-import { UpdateUsuarioDto } from './dto/update-usuario.dto';
+
 import { Usuario } from './entities/usuario.entity';
 import { Role } from 'src/roles-permisos/roles/entities';
 import { Personal } from 'src/usuarios-personal/personal/entities/personal.entity';
-import { ErrorHandleService } from 'src/common/services/error-handle/error-handle.service';
+import { CreateUsuarioDto, UpdateUsuarioDto, LoginUsuarioDto } from './dto/index';
+import { JwtPayload } from './interfaces/jwt-payload.interface';
+
+import * as bcrypt from 'bcrypt'
+
+import { ErrorHandleService } from '../../common/services/error-handle/error-handle.service';
+
 
 @Injectable()
 export class UsuariosService {
@@ -20,12 +27,14 @@ export class UsuariosService {
     @InjectRepository(Personal)
     private readonly personalRepository: Repository<Personal>,
 
+    private readonly jwtService: JwtService,
+    
     private readonly errorHandleService: ErrorHandleService,
-  ) {}
+  ) { }
 
   async create(createUsuarioDto: CreateUsuarioDto): Promise<Usuario> {
     try {
-      const { id_rol, id_personal, ...usuarioData } = createUsuarioDto;
+      const { id_rol, id_personal, contrasenha, ...usuarioData } = createUsuarioDto;
 
       const role = id_rol
         ? await this.roleRepository.findOne({ where: { id_rol, activo: true } })
@@ -36,8 +45,8 @@ export class UsuariosService {
 
       const personal = id_personal
         ? await this.personalRepository.findOne({
-            where: { id_personal, activo: true },
-          })
+          where: { id_personal, activo: true },
+        })
         : null;
       if (id_personal && !personal) {
         throw new NotFoundException(
@@ -49,11 +58,12 @@ export class UsuariosService {
         ...usuarioData,
         role,
         personal,
+        contrasenha: bcrypt.hashSync(contrasenha, 10)
       });
 
       return await this.usuarioRepository.save(usuario);
     } catch (error) {
-      this.errorHandleService.errorHandle(error); 
+      this.errorHandleService.errorHandle(error);
     }
   }
 
@@ -64,7 +74,7 @@ export class UsuariosService {
         relations: ['role', 'personal', 'logs'],
       });
     } catch (error) {
-      this.errorHandleService.errorHandle(error); 
+      this.errorHandleService.errorHandle(error);
     }
   }
 
@@ -81,7 +91,7 @@ export class UsuariosService {
 
       return usuario;
     } catch (error) {
-      this.errorHandleService.errorHandle(error); 
+      this.errorHandleService.errorHandle(error);
     }
   }
 
@@ -127,17 +137,49 @@ export class UsuariosService {
 
       return await this.usuarioRepository.save(usuario);
     } catch (error) {
-      this.errorHandleService.errorHandle(error); 
+      this.errorHandleService.errorHandle(error);
     }
   }
 
   async remove(id: string): Promise<Usuario> {
     try {
       const usuario = await this.findOne(id);
-      usuario.activo = false; 
+      usuario.activo = false;
       return await this.usuarioRepository.save(usuario);
     } catch (error) {
-      this.errorHandleService.errorHandle(error); 
+      this.errorHandleService.errorHandle(error);
     }
   }
+
+  async login(loginUsuarioDto: LoginUsuarioDto) {
+    try {
+        const { nombre_usuario, contrasenha } = loginUsuarioDto;
+        
+        if (!nombre_usuario || !contrasenha) {
+            throw new UnauthorizedException('Credenciales incompletas');
+        }
+        
+        const user = await this.usuarioRepository.findOne({
+            where: { nombre_usuario, activo: true },
+            select: { nombre_usuario: true, contrasenha: true},
+        });      
+        
+        if (!user || !bcrypt.compareSync(contrasenha, user.contrasenha)) {
+            throw new UnauthorizedException('Credenciales incorrectas');
+        }        
+
+        return {
+            ...user,
+            token: this.getJwtToken({ nombre_usuario: user.nombre_usuario }),
+        };
+    } catch (error) {        
+        this.errorHandleService.errorHandle(error);
+    }
+}
+
+  private getJwtToken( payload: JwtPayload ){
+      const token = this.jwtService.sign( payload );
+      return token;
+  }
+
 }

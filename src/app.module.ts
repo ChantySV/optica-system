@@ -7,13 +7,12 @@ import { AppService } from './app.service';
 
 import { EnvConfiguration } from './config/env.config';
 import { CommonModule } from './common/common.module';
-import { RolesPermisosModule } from './roles-permisos/roles-permisos.module';
-import { UsuariosPersonalModule } from './usuarios-personal/usuarios-personal.module';
 import { ProveedoresProductosModule } from './proveedores-productos/proveedores-productos.module';
 import { MventasModule } from './mventas/mventas.module';
 import { OpticasModule } from './opticas/opticas.module';
 import { MtrabajosModule } from './mtrabajos/mtrabajos.module';
 import { SeedModule } from './seed/seed.module';
+import { AuthModule } from './auth/auth.module';
 
 
 @Module({
@@ -28,7 +27,7 @@ import { SeedModule } from './seed/seed.module';
       password: process.env.DB_PASSWORD,
       autoLoadEntities: true,
       synchronize: true,
-    }), CommonModule, RolesPermisosModule, UsuariosPersonalModule, ProveedoresProductosModule, MventasModule, OpticasModule, MtrabajosModule, SeedModule,
+    }), CommonModule, ProveedoresProductosModule, MventasModule, OpticasModule, MtrabajosModule, SeedModule, AuthModule,
   ],
   controllers: [AppController],
   providers: [AppService],

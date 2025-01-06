@@ -1,6 +1,6 @@
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn, OneToMany, BeforeInsert } from 'typeorm';
 import { Optica } from 'src/opticas/entities/optica.entity';
-import { Usuario } from 'src/usuarios-personal/usuarios/entities/usuario.entity';
+import { Usuario } from 'src/auth/usuarios/entities/usuario.entity';
 import { DetalleVenta } from 'src/mventas/detalle-ventas/entities/detalle-venta.entity';
 
 @Entity('ventas')

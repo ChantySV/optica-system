@@ -5,6 +5,7 @@ interface SeedPersonal {
   apellido_materno?: string;
   email?: string;
   telefono: number;
+  tipo_persona: string;
   activo: boolean;
 }
 
@@ -15,6 +16,7 @@ export const seedPersonal: SeedPersonal[] = [
     apellido_paterno: 'Doe',
     email: 'john.doe@example.com',
     telefono: 123456789,
+    tipo_persona: 'juridica',
     activo: true,
   },
   {
@@ -23,6 +25,7 @@ export const seedPersonal: SeedPersonal[] = [
     apellido_paterno: 'Smith',
     email: 'jane.smith@example.com',
     telefono: 987654321,
+    tipo_persona: 'natural',
     activo: true,
   },
 ];

@@ -2,13 +2,11 @@ import { Injectable } from '@nestjs/common';
 import { ErrorHandleService } from 'src/common/services/error-handle/error-handle.service';
 import { ProductosService } from 'src/proveedores-productos/productos/productos.service';
 import { ProveedoresService } from 'src/proveedores-productos/proveedores/proveedores.service';
-import { PermisosService } from 'src/roles-permisos/permisos/permisos.service';
-import { RolesService } from 'src/roles-permisos/roles/roles.service';
-import { PersonalService } from 'src/usuarios-personal/personal/personal.service';
-import { UsuariosService } from 'src/usuarios-personal/usuarios/usuarios.service';
+import { RolesService } from 'src/auth/roles/roles.service';
+import { PersonalService } from 'src/personal/personal.service';
+import { UsuariosService } from 'src/auth/usuarios/usuarios.service';
 
 import { DataSource } from 'typeorm';
-import { seedPermisos } from './data/permiso-data';
 import { seedPersonal } from './data/personal-data';
 import { seedProductos } from './data/productos-data';
 import { seedProveedores } from './data/proveedores-data';
@@ -21,7 +19,6 @@ export class SeedService {
   constructor(    
     
     private readonly rolesService: RolesService,
-    private readonly permisosService: PermisosService,
     private readonly proveedoresService: ProveedoresService,
     private readonly productosService: ProductosService,
     private readonly usuariosService: UsuariosService,
@@ -54,7 +51,6 @@ export class SeedService {
   async executeSeeds() {
     try {    
       await this.seedRoles();
-      await this.seedPermisos();
       await this.seedProveedores();
       await this.seedProductos();
       await this.seedPersonal();
@@ -62,12 +58,6 @@ export class SeedService {
       
     } catch (error) {
       this.errorHandleService.errorHandle(error)
-    }
-  }
-  
-  private async seedPermisos() {
-    for (const permiso of seedPermisos) {
-      await this.permisosService.create(permiso);
     }
   }
 

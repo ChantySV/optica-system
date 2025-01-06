@@ -1,5 +1,5 @@
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn, OneToOne } from 'typeorm';
-import { Personal } from 'src/usuarios-personal/personal/entities/personal.entity';
+import { Personal } from 'src/personal/entities/personal.entity';
 import { DetalleTrabajo } from 'src/mtrabajos/detalle-trabajos/entities/detalle-trabajo.entity';
 
 

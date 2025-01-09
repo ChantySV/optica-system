@@ -2,44 +2,40 @@ import { Controller, Get, Post, Body, Patch, Param, Delete, ParseUUIDPipe } from
 import { ProductosService } from './productos.service';
 import { CreateProductoDto } from './dto/create-producto.dto';
 import { UpdateProductoDto } from './dto/update-producto.dto';
+import { Auth } from 'src/auth/usuarios/decorators/get-usuario.decorator';
+import { ValidRoles } from 'src/auth/usuarios/interfaces/valid-roles.interface';
 
 @Controller('productos')
 export class ProductosController {
   constructor(private readonly productosService: ProductosService) {}
 
-  @Post(':proveedorId')
-  create(
-    @Body() createProductoDto: CreateProductoDto,
-    @Param('proveedorId', ParseUUIDPipe) proveedorId: string,
-  ) {
-    return this.productosService.create(createProductoDto, proveedorId);
+  @Post()
+  @Auth(ValidRoles.encargadoProductos)
+  create(@Body() createProductoDto: CreateProductoDto) {
+    return this.productosService.create(createProductoDto);
   }
 
   @Get()
+  @Auth(ValidRoles.encargadoProductos)
   findAll() {
     return this.productosService.findAll();
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
+  @Auth(ValidRoles.encargadoProductos)
+  findOne(@Param('id', ParseUUIDPipe) id: string) {
     return this.productosService.findOne(id);
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateProductoDto: UpdateProductoDto) {
+  @Auth(ValidRoles.encargadoProductos)
+  update(@Param('id', ParseUUIDPipe) id: string, @Body() updateProductoDto: UpdateProductoDto) {
     return this.productosService.update(id, updateProductoDto);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
+  @Auth(ValidRoles.encargadoProductos)
+  remove(@Param('id', ParseUUIDPipe) id: string) {
     return this.productosService.remove(id);
-  }
-
-  @Post(':productoId/proveedores/:proveedorId')
-  addProveedor(
-    @Param('productoId', ParseUUIDPipe) productoId: string,
-    @Param('proveedorId', ParseUUIDPipe) proveedorId: string,
-  ) {
-    return this.productosService.addProveedor(productoId, proveedorId);
   }
 }

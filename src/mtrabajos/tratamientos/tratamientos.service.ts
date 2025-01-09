@@ -37,14 +37,15 @@ export class TratamientosService {
   // Obtener un tratamiento por ID
   async findOne(id: string): Promise<Tratamiento> {
     try {
-      const tratamiento = await this.tratamientoRepository.findOne({ where: { id_tratamiento: id, activo: true } });
-
-      if (!tratamiento) {
-        throw new NotFoundException(`Tratamiento con ID "${id}" no encontrado`);
-      }
+      const tratamiento = await this.tratamientoRepository.findOneOrFail({
+        where: { id_tratamiento: id, activo: true },
+      });
 
       return tratamiento;
     } catch (error) {
+      if (error.name === 'EntityNotFound') {
+        throw new NotFoundException(`Tratamiento con ID "${id}" no encontrado`);
+      }
       this.errorHandleService.errorHandle(error);
     }
   }

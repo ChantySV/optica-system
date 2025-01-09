@@ -4,9 +4,11 @@ import {
   Column,
   OneToMany,
   OneToOne,
+  ManyToOne,
 } from 'typeorm';
 import { Usuario } from 'src/auth/usuarios/entities/usuario.entity';
 import { Trabajo } from 'src/mtrabajos/trabajos/entities/trabajo.entity';
+import { Venta } from 'src/ventas/entities/venta.entity';
 
 @Entity('personal')
 export class Personal {
@@ -36,6 +38,9 @@ export class Personal {
 
   @OneToOne(() => Usuario, (usuario) => usuario.personal)
   usuario: Usuario
+
+  @OneToMany(() => Venta, (venta) => venta.personal)
+  venta: Venta[];
 
   @OneToMany(() => Trabajo, (trabajo) => trabajo.personal)
   trabajos: Trabajo[];

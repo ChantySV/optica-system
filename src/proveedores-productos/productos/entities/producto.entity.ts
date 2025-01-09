@@ -1,5 +1,5 @@
-import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm';
-import { DetalleTrabajo } from 'src/mtrabajos/detalle-trabajos/entities/detalle-trabajo.entity';
+import { Entity, PrimaryGeneratedColumn, Column, OneToMany, OneToOne, JoinColumn } from 'typeorm';
+import { DetalleTrabajo } from 'src/mtrabajos/trabajos/entities/detalle-trabajo.entity';
 import { ProductoProveedor } from './produto-proveedor.entity';
 
 
@@ -8,24 +8,24 @@ export class Producto {
   @PrimaryGeneratedColumn('uuid')
   id_producto: string;
 
-  @Column( 'varchar' )
+  @Column('varchar')
   nombre: string;
 
-  @Column( 'int' )
+  @Column('int')
   stock: number;
 
-  @Column( 'decimal' )
+  @Column('decimal', { precision: 10, scale: 2 })
   precio_compra: number;
 
-  @Column( 'decimal' )
+  @Column('decimal', { precision: 10, scale: 2 })
   precio_venta: number;
 
   @Column({ default: true })
   activo: boolean;
 
   @OneToMany(() => ProductoProveedor, (productoProveedor) => productoProveedor.producto)
-  productosProveedores: ProductoProveedor;
+  productosProveedores: ProductoProveedor[];
 
-  @OneToMany(() => DetalleTrabajo, (detalleTrabajo) => detalleTrabajo.producto)
-  detalleTrabajos: DetalleTrabajo;
+  @OneToOne(() => DetalleTrabajo, (detalleTrabajo) => detalleTrabajo.producto, { cascade: true })
+  detalleTrabajo: DetalleTrabajo;
 }

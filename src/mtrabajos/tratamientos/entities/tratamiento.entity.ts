@@ -1,20 +1,20 @@
-import { DetalleTrabajo } from 'src/mtrabajos/detalle-trabajos/entities/detalle-trabajo.entity';
-import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm';
+import { DetalleTrabajo } from 'src/mtrabajos/trabajos/entities/detalle-trabajo.entity';
+import { Entity, PrimaryGeneratedColumn, Column, OneToOne, JoinColumn } from 'typeorm';
 
 @Entity('tratamientos')
 export class Tratamiento {
   @PrimaryGeneratedColumn('uuid')
   id_tratamiento: string;
 
-  @Column( 'varchar' )
+  @Column('varchar')
   nombre: string;
 
-  @Column( 'varchar', { nullable: true } )
+  @Column('varchar', { nullable: true })
   descripcion: string;
 
-  @Column( 'boolean', { default: true } )
+  @Column({ default: true })
   activo: boolean;
 
-  @OneToMany(() => DetalleTrabajo, (detalleTrabajo) => detalleTrabajo.tratamiento)
-  detalleTrabajos: DetalleTrabajo[];
+  @OneToOne(() => DetalleTrabajo, (detalleTrabajo) => detalleTrabajo.tratamiento)
+  detalleTrabajo: DetalleTrabajo;
 }

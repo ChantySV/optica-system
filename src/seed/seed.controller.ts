@@ -8,13 +8,11 @@ export class SeedController {
   constructor(private readonly seedService: SeedService) { }
 
   @Get()
-
   seedExcute(){
     return this.seedService.executeSeeds()
   }
 
-  @Delete()
-  @Auth( ValidRoles.admin )
+  @Delete()  
   async clearAllData(): Promise<string> {
     await this.seedService.clearDatabase();
     return 'Base de datos limpiada correctamente';

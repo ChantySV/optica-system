@@ -1,4 +1,4 @@
-import { IsString, IsInt, IsDecimal, IsOptional, IsBoolean } from 'class-validator';
+import { IsString, IsUUID, IsInt, IsBoolean, IsOptional, IsNumber } from 'class-validator';
 
 export class CreateProductoDto {
   @IsString()
@@ -6,14 +6,17 @@ export class CreateProductoDto {
 
   @IsInt()
   stock: number;
-
-  @IsDecimal()
+  
+  @IsNumber({ maxDecimalPlaces: 2 })
   precio_compra: number;
 
-  @IsDecimal()
+  @IsNumber({ maxDecimalPlaces: 2 })
   precio_venta: number;
 
   @IsBoolean()
   @IsOptional()
   activo?: boolean;
+
+  @IsUUID()
+  id_proveedor: string; // Incluimos el ID del proveedor aquí
 }

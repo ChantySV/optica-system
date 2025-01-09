@@ -4,11 +4,12 @@ import {
   Column,
   ManyToOne,
   JoinColumn,
-  OneToMany,
   OneToOne,
+  OneToMany,
 } from 'typeorm';
 import { Role } from '../../roles/entities/role.entity';
 import { Personal } from 'src/personal/entities/personal.entity';
+import { Venta } from 'src/ventas/entities/venta.entity';
 
 @Entity('usuarios')
 export class Usuario {
@@ -30,6 +31,9 @@ export class Usuario {
 
   @OneToOne(() => Personal, (personal) => personal.usuario, { nullable: false })
   @JoinColumn({ name: 'id_personal' })
-  personal: Personal;
-  
+  personal: Personal;  
+
+  @OneToMany(() => Venta, (venta) => venta.usuario, { nullable: false })  
+  venta: Venta;  
+
 }

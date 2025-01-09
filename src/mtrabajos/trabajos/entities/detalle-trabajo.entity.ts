@@ -1,14 +1,7 @@
-import {
-  Entity,
-  PrimaryGeneratedColumn,
-  Column,
-  ManyToOne,
-  JoinColumn,
-  OneToOne,
-} from 'typeorm';
 import { Tratamiento } from 'src/mtrabajos/tratamientos/entities/tratamiento.entity';
 import { Producto } from 'src/proveedores-productos/productos/entities/producto.entity';
 import { Color } from 'src/mtrabajos/colores/entities/colore.entity';
+import { Entity, PrimaryGeneratedColumn, Column, OneToOne, JoinColumn } from 'typeorm';
 
 @Entity('detalleTrabajos')
 export class DetalleTrabajo {
@@ -66,19 +59,15 @@ export class DetalleTrabajo {
   @Column({ type: 'int', nullable: true })
   dip_derecho?: number;
 
-  @ManyToOne(() => Tratamiento, (tratamiento) => tratamiento.detalleTrabajos, {
-    nullable: true,
-  })
+  @OneToOne(() => Tratamiento, (tratamiento) => tratamiento.detalleTrabajo, { nullable: true })
   @JoinColumn({ name: 'id_tratamiento' })
   tratamiento?: Tratamiento;
 
-  @ManyToOne(() => Producto, (producto) => producto.detalleTrabajos, {
-    nullable: false,
-  })
-  @JoinColumn({ name: 'id_producto' })
-  producto?: Producto;
-
-  @ManyToOne(() => Color, (color) => color.detalleTrabajos, { nullable: true })
+  @OneToOne(() => Color, (color) => color.detalleTrabajo, { nullable: true })
   @JoinColumn({ name: 'id_color' })
   color?: Color;
+
+  @OneToOne(() => Producto, (producto) => producto.detalleTrabajo)
+  @JoinColumn({ name: 'id_producto' })
+  producto: Producto; 
 }

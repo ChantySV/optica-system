@@ -77,7 +77,7 @@ export class SeedService {
 
   private async seedProductos() {
     for (const producto of seedProductos) {      
-      await this.productosService.create(producto, producto.id_proveedor);
+      await this.productosService.create(producto);
     }
   }
 

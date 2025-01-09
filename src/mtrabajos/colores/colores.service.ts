@@ -9,55 +9,63 @@ import { ErrorHandleService } from 'src/common/services/error-handle/error-handl
 @Injectable()
 export class ColoresService {
   constructor(
-
     @InjectRepository(Color)
     private readonly colorRepository: Repository<Color>,
 
-    private readonly ErrorHandleService: ErrorHandleService
+    private readonly errorHandleService: ErrorHandleService,
+  ) {}
 
-  ) {
-
-  }
-  async create(createColoreDto: CreateColoreDto) {
+  // Crear un nuevo color
+  async create(createColoreDto: CreateColoreDto): Promise<Color> {
     try {
-
       const color = this.colorRepository.create(createColoreDto);
-      await this.colorRepository.save(color)
-      return color;
-
+      return await this.colorRepository.save(color);
     } catch (error) {
-      this.ErrorHandleService.errorHandle(error)
+      this.errorHandleService.errorHandle(error);
     }
   }
 
-  async findAll() {
-    return this.colorRepository.find({ where: { activo: true } });
+  // Obtener todos los colores activos
+  async findAll(): Promise<Color[]> {
+    try {
+      return await this.colorRepository.find({ where: { activo: true } });
+    } catch (error) {
+      this.errorHandleService.errorHandle(error);
+    }
   }
 
-  async update(id: string, updateColoreDto: UpdateColoreDto) {
+  // Actualizar un color existente
+  async update(id: string, updateColoreDto: UpdateColoreDto): Promise<Color> {
     try {
       const color = await this.colorRepository.preload({
         id_color: id,
-        ...updateColoreDto
-      })
+        ...updateColoreDto,
+      });
 
-      if (!color) throw new NotFoundException(`Color ${updateColoreDto.nombre} no encontrado`);
-      return this.colorRepository.save(color);
+      if (!color) {
+        throw new NotFoundException(`Color con ID "${id}" no encontrado`);
+      }
 
+      return await this.colorRepository.save(color);
     } catch (error) {
-      this.ErrorHandleService.errorHandle(error)
+      this.errorHandleService.errorHandle(error);
     }
   }
 
-  async remove(id: string,) {
+  // Desactivar un color (eliminación lógica)
+  async remove(id: string): Promise<Color> {
     try {
-      const color = await this.colorRepository.findOneBy({ id_color: id })
-      if (!color) throw new NotFoundException(`Color con ID ${id} no encontrado`);
-      color.activo = false
-      this.colorRepository.save(color);
+      const color = await this.colorRepository.findOneOrFail({
+        where: { id_color: id, activo: true },
+      });
 
+      color.activo = false;
+      return await this.colorRepository.save(color);
     } catch (error) {
-      this.ErrorHandleService.errorHandle(error)
+      if (error.name === 'EntityNotFound') {
+        throw new NotFoundException(`Color con ID "${id}" no encontrado`);
+      }
+      this.errorHandleService.errorHandle(error);
     }
   }
 }

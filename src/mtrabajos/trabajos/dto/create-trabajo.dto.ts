@@ -1,20 +1,108 @@
-import { IsDate, IsDecimal, IsBoolean, IsOptional, IsUUID } from 'class-validator';
+import { IsDate, IsUUID, IsOptional, IsBoolean, IsDecimal, IsInt, ValidateNested, IsNumber, IsPositive, IsNegative, IsISO8601 } from 'class-validator';
+import { Type } from 'class-transformer';
 
-export class CreateTrabajoDto {
-
-  @IsDate()
-  fecha_salida: Date;
-
-  @IsDecimal()
-  costo: number;
-
+class DetalleTrabajoDto {
   @IsBoolean()
+  distancia: boolean;
+
+  @IsNumber({ maxDecimalPlaces: 2 })
+  @IsPositive()
   @IsOptional()
-  activo?: boolean;
+  esferico_derecho?: number;
+
+  @IsNumber({ maxDecimalPlaces: 2 })
+  @IsPositive()
+  @IsOptional()
+  esferico_izquierdo?: number;
+
+  @IsNumber({ maxDecimalPlaces: 2 })
+  @IsOptional()
+  @IsNegative()
+  cilindro_derecho?: number;
+
+  @IsNumber({ maxDecimalPlaces: 2 })
+  @IsOptional()
+  @IsNegative()
+  cilindro_izquierdo?: number;
+
+  @IsInt()
+  @IsOptional()
+  eje_derecho?: number;
+
+  @IsInt()
+  @IsOptional()
+  eje_izquierdo?: number;
+
+  @IsNumber({ maxDecimalPlaces: 2 })
+  @IsOptional()
+  prisma_izquierdo?: number;
+
+  @IsNumber({ maxDecimalPlaces: 2 })
+  @IsOptional()
+  prisma_derecho?: number;
+
+  @IsInt()
+  @IsOptional()
+  base_izquierdo?: number;
+
+  @IsInt()
+  @IsOptional()
+  base_derecho?: number;
+
+  @IsInt()
+  @IsOptional()
+  @IsPositive()
+  adicion_izquierdo?: number;
+
+  @IsInt()
+  @IsOptional()
+  @IsPositive()
+  adicion_derecho?: number;
+
+  @IsInt()
+  @IsOptional()
+  @IsPositive()
+  altura_izquierdo?: number;
+
+  @IsInt()
+  @IsOptional()
+  @IsPositive()
+  altura_derecho?: number;
+
+  @IsNumber({ maxDecimalPlaces: 2 })
+  @IsPositive()
+  @IsOptional()
+  dip_izquierdo?: number;
+
+  @IsNumber({ maxDecimalPlaces: 2 })
+  @IsPositive()
+  @IsOptional()
+  dip_derecho?: number;
 
   @IsUUID()
-  id_detalleTrabajo: string;
+  @IsOptional()
+  id_tratamiento: string;
+
+  @IsUUID()
+  id_producto: string;
+
+  @IsUUID()
+  @IsOptional()
+  id_color?: string;
+}
+
+export class CreateTrabajoDto {
+  @IsISO8601()
+  @IsOptional()
+  fecha_salida?: Date;
+
+  @IsNumber({ maxDecimalPlaces: 2 })
+  costo: number;
 
   @IsUUID()
   id_personal: string;
+
+  @ValidateNested()
+  @Type(() => DetalleTrabajoDto)
+  detalleTrabajo: DetalleTrabajoDto;
 }

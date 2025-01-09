@@ -20,6 +20,9 @@ export class CreatePersonalDto {
   @IsOptional()
   telefono?: number;
 
+  @IsString()    
+  tipo_persona: string;
+
   @IsBoolean()
   @IsOptional()
   activo?: boolean;

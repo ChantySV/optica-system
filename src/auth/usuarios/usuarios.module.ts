@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { UsuariosService } from './usuarios.service';
 import { UsuariosController } from './usuarios.controller';
@@ -13,7 +13,7 @@ import { CommonModule } from 'src/common/common.module';
 
 @Module({
   imports: [
-    PersonalModule,
+    forwardRef(() => PersonalModule),
     RolesModule,
     ConfigModule, 
     CommonModule,

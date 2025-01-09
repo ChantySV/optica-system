@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { CreatePersonalDto } from './dto/create-personal.dto';
@@ -17,10 +17,35 @@ export class PersonalService {
 
   async create(createPersonalDto: CreatePersonalDto): Promise<Personal> {
     try {
-      const personal = this.personalRepository.create(createPersonalDto); 
-      return await this.personalRepository.save(personal); 
+      const { email, telefono } = createPersonalDto;
+        
+      if (email) {
+        const existingEmail = await this.personalRepository.findOne({
+          where: { email },
+        });
+        if (existingEmail) {
+          throw new BadRequestException(`El email "${email}" ya está registrado.`);
+        }
+      }
+  
+      if (telefono) {
+        const existingTelefono = await this.personalRepository.findOne({
+          where: { telefono },
+        });
+        if (existingTelefono) {
+          throw new BadRequestException(
+            `El teléfono "${telefono}" ya está registrado.`
+          );
+        }
+      }
+  
+      const personal = this.personalRepository.create(createPersonalDto);
+  
+      const savedPersonal = await this.personalRepository.save(personal);
+  
+      return savedPersonal;
     } catch (error) {
-      this.errorHandleService.errorHandle(error); 
+      this.errorHandleService.errorHandle(error);
     }
   }
 

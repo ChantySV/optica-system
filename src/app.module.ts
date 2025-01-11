@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { MiddlewareConsumer, Module, NestModule, RequestMethod } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
@@ -12,6 +12,8 @@ import { MtrabajosModule } from './mtrabajos/mtrabajos.module';
 import { SeedModule } from './seed/seed.module';
 import { AuthModule } from './auth/auth.module';
 import { VentasModule } from './ventas/ventas.module';
+
+import { TokenRefreshMiddleware } from './common/middlewares/token-refresh.middleware';
 
 
 @Module({
@@ -31,4 +33,13 @@ import { VentasModule } from './ventas/ventas.module';
   controllers: [AppController],
   providers: [AppService],
 })
-export class AppModule { }
+export class AppModule implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer
+      .apply(TokenRefreshMiddleware)
+      .exclude(
+        { path: 'usuarios/sign-up', method: RequestMethod.POST}
+      )
+      .forRoutes('*');
+  }
+}

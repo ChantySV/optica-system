@@ -12,7 +12,6 @@ import { MtrabajosModule } from './mtrabajos/mtrabajos.module';
 import { SeedModule } from './seed/seed.module';
 import { AuthModule } from './auth/auth.module';
 import { VentasModule } from './ventas/ventas.module';
-
 import { TokenRefreshMiddleware } from './common/middlewares/token-refresh.middleware';
 
 

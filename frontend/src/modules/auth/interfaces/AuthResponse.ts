@@ -6,7 +6,5 @@ export interface AuthResponse {
 }
 
 export interface Role {
-  id_rol:     string;
   nombre_rol: string;
-  activo:     boolean;
 }

@@ -38,11 +38,8 @@ export class AppModule implements NestModule {
       .apply(TokenRefreshMiddleware)
       .exclude(
         { path: 'usuarios/sign-up', method: RequestMethod.POST},
-        { path: 'seed', method: RequestMethod.GET},
-        { path: 'seed', method: RequestMethod.DELETE},        
-        { path: 'personal/juridicos', method: RequestMethod.GET},        
-        { path: 'personal/naturales', method: RequestMethod.GET},        
-        { path: 'proveedores', method: RequestMethod.GET},        
+        { path: 'seed', method: RequestMethod.ALL},        
+        { path: 'proveedores', method: RequestMethod.ALL},        
       )
       .forRoutes('*');
   }

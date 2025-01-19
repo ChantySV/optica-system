@@ -5,16 +5,17 @@ import type { ProveedoresResponseInterface } from "../interfaces/proveedoresResp
 // Obtener proveedores con paginación
 export const getProveedoresAction = async (
   limit: number,
-  offset: number
+  offset: number,
+  sortBy: string = 'nombre',
+  order: 'ASC' | 'DESC' = 'ASC'
 ): Promise<{
   ok: boolean;
   data?: ProveedoresResponseInterface[];
   total?: number;
-  message?: string;
 }> => {
   try {
     const { data } = await backendApi.get('/proveedores', {
-      params: { limit, offset },
+      params: { limit, offset, sortBy, order },
     });
 
     return {
@@ -25,6 +26,41 @@ export const getProveedoresAction = async (
   } catch (error) {
     console.error(error);
     return handleApiError(error, 'No se pudieron obtener los proveedores.');
+  }
+};
+
+// Barra de Busqueda proveedor
+export const searchProveedoresAction = async (
+  search: string,
+  limit: number,
+  offset: number
+): Promise<{
+  ok: boolean;
+  data?: ProveedoresResponseInterface[];
+  total?: number;
+  message?: string;
+}> => {
+  try {
+    // Validar si el término de búsqueda está vacío antes de hacer la solicitud
+    if (!search.trim()) {
+      return {
+        ok: false,
+        message: 'El término de búsqueda no puede estar vacío.',
+      };
+    }
+
+    const { data } = await backendApi.get('/proveedores/search', {
+      params: { search, limit, offset },
+    });
+
+    return {
+      ok: true,
+      data: data.proveedores,
+      total: data.total,
+    };
+  } catch (error) {
+    console.error(error);
+    return handleApiError(error, 'No se pudo realizar la búsqueda.');
   }
 };
 

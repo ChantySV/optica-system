@@ -1,12 +1,13 @@
 import { Injectable, NotFoundException } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
-import { Repository } from "typeorm";
+import { Like, Repository } from "typeorm";
 import { CreateProveedoreDto } from "./dto/create-proveedore.dto";
 import { UpdateProveedoreDto } from "./dto/update-proveedore.dto";
 import { Proveedor } from "./entities/proveedore.entity";
 import { ProveedorResponseDto } from "./dto/response-proveedore.dto";
 import { ErrorHandleService } from "src/common/services/error-handle/error-handle.service";
 import { PaginationDto } from "src/common/pagination-dto";
+import { QueryGetDto } from "src/common/QueryGet-dto";
 
 @Injectable()
 export class ProveedoresService {
@@ -26,17 +27,38 @@ export class ProveedoresService {
     }
   }
 
-  async findAll(paginationDto: PaginationDto) {
+  async findAll(paginationDto: PaginationDto, queryGetDto: QueryGetDto) {
     const { limit, offset } = paginationDto;
+    const { order = 'ASC', sortBy = 'nombre' } = queryGetDto;
     try {
       const [proveedores, total] = await this.proveedorRepository.findAndCount({
         where: { activo: true },
         take: limit,
         skip: offset,
+        order: { [sortBy]: order }
       });
       return { proveedores, total };
     } catch (error) {
       this.errorHandleService.errorHandle(error);
+    }
+  }
+
+  async searchProveedores(search: string, paginationDto: PaginationDto) {
+    const { limit, offset } = paginationDto;
+
+    try {
+      const [proveedores, total] = await this.proveedorRepository.findAndCount({
+        where: {
+          nombre: Like(`%${search}%`),
+          activo: true,
+        },
+        take: limit,
+        skip: offset,
+      });
+
+      return { proveedores, total };
+    } catch (error) {
+      throw new Error('Error al buscar proveedores');
     }
   }
 

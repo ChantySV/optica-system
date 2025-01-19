@@ -30,7 +30,6 @@
 import { ref } from 'vue';
 import CreateProveedores from '../components/CreateProveedores.vue';
 import ListaProveedores from '../components/ListaProveedores.vue';
-import UpdateProveedores from '../components/UpdateProveedores.vue';
 
 const showModal = ref(false);
 </script>

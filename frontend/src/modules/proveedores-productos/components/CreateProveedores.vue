@@ -81,7 +81,6 @@
 
 <script setup lang="ts">
 import { Form, Field, ErrorMessage, defineRule } from "vee-validate";
-import { reactive } from "vue";
 import { useToast } from "vue-toastification";
 import { createProveedorAction } from "../actions/proveedores.action";
 
@@ -124,10 +123,23 @@ const onSubmit = async (values: Record<string, any>) => {
 defineRule("required", (value) => {
   return value ? true : "Este campo es obligatorio";
 });
-defineRule("url", (value) => {
-  const urlPattern = new RegExp(
-    "^(https?:\\/\\/)?([\\w\\d-]+\\.)+[\\w\\d-]+(:\\d+)?(\\/.*)?$"
-  );
-  return urlPattern.test(value) || "Debe ser una URL válida";
+
+// Validación para URLs específicas
+defineRule("customUrl", (value) => {
+  if (!value) return "Este campo es obligatorio";
+
+  // Validar que el patrón sea correcto
+  const pattern = /^www\.[a-zA-Z0-9-]{1,15}\.com$/;
+  if (!pattern.test(value)) {
+    return "Debe ser una URL válida con formato www.example.com y no mayor a 15 letras";
+  }
+
+  // Extraer el dominio y validar longitud
+  const domain = value.replace(/^www\.|\.com$/g, ""); // Quita "www." y ".com"
+  if (domain.length > 15) {
+    return "El dominio no puede superar los 15 caracteres";
+  }
+
+  return true;
 });
 </script>

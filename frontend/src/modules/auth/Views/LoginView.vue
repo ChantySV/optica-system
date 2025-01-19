@@ -1,25 +1,51 @@
 <template>
-  <div class="flex items-center justify-center h-screen px-6 bg-gray-200">
-    <div class="w-full max-w-sm p-6 bg-white rounded-md shadow-md">
-      <div class="flex items-center justify-center">
-        <span class="text-2xl font-semibold text-gray-700">Optica Visión</span>
+  <!-- Contenedor principal -->
+  <div class="flex items-center justify-center min-h-screen bg-gray-200">
+    <!-- Tarjeta de Login -->
+    <div class="w-full max-w-md p-8 bg-white shadow-lg rounded-lg">
+      <!-- Título / Marca -->
+      <div class="flex justify-center mb-6">
+        <span class="text-3xl font-bold text-orange-600">Óptica Visión</span>
       </div>
 
-      <form class="mt-4" @submit.prevent="onLogin">
-        <label class="block">
-          <span class="text-sm text-gray-700">Nombre de Usuario</span>
-          <input v-model="myForm.nombre_usuario" ref="userInputRef" id="nombre_usuario" type="text"
-            class="block w-full mt-1 border-gray-200 rounded-md focus:border-indigo-600 focus:ring focus:ring-opacity-40 focus:ring-indigo-500">
-        </label>
+      <!-- Formulario de Login -->
+      <form @submit.prevent="onLogin" class="space-y-6">
+        <!-- Campo: Nombre de Usuario -->
+        <div>
+          <label for="nombre_usuario" class="block text-sm font-medium text-gray-700 mb-1">
+            Nombre de Usuario
+          </label>
+          <input
+            v-model="myForm.nombre_usuario"
+            ref="userInputRef"
+            id="nombre_usuario"
+            type="text"
+            placeholder="Ingresa tu usuario"
+            class="w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm text-gray-800 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition"
+          />
+        </div>
 
-        <label class="block mt-3">
-          <span class="text-sm text-gray-700">Contraseña</span>
-          <input v-model="myForm.contrasenha" ref="passwordInputRef" id="contrasenha" type="password"
-            class="block w-full mt-1 border-gray-200 rounded-md focus:border-indigo-600 focus:ring focus:ring-opacity-40 focus:ring-indigo-500">
-        </label>
-        <div class="mt-6">
-          <button type="submit"
-            class="w-full px-4 py-2 text-sm text-center text-white bg-indigo-600 rounded-md focus:outline-none hover:bg-indigo-500">
+        <!-- Campo: Contraseña -->
+        <div>
+          <label for="contrasenha" class="block text-sm font-medium text-gray-700 mb-1">
+            Contraseña
+          </label>
+          <input
+            v-model="myForm.contrasenha"
+            ref="passwordInputRef"
+            id="contrasenha"
+            type="password"
+            placeholder="Ingresa tu contraseña"
+            class="w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm text-gray-800 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition"
+          />
+        </div>
+
+        <!-- Botón: Ingresar -->
+        <div>
+          <button
+            type="submit"
+            class="w-full px-4 py-2 bg-orange-600 text-white font-semibold rounded-lg hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-orange-500 transition"
+          >
             Ingresar
           </button>
         </div>
@@ -47,14 +73,14 @@ const myForm = reactive({
 });
 
 const onLogin = async () => {
-  if (myForm.nombre_usuario.length <= 0) {
+  if (myForm.nombre_usuario.trim() === '') {
     toast.warning('El nombre de usuario no puede estar vacío');
     userInputRef.value?.focus();
     return;
   }
 
-  if (myForm.contrasenha.length < 6) {
-    toast.warning('La contraseña no puede estar vacía');
+  if (myForm.contrasenha.trim().length < 6) {
+    toast.warning('La contraseña no puede estar vacía o ser menor a 6 caracteres');
     passwordInputRef.value?.focus();
     return;
   }
@@ -87,7 +113,7 @@ const onLogin = async () => {
         router.push('/trabajos');
         break;
       case 'encargado-productos':
-        router.push('/productos');
+        router.push({ name: 'proveedoresProductos' });
         break;
       default:
         toast.error('Rol desconocido');
@@ -95,7 +121,7 @@ const onLogin = async () => {
         router.push('/login');
     }
   } catch (error) {
-    console.log(error);
+    console.error(error);
     toast.error('Por favor, inicia sesión nuevamente.');
     authStore.logOut();
   }

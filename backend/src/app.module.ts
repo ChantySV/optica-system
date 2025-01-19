@@ -42,6 +42,7 @@ export class AppModule implements NestModule {
         { path: 'seed', method: RequestMethod.DELETE},        
         { path: 'personal/juridicos', method: RequestMethod.GET},        
         { path: 'personal/naturales', method: RequestMethod.GET},        
+        { path: 'proveedores', method: RequestMethod.GET},        
       )
       .forRoutes('*');
   }

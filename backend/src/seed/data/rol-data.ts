@@ -15,4 +15,14 @@ export const seedRoles: SeedRole[] = [
     nombre_rol: 'encargado-productos',
     activo: true,
   },
+  {
+    id_rol: 'a8c5929e-adde-47b7-900f-51851c4ce1de',
+    nombre_rol: 'encargado-ventas',
+    activo: true,
+  },
+  {
+    id_rol: '8849b349-0298-4273-8678-151b9dfd5c86',
+    nombre_rol: 'encargado-trabajos',
+    activo: true,
+  },
 ];

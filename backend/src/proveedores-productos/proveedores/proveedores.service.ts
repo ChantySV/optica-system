@@ -6,6 +6,7 @@ import { UpdateProveedoreDto } from "./dto/update-proveedore.dto";
 import { Proveedor } from "./entities/proveedore.entity";
 import { ProveedorResponseDto } from "./dto/response-proveedore.dto";
 import { ErrorHandleService } from "src/common/services/error-handle/error-handle.service";
+import { PaginationDto } from "src/common/pagination-dto";
 
 @Injectable()
 export class ProveedoresService {
@@ -13,7 +14,7 @@ export class ProveedoresService {
     @InjectRepository(Proveedor)
     private readonly proveedorRepository: Repository<Proveedor>,
     private readonly errorHandleService: ErrorHandleService,
-  ) {}
+  ) { }
 
   async create(createProveedoreDto: CreateProveedoreDto): Promise<ProveedorResponseDto> {
     try {
@@ -25,10 +26,15 @@ export class ProveedoresService {
     }
   }
 
-  async findAll(): Promise<ProveedorResponseDto[]> {
+  async findAll(paginationDto: PaginationDto) {
+    const { limit, offset } = paginationDto;
     try {
-      const proveedores = await this.proveedorRepository.find({ where: { activo: true } });
-      return proveedores.map(this.mapToDto);
+      const [proveedores, total] = await this.proveedorRepository.findAndCount({
+        where: { activo: true },
+        take: limit,
+        skip: offset,
+      });
+      return { proveedores, total };
     } catch (error) {
       this.errorHandleService.errorHandle(error);
     }

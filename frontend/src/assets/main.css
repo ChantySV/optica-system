@@ -1,21 +1,9 @@
-@import url('https://fonts.googleapis.com/css?family=Roboto:300,400,500,700,900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap');
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-::-webkit-scrollbar {
-  width: 7px;
-}
-
-::-webkit-scrollbar-track{
-  background: #2D3748;
-}
-
-::-webkit-scrollbar-thumb{
-  background: #CBD5E0;
-}
-
-::-webkit-scrollbar-thumb:hover{
-  background: #718096;
+body {
+  @apply font-sans;
 }

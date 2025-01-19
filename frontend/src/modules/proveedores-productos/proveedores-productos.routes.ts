@@ -1,8 +1,10 @@
+import ProveedoresProductosView from "./views/ProveedoresProductosView.vue";
+
 export default [
   {
-    path: '/productos',
-    name: 'productos',
-    component: () => import('@/modules/proveedores-productos/views/ProveedoresProductosView.vue'),
+    path: '/proveedores-productos',
+    name: 'proveedoresProductos',
+    component: ProveedoresProductosView,
     meta: { requiresAuth: true, role: 'encargado-productos' },
   },
 ];

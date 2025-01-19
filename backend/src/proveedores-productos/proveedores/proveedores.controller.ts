@@ -1,9 +1,10 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query } from '@nestjs/common';
 import { ProveedoresService } from './proveedores.service';
 import { CreateProveedoreDto } from './dto/create-proveedore.dto';
 import { UpdateProveedoreDto } from './dto/update-proveedore.dto';
 import { Auth } from 'src/auth/usuarios/decorators/get-usuario.decorator';
 import { ValidRoles } from 'src/auth/usuarios/interfaces/valid-roles.interface';
+import { PaginationDto } from 'src/common/pagination-dto';
 
 @Controller('proveedores')
 export class ProveedoresController {
@@ -16,9 +17,9 @@ export class ProveedoresController {
   }
 
   @Get()
-  @Auth(ValidRoles.encargadoProductos)
-  findAll() {
-    return this.proveedoresService.findAll();
+  //@Auth(ValidRoles.encargadoProductos)
+  findAll(@Query() paginationDto :PaginationDto) {
+    return this.proveedoresService.findAll(paginationDto);
   }
 
   @Get(':id')

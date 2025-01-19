@@ -47,9 +47,9 @@ export const useAuthStore = defineStore('auth', () => {
       // Redirigir según el rol
       const role = loginResponse.user.role.nombre_rol;
       if (role === 'admin') router.push('/admin');
-      else if (role === 'encargado-ventas') router.push('/encargado-ventas');
-      else if (role === 'encargado-trabajos') router.push('/encargado-trabajos');
-      else if (role === 'encargado-productos') router.push('/encargado-productos');
+      else if (role === 'encargado-ventas') router.push('/ventas');
+      else if (role === 'encargado-trabajos') router.push('/trabajos');
+      else if (role === 'encargado-productos') router.push('/proveedores-productos');
 
       return true;
     } catch (error) {

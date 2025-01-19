@@ -1,18 +1,19 @@
-const defaultTheme = require('tailwindcss/defaultTheme')
+///** @type {import('tailwindcss').Config} */
 
-module.exports = {
-  mode: 'jit',
-  content: ['./index.html', './src/**/*.{vue,js,ts,jsx,tsx}'],
+export default {
+  content: [
+    "./index.html",
+    "./src/**/*.{js,ts,jsx,tsx,vue}",
+  ],
   theme: {
-    extend: {
-      fontFamily: {
-        sans: ['Inter var', ...defaultTheme.fontFamily.sans],
-      },
+    customTheme: {
+      "primary": "#fe5e00",
+      "secondary": "#515151",
+      "base-100": "#ffffff",
+    },
+    fontFamily: {
+      sans: ['Roboto', 'sans-serif'],
     },
   },
-  plugins: [
-    require('@tailwindcss/forms'),
-    require('@tailwindcss/typography'),
-    require('@tailwindcss/aspect-ratio'),
-  ],
+  //plugins: [require('daisyui')],
 }

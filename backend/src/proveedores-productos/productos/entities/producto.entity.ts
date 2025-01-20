@@ -26,6 +26,6 @@ export class Producto {
   @OneToMany(() => ProductoProveedor, (productoProveedor) => productoProveedor.producto)
   productosProveedores: ProductoProveedor[];
 
-  @OneToOne(() => DetalleTrabajo, (detalleTrabajo) => detalleTrabajo.producto, { cascade: true })
-  detalleTrabajo: DetalleTrabajo;
+  @OneToOne(() => DetalleTrabajo, (detalleTrabajo) => detalleTrabajo.producto) 
+  detalleTrabajos: DetalleTrabajo;
 }

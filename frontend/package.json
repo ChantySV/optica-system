@@ -13,6 +13,7 @@
     "format": "prettier --write src/"
   },
   "dependencies": {
+    "@tabler/icons-vue": "^3.28.1",
     "@tanstack/vue-query": "^5.64.1",
     "@tanstack/vue-query-devtools": "^5.64.1",
     "@vueuse/core": "^12.4.0",

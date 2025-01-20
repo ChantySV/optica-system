@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Query } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query, ParseUUIDPipe } from '@nestjs/common';
 import { ProveedoresService } from './proveedores.service';
 import { CreateProveedoreDto } from './dto/create-proveedore.dto';
 import { UpdateProveedoreDto } from './dto/update-proveedore.dto';
@@ -18,16 +18,22 @@ export class ProveedoresController {
   }
   
   @Get()
-  //@Auth(ValidRoles.encargadoProductos)
+  @Auth(ValidRoles.encargadoProductos)
   findAll(
     @Query() paginationDto: PaginationDto,
     @Query() queryGetDto: QueryGetDto,
   ) {
     return this.proveedoresService.findAll(paginationDto, queryGetDto);
   }
+
+  @Get('nombres')
+  @Auth(ValidRoles.encargadoProductos)
+  findproveedor() {
+    return this.proveedoresService.findProveedor();
+  }
   
   @Get('search')
-  //@Auth(ValidRoles.encargadoProductos)
+  @Auth(ValidRoles.encargadoProductos)
   async searchProveedores(
     @Query('search') search: string,
     @Query() paginationDto: PaginationDto,
@@ -49,7 +55,7 @@ export class ProveedoresController {
 
   @Delete(':id')
   @Auth(ValidRoles.encargadoProductos)
-  remove(@Param('id') id: string) {
+  remove(@Param('id', ParseUUIDPipe) id: string) {
     return this.proveedoresService.remove(id);
   }
 }

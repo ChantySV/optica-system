@@ -67,7 +67,7 @@ export class DetalleTrabajo {
   @JoinColumn({ name: 'id_color' })
   color?: Color;
 
-  @OneToOne(() => Producto, (producto) => producto.detalleTrabajo)
-  @JoinColumn({ name: 'id_producto' })
-  producto: Producto; 
+  @OneToOne(() => Producto, (producto) => producto.detalleTrabajos) 
+  @JoinColumn({ name: 'id_producto' }) 
+  producto: Producto;
 }

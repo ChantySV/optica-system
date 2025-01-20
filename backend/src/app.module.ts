@@ -40,6 +40,7 @@ export class AppModule implements NestModule {
         { path: 'usuarios/sign-up', method: RequestMethod.POST},
         { path: 'seed', method: RequestMethod.ALL},        
         { path: 'proveedores', method: RequestMethod.ALL},        
+        { path: 'productos', method: RequestMethod.ALL},        
       )
       .forRoutes('*');
   }

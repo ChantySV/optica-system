@@ -27,6 +27,20 @@ export class ProveedoresService {
     }
   }
 
+  async findProveedor() {    
+    try {
+      const proveedores = await this.proveedorRepository.find({
+        where: { activo: true },
+        select:['id_proveedor', 'nombre']        
+      });
+      return {
+        proveedores
+      }
+    } catch (error) {
+      this.errorHandleService.errorHandle(error);
+    }
+  }
+
   async findAll(paginationDto: PaginationDto, queryGetDto: QueryGetDto) {
     const { limit, offset } = paginationDto;
     const { order = 'ASC', sortBy = 'nombre' } = queryGetDto;

@@ -2,6 +2,7 @@
 import ListaProductos from '../components/ListaProductos.vue';
 import AddProductModal from '../components/CreateProductos.vue';
 import { ref } from 'vue';
+import PMPListaProductos from '../components/PMPListaProductos.vue';
 
 // Estado para el modal
 const isModalOpen = ref(false);
@@ -48,5 +49,6 @@ const refreshList = () => {
       @close="closeModal"
       @refresh="refreshList"
     />
+    <PMPListaProductos/>
   </div>
 </template>

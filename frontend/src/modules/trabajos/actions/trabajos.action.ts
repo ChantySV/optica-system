@@ -1,5 +1,5 @@
 import { backendApi } from '@/api/backendApi';
-import type { DetalleResponse, TrabajosResponse } from '../interfaces/TrabajosResponse.interface';
+import type { Trabajo, TrabajoResponse,  } from '../interfaces/TrabajosResponse.interface';
 import { handleApiError } from '@/common/utils/handleApiError';
 
 
@@ -26,55 +26,61 @@ export const createTrabajo = async (createTrabajo: any) => {
   }
 };
 
+// Función auxiliar para convertir cadenas de fecha a objetos Date
+const convertirFechas = (trabajos: Trabajo[]): Trabajo[] => {
+  return trabajos.map(trabajo => ({
+    ...trabajo,
+    fecha_entrada: trabajo.fecha_entrada ? new Date(trabajo.fecha_entrada) : null,
+    fecha_salida: trabajo.fecha_salida ? new Date(trabajo.fecha_salida) : null,
+    // Si hay más campos de fecha dentro de DetalleTrabajo, conviértelos aquí
+    detalleTrabajo: {
+      ...trabajo.detalleTrabajo,
+      // Supongamos que hay campos de fecha dentro de DetalleTrabajo
+      // fecha_algun_campo: trabajo.detalleTrabajo.fecha_algun_campo ? new Date(trabajo.detalleTrabajo.fecha_algun_campo) : null,
+    },
+  }));
+};
+
 
 // Obtener todos los trabajos con paginación y orden
 export const getTrabajos = async (
   limit: number,
   offset: number,
-  sortBy: string = 'numero_trabajo',
+  sortBy: keyof Trabajo = 'numero_trabajo', // Asegura que sortBy sea una clave válida de Trabajo
   order: 'ASC' | 'DESC' = 'ASC'
 ): Promise<{
-  ok: boolean,
-  data?: TrabajosResponse[],
-  total?: number
+  ok: boolean;
+  data?: TrabajoResponse;
+  total?: number;
 }> => {
   try {
-    const { data } = await backendApi.get(`/trabajos`, {
+    const response = await backendApi.get<TrabajoResponse>('/trabajos', {
       params: { limit, offset, sortBy, order },
     });
 
-    return {
-      ok: true,
-      data: data.data,
-      total: data.total
-    };
+    if (response.data && 'trabajos' in response.data && 'total' in response.data) {
+      const trabajosConFechas = convertirFechas(response.data.trabajos);
+
+      return {
+        ok: true,
+        data: {
+          trabajos: trabajosConFechas,
+          total: response.data.total,
+        },
+        total: response.data.total,
+      };
+    } else {
+      return {
+        ok: false,
+        data: undefined,
+        total: undefined,
+      };
+    }
   } catch (error) {
     console.error(error);
     return handleApiError(error, 'No se pudieron obtener los trabajos.');
   }
 };
-
-//Obtener Detalle Trabajo
-export const findDetalle = async (id: string): Promise<{
-  ok: boolean;
-  data?: DetalleResponse; // Cambiado a un único objeto
-  message?: string;
-}> => {
-  try {
-    const { data } = await backendApi.get(`/trabajos/detalle/${id}`);
-    console.log(data.data[0]);
-    return {
-      ok: true,
-      data: data,
-    };
-  } catch (error) {
-    console.error('Error al obtener los detalles:', error);
-    return {
-      ok: false,
-    };
-  }
-};
-
 
 //Obtener Productos
 export const findProducto = async (): Promise<{
@@ -168,17 +174,6 @@ export const updateTrabajo = async (id: string, updateTrabajoDto: any) => {
     return response.data;
   } catch (error) {
     console.error(`Error al actualizar trabajo con ID ${id}:`, error);
-    throw error;
-  }
-};
-
-// Eliminar lógicamente (desactivar) un trabajo por ID
-export const deleteTrabajo = async (id: string) => {
-  try {
-    const response = await backendApi.delete(`/trabajos${id}`);
-    return response.data;
-  } catch (error) {
-    console.error(`Error al eliminar trabajo con ID ${id}:`, error);
     throw error;
   }
 };

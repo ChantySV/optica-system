@@ -1,338 +1,397 @@
 <template>
-  <div v-if="isOpen" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-    <div class="bg-white p-8 w-full max-w-5xl rounded-lg shadow-xl overflow-auto">
-      <!-- Botón para cerrar -->
-      <button @click="closeModal"
-        class="absolute top-4 right-4 text-gray-600 hover:text-gray-800 text-2xl font-bold focus:outline-none">
-        &times;
-      </button>
+  <div class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+    <div class="bg-white rounded-lg w-11/12 md:w-3/4 lg:w-1/2 p-6 overflow-auto max-h-screen">
+      <h2 class="text-xl font-semibold mb-4">Agregar Nuevo Trabajo</h2>
+      <form @submit.prevent="submitForm">
+        <!-- Fecha de Salida -->
+        <div class="mb-4">
+          <label class="block text-gray-700">Fecha de Salida:</label>
+          <input
+            type="date"
+            v-model="form.fecha_salida"
+            class="w-full px-3 py-2 border rounded"
+            :class="{ 'border-red-500': $v.form.fecha_salida.$error }"
+          />
+          <span v-if="$v.form.fecha_salida.$error" class="text-red-500 text-sm">
+            {{ getErrorMessage('fecha_salida') }}
+          </span>
+        </div>
 
-      <!-- Título -->
-      <h2 class="text-2xl font-bold text-gray-800 mb-8 text-center">Crear Trabajo</h2>
+        <!-- Número de Trabajo -->
+        <div class="mb-4">
+          <label class="block text-gray-700">Número de Trabajo:</label>
+          <input
+            type="number"
+            v-model.number="form.numero_trabajo"
+            class="w-full px-3 py-2 border rounded"
+            :class="{ 'border-red-500': $v.form.numero_trabajo.$error }"
+          />
+          <span v-if="$v.form.numero_trabajo.$error" class="text-red-500 text-sm">
+            {{ getErrorMessage('numero_trabajo') }}
+          </span>
+        </div>
 
-      <!-- Formulario -->
-      <form @submit.prevent="onSubmit" class="space-y-6">
-        <div class="grid grid-cols-3 gap-4">
-          <!-- NÚMERO DE TRABAJO -->
-          <div>
-            <label for="numero_trabajo" class="block text-sm font-medium text-gray-700 mb-1">Número de Trabajo</label>
-            <input id="numero_trabajo" type="number" v-model.number="formData.numero_trabajo"
-              class="border border-gray-300 rounded-lg px-4 py-2 w-full focus:ring-2 focus:ring-orange-500 focus:outline-none" />
-            <p v-if="v$.numero_trabajo.$error" class="text-red-500 text-sm mt-1">
-              {{ firstError(v$.numero_trabajo) }}
-            </p>
+        <!-- ID Personal -->
+        <div class="mb-4">
+          <label class="block text-gray-700">ID Personal:</label>
+          <select
+            v-model="form.id_personal"
+            class="w-full px-3 py-2 border rounded"
+            :class="{ 'border-red-500': $v.form.id_personal.$error }"
+          >
+            <option value="" disabled>Seleccione un personal</option>
+            <option v-for="personal in personalOptions" :key="personal.id_personal" :value="personal.id_personal">
+              {{ personal.nombres }}
+            </option>
+          </select>
+          <span v-if="$v.form.id_personal.$error" class="text-red-500 text-sm">
+            {{ getErrorMessage('id_personal') }}
+          </span>
+        </div>
+
+        <!-- Detalle Trabajo -->
+        <div class="mb-4">
+          <h3 class="text-lg font-semibold">Detalle del Trabajo</h3>
+
+          <!-- Distancia -->
+          <div class="mb-2">
+            <label class="inline-flex items-center">
+              <input type="checkbox" v-model="form.detalleTrabajo.distancia" class="form-checkbox" />
+              <span class="ml-2">Distancia</span>
+            </label>
           </div>
 
-          <!-- FECHA DE SALIDA -->
-          <div>
-            <label for="fecha_salida" class="block text-sm font-medium text-gray-700 mb-1">Fecha de Salida
-              (opcional)</label>
-            <input id="fecha_salida" type="date" v-model="formData.fecha_salida"
-              class="border border-gray-300 rounded-lg px-4 py-2 w-full focus:ring-2 focus:ring-orange-500 focus:outline-none" />
-            <p v-if="v$.fecha_salida.$error" class="text-red-500 text-sm mt-1">
-              {{ firstError(v$.fecha_salida) }}
-            </p>
+          <!-- Esférico Derecho -->
+          <div class="mb-2">
+            <label class="block text-gray-700">Esférico Derecho:</label>
+            <input
+              type="number"
+              step="0.01"
+              v-model.number="form.detalleTrabajo.esferico_derecho"
+              class="w-full px-3 py-2 border rounded"
+              :class="{ 'border-red-500': $v.form.detalleTrabajo.esferico_derecho.$error }"
+            />
+            <span v-if="$v.form.detalleTrabajo.esferico_derecho.$error" class="text-red-500 text-sm">
+              {{ getErrorMessage('detalleTrabajo.esferico_derecho') }}
+            </span>
           </div>
 
-          <!-- DISTANCIA -->
-          <div class="flex items-center mt-6 space-x-3">
-            <label for="distancia" class="text-sm font-medium text-gray-700">¿ Es a distancia?</label>
-            <input id="distancia" type="checkbox" v-model="formData.detalleTrabajo.distancia"
-              class="h-5 w-5 text-orange-500 border-gray-300 rounded focus:ring-2 focus:ring-orange-500" />
-            <p v-if="v$.detalleTrabajo.distancia.$error" class="text-red-500 text-sm mt-1">
-              {{ firstError(v$.detalleTrabajo.distancia) }}
-            </p>
+          <!-- Esférico Izquierdo -->
+          <div class="mb-2">
+            <label class="block text-gray-700">Esférico Izquierdo:</label>
+            <input
+              type="number"
+              step="0.01"
+              v-model.number="form.detalleTrabajo.esferico_izquierdo"
+              class="w-full px-3 py-2 border rounded"
+              :class="{ 'border-red-500': $v.form.detalleTrabajo.esferico_izquierdo.$error }"
+            />
+            <span v-if="$v.form.detalleTrabajo.esferico_izquierdo.$error" class="text-red-500 text-sm">
+              {{ getErrorMessage('detalleTrabajo.esferico_izquierdo') }}
+            </span>
+          </div>
+
+          <!-- Cilindro Derecho -->
+          <div class="mb-2">
+            <label class="block text-gray-700">Cilindro Derecho:</label>
+            <input
+              type="number"
+              step="0.01"
+              v-model.number="form.detalleTrabajo.cilindro_derecho"
+              class="w-full px-3 py-2 border rounded"
+              :class="{ 'border-red-500': $v.form.detalleTrabajo.cilindro_derecho.$error }"
+            />
+            <span v-if="$v.form.detalleTrabajo.cilindro_derecho.$error" class="text-red-500 text-sm">
+              {{ getErrorMessage('detalleTrabajo.cilindro_derecho') }}
+            </span>
+          </div>
+
+          <!-- Cilindro Izquierdo -->
+          <div class="mb-2">
+            <label class="block text-gray-700">Cilindro Izquierdo:</label>
+            <input
+              type="number"
+              step="0.01"
+              v-model.number="form.detalleTrabajo.cilindro_izquierdo"
+              class="w-full px-3 py-2 border rounded"
+              :class="{ 'border-red-500': $v.form.detalleTrabajo.cilindro_izquierdo.$error }"
+            />
+            <span v-if="$v.form.detalleTrabajo.cilindro_izquierdo.$error" class="text-red-500 text-sm">
+              {{ getErrorMessage('detalleTrabajo.cilindro_izquierdo') }}
+            </span>
+          </div>
+
+          <!-- Eje Derecho -->
+          <div class="mb-2">
+            <label class="block text-gray-700">Eje Derecho:</label>
+            <input
+              type="number"
+              v-model.number="form.detalleTrabajo.eje_derecho"
+              class="w-full px-3 py-2 border rounded"
+              :class="{ 'border-red-500': $v.form.detalleTrabajo.eje_derecho.$error }"
+            />
+            <span v-if="$v.form.detalleTrabajo.eje_derecho.$error" class="text-red-500 text-sm">
+              {{ getErrorMessage('detalleTrabajo.eje_derecho') }}
+            </span>
+          </div>
+
+          <!-- Eje Izquierdo -->
+          <div class="mb-2">
+            <label class="block text-gray-700">Eje Izquierdo:</label>
+            <input
+              type="number"
+              v-model.number="form.detalleTrabajo.eje_izquierdo"
+              class="w-full px-3 py-2 border rounded"
+              :class="{ 'border-red-500': $v.form.detalleTrabajo.eje_izquierdo.$error }"
+            />
+            <span v-if="$v.form.detalleTrabajo.eje_izquierdo.$error" class="text-red-500 text-sm">
+              {{ getErrorMessage('detalleTrabajo.eje_izquierdo') }}
+            </span>
+          </div>
+
+          <!-- Prisma Izquierdo -->
+          <div class="mb-2">
+            <label class="block text-gray-700">Prisma Izquierdo:</label>
+            <input
+              type="number"
+              step="0.01"
+              v-model.number="form.detalleTrabajo.prisma_izquierdo"
+              class="w-full px-3 py-2 border rounded"
+              :class="{ 'border-red-500': $v.form.detalleTrabajo.prisma_izquierdo.$error }"
+            />
+            <span v-if="$v.form.detalleTrabajo.prisma_izquierdo.$error" class="text-red-500 text-sm">
+              {{ getErrorMessage('detalleTrabajo.prisma_izquierdo') }}
+            </span>
+          </div>
+
+          <!-- Prisma Derecho -->
+          <div class="mb-2">
+            <label class="block text-gray-700">Prisma Derecho:</label>
+            <input
+              type="number"
+              step="0.01"
+              v-model.number="form.detalleTrabajo.prisma_derecho"
+              class="w-full px-3 py-2 border rounded"
+              :class="{ 'border-red-500': $v.form.detalleTrabajo.prisma_derecho.$error }"
+            />
+            <span v-if="$v.form.detalleTrabajo.prisma_derecho.$error" class="text-red-500 text-sm">
+              {{ getErrorMessage('detalleTrabajo.prisma_derecho') }}
+            </span>
+          </div>
+
+          <!-- Base Izquierdo -->
+          <div class="mb-2">
+            <label class="block text-gray-700">Base Izquierdo:</label>
+            <input
+              type="number"
+              v-model.number="form.detalleTrabajo.base_izquierdo"
+              class="w-full px-3 py-2 border rounded"
+              :class="{ 'border-red-500': $v.form.detalleTrabajo.base_izquierdo.$error }"
+            />
+            <span v-if="$v.form.detalleTrabajo.base_izquierdo.$error" class="text-red-500 text-sm">
+              {{ getErrorMessage('detalleTrabajo.base_izquierdo') }}
+            </span>
+          </div>
+
+          <!-- Base Derecho -->
+          <div class="mb-2">
+            <label class="block text-gray-700">Base Derecho:</label>
+            <input
+              type="number"
+              v-model.number="form.detalleTrabajo.base_derecho"
+              class="w-full px-3 py-2 border rounded"
+              :class="{ 'border-red-500': $v.form.detalleTrabajo.base_derecho.$error }"
+            />
+            <span v-if="$v.form.detalleTrabajo.base_derecho.$error" class="text-red-500 text-sm">
+              {{ getErrorMessage('detalleTrabajo.base_derecho') }}
+            </span>
+          </div>
+
+          <!-- Adición Izquierdo -->
+          <div class="mb-2">
+            <label class="block text-gray-700">Adición Izquierdo:</label>
+            <input
+              type="number"
+              v-model.number="form.detalleTrabajo.adicion_izquierdo"
+              class="w-full px-3 py-2 border rounded"
+              :class="{ 'border-red-500': $v.form.detalleTrabajo.adicion_izquierdo.$error }"
+            />
+            <span v-if="$v.form.detalleTrabajo.adicion_izquierdo.$error" class="text-red-500 text-sm">
+              {{ getErrorMessage('detalleTrabajo.adicion_izquierdo') }}
+            </span>
+          </div>
+
+          <!-- Adición Derecho -->
+          <div class="mb-2">
+            <label class="block text-gray-700">Adición Derecho:</label>
+            <input
+              type="number"
+              v-model.number="form.detalleTrabajo.adicion_derecho"
+              class="w-full px-3 py-2 border rounded"
+              :class="{ 'border-red-500': $v.form.detalleTrabajo.adicion_derecho.$error }"
+            />
+            <span v-if="$v.form.detalleTrabajo.adicion_derecho.$error" class="text-red-500 text-sm">
+              {{ getErrorMessage('detalleTrabajo.adicion_derecho') }}
+            </span>
+          </div>
+
+          <!-- Altura Izquierdo -->
+          <div class="mb-2">
+            <label class="block text-gray-700">Altura Izquierdo:</label>
+            <input
+              type="number"
+              v-model.number="form.detalleTrabajo.altura_izquierdo"
+              class="w-full px-3 py-2 border rounded"
+              :class="{ 'border-red-500': $v.form.detalleTrabajo.altura_izquierdo.$error }"
+            />
+            <span v-if="$v.form.detalleTrabajo.altura_izquierdo.$error" class="text-red-500 text-sm">
+              {{ getErrorMessage('detalleTrabajo.altura_izquierdo') }}
+            </span>
+          </div>
+
+          <!-- Altura Derecho -->
+          <div class="mb-2">
+            <label class="block text-gray-700">Altura Derecho:</label>
+            <input
+              type="number"
+              v-model.number="form.detalleTrabajo.altura_derecho"
+              class="w-full px-3 py-2 border rounded"
+              :class="{ 'border-red-500': $v.form.detalleTrabajo.altura_derecho.$error }"
+            />
+            <span v-if="$v.form.detalleTrabajo.altura_derecho.$error" class="text-red-500 text-sm">
+              {{ getErrorMessage('detalleTrabajo.altura_derecho') }}
+            </span>
+          </div>
+
+          <!-- DIP Izquierdo -->
+          <div class="mb-2">
+            <label class="block text-gray-700">DIP Izquierdo:</label>
+            <input
+              type="number"
+              step="0.01"
+              v-model.number="form.detalleTrabajo.dip_izquierdo"
+              class="w-full px-3 py-2 border rounded"
+              :class="{ 'border-red-500': $v.form.detalleTrabajo.dip_izquierdo.$error }"
+            />
+            <span v-if="$v.form.detalleTrabajo.dip_izquierdo.$error" class="text-red-500 text-sm">
+              {{ getErrorMessage('detalleTrabajo.dip_izquierdo') }}
+            </span>
+          </div>
+
+          <!-- DIP Derecho -->
+          <div class="mb-2">
+            <label class="block text-gray-700">DIP Derecho:</label>
+            <input
+              type="number"
+              step="0.01"
+              v-model.number="form.detalleTrabajo.dip_derecho"
+              class="w-full px-3 py-2 border rounded"
+              :class="{ 'border-red-500': $v.form.detalleTrabajo.dip_derecho.$error }"
+            />
+            <span v-if="$v.form.detalleTrabajo.dip_derecho.$error" class="text-red-500 text-sm">
+              {{ getErrorMessage('detalleTrabajo.dip_derecho') }}
+            </span>
+          </div>
+
+          <!-- ID Tratamiento -->
+          <div class="mb-2">
+            <label class="block text-gray-700">ID Tratamiento:</label>
+            <select
+              v-model="form.detalleTrabajo.id_tratamiento"
+              class="w-full px-3 py-2 border rounded"
+            >
+              <option value="" disabled>Seleccione un tratamiento (opcional)</option>
+              <option v-for="tratamiento in tratamientosOptions" :key="tratamiento.id_tratamiento" :value="tratamiento.id_tratamiento">
+                {{ tratamiento.nombre }}
+              </option>
+            </select>
+            <span v-if="$v.form.detalleTrabajo.id_tratamiento.$error" class="text-red-500 text-sm">
+              {{ getErrorMessage('detalleTrabajo.id_tratamiento') }}
+            </span>
+          </div>
+
+          <!-- ID Producto -->
+          <div class="mb-2">
+            <label class="block text-gray-700">ID Producto:</label>
+            <select
+              v-model="form.detalleTrabajo.id_producto"
+              class="w-full px-3 py-2 border rounded"
+              :class="{ 'border-red-500': $v.form.detalleTrabajo.id_producto.$error }"
+            >
+              <option value="" disabled>Seleccione un producto</option>
+              <option v-for="producto in productosOptions" :key="producto.id_producto" :value="producto.id_producto">
+                {{ producto.nombre }}
+              </option>
+            </select>
+            <span v-if="$v.form.detalleTrabajo.id_producto.$error" class="text-red-500 text-sm">
+              {{ getErrorMessage('detalleTrabajo.id_producto') }}
+            </span>
+          </div>
+
+          <!-- ID Color -->
+          <div class="mb-2">
+            <label class="block text-gray-700">ID Color:</label>
+            <select
+              v-model="form.detalleTrabajo.id_color"
+              class="w-full px-3 py-2 border rounded"
+            >
+              <option value="" disabled>Seleccione un color (opcional)</option>
+              <option v-for="color in coloresOptions" :key="color.id_color" :value="color.id_color">
+                {{ color.nombre }}
+              </option>
+            </select>
+            <span v-if="$v.form.detalleTrabajo.id_color.$error" class="text-red-500 text-sm">
+              {{ getErrorMessage('detalleTrabajo.id_color') }}
+            </span>
           </div>
         </div>
-        <div class="grid grid-cols-4 gap-4">
-          <!-- ESFÉRICO DERECHO -->
-          <div>
-            <label for="esferico_derecho" class="block text-sm font-medium text-gray-700 mb-1">Esférico Derecho</label>
-            <input id="esferico_derecho" type="number" step="0.01"
-              v-model.number="formData.detalleTrabajo.esferico_derecho"
-              class="border border-gray-300 rounded-lg px-4 py-2 w-full focus:ring-2 focus:ring-orange-500 focus:outline-none" />
-            <p v-if="v$.detalleTrabajo.esferico_derecho.$error" class="text-red-500 text-sm mt-1">
-              {{ firstError(v$.detalleTrabajo.esferico_derecho) }}
-            </p>
-          </div>
 
-          <!-- ESFÉRICO IZQUIERDO -->
-          <div>
-            <label for="esferico_izquierdo" class="block text-sm font-medium text-gray-700 mb-1">Esférico
-              Izquierdo</label>
-            <input id="esferico_izquierdo" type="number" step="0.01"
-              v-model.number="formData.detalleTrabajo.esferico_izquierdo"
-              class="border border-gray-300 rounded-lg px-4 py-2 w-full focus:ring-2 focus:ring-orange-500 focus:outline-none" />
-            <p v-if="v$.detalleTrabajo.esferico_izquierdo.$error" class="text-red-500 text-sm mt-1">
-              {{ firstError(v$.detalleTrabajo.esferico_izquierdo) }}
-            </p>
-          </div>
-          <!-- CILINDRO DERECHO -->
-          <div>
-            <label for="cilindro_derecho" class="block text-sm font-medium text-gray-700 mb-1">Cilindro Derecho</label>
-            <input id="cilindro_derecho" type="number" step="0.01"
-              v-model.number="formData.detalleTrabajo.cilindro_derecho"
-              class="border border-gray-300 rounded-lg px-4 py-2 w-full focus:ring-2 focus:ring-orange-500 focus:outline-none" />
-            <p v-if="v$.detalleTrabajo.cilindro_derecho.$error" class="text-red-500 text-sm mt-1">
-              {{ firstError(v$.detalleTrabajo.cilindro_derecho) }}
-            </p>
-          </div>
-
-          <!-- CILINDRO IZQUIERDO -->
-          <div>
-            <label for="cilindro_izquierdo" class="block text-sm font-medium text-gray-700 mb-1">Cilindro
-              Izquierdo</label>
-            <input id="cilindro_izquierdo" type="number" step="0.01"
-              v-model.number="formData.detalleTrabajo.cilindro_izquierdo"
-              class="border border-gray-300 rounded-lg px-4 py-2 w-full focus:ring-2 focus:ring-orange-500 focus:outline-none" />
-            <p v-if="v$.detalleTrabajo.cilindro_izquierdo.$error" class="text-red-500 text-sm mt-1">
-              {{ firstError(v$.detalleTrabajo.cilindro_izquierdo) }}
-            </p>
-          </div>
-
-          <!-- EJE DERECHO -->
-          <div>
-            <label for="eje_derecho" class="block text-sm font-medium text-gray-700 mb-1">Eje Derecho</label>
-            <input id="eje_derecho" type="number" v-model.number="formData.detalleTrabajo.eje_derecho"
-              class="border border-gray-300 rounded-lg px-4 py-2 w-full focus:ring-2 focus:ring-orange-500 focus:outline-none" />
-            <p v-if="v$.detalleTrabajo.eje_derecho.$error" class="text-red-500 text-sm mt-1">
-              {{ firstError(v$.detalleTrabajo.eje_derecho) }}
-            </p>
-          </div>
-
-          <!-- EJE IZQUIERDO -->
-          <div>
-            <label for="eje_izquierdo" class="block text-sm font-medium text-gray-700 mb-1">Eje Izquierdo</label>
-            <input id="eje_izquierdo" type="number" v-model.number="formData.detalleTrabajo.eje_izquierdo"
-              class="border border-gray-300 rounded-lg px-4 py-2 w-full focus:ring-2 focus:ring-orange-500 focus:outline-none" />
-            <p v-if="v$.detalleTrabajo.eje_izquierdo.$error" class="text-red-500 text-sm mt-1">
-              {{ firstError(v$.detalleTrabajo.eje_izquierdo) }}
-            </p>
-          </div>
-
-
-          <!-- PRISMA DERECHO -->
-          <div>
-            <label for="prisma_derecho" class="block text-sm font-medium text-gray-700 mb-1">Prisma Derecho</label>
-            <input id="prisma_derecho" type="number" step="0.01" v-model.number="formData.detalleTrabajo.prisma_derecho"
-              class="border border-gray-300 rounded-lg px-4 py-2 w-full focus:ring-2 focus:ring-orange-500 focus:outline-none" />
-            <p v-if="v$.detalleTrabajo.prisma_derecho.$error" class="text-red-500 text-sm mt-1">
-              {{ firstError(v$.detalleTrabajo.prisma_derecho) }}
-            </p>
-          </div>
-
-          <!-- PRISMA IZQUIERDO -->
-          <div>
-            <label for="prisma_izquierdo" class="block text-sm font-medium text-gray-700 mb-1">Prisma Izquierdo</label>
-            <input id="prisma_izquierdo" type="number" step="0.01"
-              v-model.number="formData.detalleTrabajo.prisma_izquierdo"
-              class="border border-gray-300 rounded-lg px-4 py-2 w-full focus:ring-2 focus:ring-orange-500 focus:outline-none" />
-            <p v-if="v$.detalleTrabajo.prisma_izquierdo.$error" class="text-red-500 text-sm mt-1">
-              {{ firstError(v$.detalleTrabajo.prisma_izquierdo) }}
-            </p>
-          </div>
-
-          <!-- BASE DERECHO -->
-          <div>
-            <label for="base_derecho" class="block text-sm font-medium text-gray-700 mb-1">Base Derecho</label>
-            <input id="base_derecho" type="number" v-model.number="formData.detalleTrabajo.base_derecho"
-              class="border border-gray-300 rounded-lg px-4 py-2 w-full focus:ring-2 focus:ring-orange-500 focus:outline-none" />
-            <p v-if="v$.detalleTrabajo.base_derecho.$error" class="text-red-500 text-sm mt-1">
-              {{ firstError(v$.detalleTrabajo.base_derecho) }}
-            </p>
-          </div>
-
-          <!-- BASE IZQUIERDO -->
-          <div>
-            <label for="base_izquierdo" class="block text-sm font-medium text-gray-700 mb-1">Base Izquierdo</label>
-            <input id="base_izquierdo" type="number" v-model.number="formData.detalleTrabajo.base_izquierdo"
-              class="border border-gray-300 rounded-lg px-4 py-2 w-full focus:ring-2 focus:ring-orange-500 focus:outline-none" />
-            <p v-if="v$.detalleTrabajo.base_izquierdo.$error" class="text-red-500 text-sm mt-1">
-              {{ firstError(v$.detalleTrabajo.base_izquierdo) }}
-            </p>
-          </div>
-
-          <!-- ADICIÓN DERECHO -->
-          <div>
-            <label for="adicion_derecho" class="block text-sm font-medium text-gray-700 mb-1">Adición Derecho</label>
-            <input id="adicion_derecho" type="number" v-model.number="formData.detalleTrabajo.adicion_derecho"
-              class="border border-gray-300 rounded-lg px-4 py-2 w-full focus:ring-2 focus:ring-orange-500 focus:outline-none" />
-            <p v-if="v$.detalleTrabajo.adicion_derecho.$error" class="text-red-500 text-sm mt-1">
-              {{ firstError(v$.detalleTrabajo.adicion_derecho) }}
-            </p>
-          </div>
-
-          <!-- ADICIÓN IZQUIERDO -->
-          <div>
-            <label for="adicion_izquierdo" class="block text-sm font-medium text-gray-700 mb-1">Adición
-              Izquierdo</label>
-            <input id="adicion_izquierdo" type="number" v-model.number="formData.detalleTrabajo.adicion_izquierdo"
-              class="border border-gray-300 rounded-lg px-4 py-2 w-full focus:ring-2 focus:ring-orange-500 focus:outline-none" />
-            <p v-if="v$.detalleTrabajo.adicion_izquierdo.$error" class="text-red-500 text-sm mt-1">
-              {{ firstError(v$.detalleTrabajo.adicion_izquierdo) }}
-            </p>
-          </div>
-
-          <!-- ALTURA DERECHO -->
-          <div>
-            <label for="altura_derecho" class="block text-sm font-medium text-gray-700 mb-1">Altura Derecho</label>
-            <input id="altura_derecho" type="number" v-model.number="formData.detalleTrabajo.altura_derecho"
-              class="border border-gray-300 rounded-lg px-4 py-2 w-full focus:ring-2 focus:ring-orange-500 focus:outline-none" />
-            <p v-if="v$.detalleTrabajo.altura_derecho.$error" class="text-red-500 text-sm mt-1">
-              {{ firstError(v$.detalleTrabajo.altura_derecho) }}
-            </p>
-          </div>
-
-          <!-- ALTURA IZQUIERDO -->
-          <div>
-            <label for="altura_izquierdo" class="block text-sm font-medium text-gray-700 mb-1">Altura Izquierdo</label>
-            <input id="altura_izquierdo" type="number" v-model.number="formData.detalleTrabajo.altura_izquierdo"
-              class="border border-gray-300 rounded-lg px-4 py-2 w-full focus:ring-2 focus:ring-orange-500 focus:outline-none" />
-            <p v-if="v$.detalleTrabajo.altura_izquierdo.$error" class="text-red-500 text-sm mt-1">
-              {{ firstError(v$.detalleTrabajo.altura_izquierdo) }}
-            </p>
-          </div>
-
-          <!-- DIP DERECHO -->
-          <div>
-            <label for="dip_derecho" class="block text-sm font-medium text-gray-700 mb-1">DIP Derecho</label>
-            <input id="dip_derecho" type="number" step="0.01" v-model.number="formData.detalleTrabajo.dip_derecho"
-              class="border border-gray-300 rounded-lg px-4 py-2 w-full focus:ring-2 focus:ring-orange-500 focus:outline-none" />
-            <p v-if="v$.detalleTrabajo.dip_derecho.$error" class="text-red-500 text-sm mt-1">
-              {{ firstError(v$.detalleTrabajo.dip_derecho) }}
-            </p>
-          </div>
-
-          <!-- DIP IZQUIERDO -->
-          <div>
-            <label for="dip_izquierdo" class="block text-sm font-medium text-gray-700 mb-1">DIP Izquierdo</label>
-            <input id="dip_izquierdo" type="number" step="0.01" v-model.number="formData.detalleTrabajo.dip_izquierdo"
-              class="border border-gray-300 rounded-lg px-4 py-2 w-full focus:ring-2 focus:ring-orange-500 focus:outline-none" />
-            <p v-if="v$.detalleTrabajo.dip_izquierdo.$error" class="text-red-500 text-sm mt-1">
-              {{ firstError(v$.detalleTrabajo.dip_izquierdo) }}
-            </p>
-          </div>
-
-          <!-- Tratamiento -->
-          <div>
-            <label for="id_tratamiento" class="block text-sm font-medium text-gray-700 mb-1">Tratamiento</label>
-            <select id="id_tratamiento" v-model="formData.detalleTrabajo.id_tratamiento"
-              class="border border-gray-300 rounded-lg px-4 py-2 w-full focus:ring-2 focus:ring-orange-500 focus:outline-none">
-              <option value="">-- Ninguno --</option>
-              <option v-for="t in tratamientos" :key="t.id_tratamiento" :value="t.id_tratamiento">
-                {{ t.nombre }}
-              </option>
-            </select>
-          </div>
-
-          <!-- Producto -->
-          <div>
-            <label for="id_producto" class="block text-sm font-medium text-gray-700 mb-1">Producto</label>
-            <select id="id_producto" v-model="formData.detalleTrabajo.id_producto"
-              class="border border-gray-300 rounded-lg px-4 py-2 w-full focus:ring-2 focus:ring-orange-500 focus:outline-none">
-              <option value="">-- Ninguno --</option>
-              <option v-for="prod in productos" :key="prod.id_producto" :value="prod.id_producto">
-                {{ prod.nombre }}
-              </option>
-            </select>
-          </div>
-
-          <!-- Personal -->
-          <div>
-            <label for="id_personal" class="block text-sm font-medium text-gray-700 mb-1">Personal</label>
-            <select id="id_personal" v-model="formData.id_personal"
-              class="border border-gray-300 rounded-lg px-4 py-2 w-full focus:ring-2 focus:ring-orange-500 focus:outline-none">
-              <option value="">-- Ninguno --</option>
-              <option v-for="p in personal" :key="p.id_personal" :value="p.id_personal">
-                {{ p.nombres }}
-              </option>
-            </select>
-          </div>
-
-          <!-- Color -->
-          <div>
-            <label for="id_color" class="block text-sm font-medium text-gray-700 mb-1">Color</label>
-            <select id="id_color" v-model="formData.detalleTrabajo.id_color"
-              class="border border-gray-300 rounded-lg px-4 py-2 w-full focus:ring-2 focus:ring-orange-500 focus:outline-none">
-              <option value="">-- Ninguno --</option>
-              <option v-for="c in colores" :key="c.id_color" :value="c.id_color">
-                {{ c.nombre }}
-              </option>
-            </select>
-          </div>
-
-
-            </div>
-            <!-- Botón Enviar -->
-          <div class="col-span-2 flex justify-end mt-4">
-            <div class="flex justify-end space-x-4">
-              <!-- Botón Cancelar -->
-              <button type="button" @click="closeModal"
-                class="px-4 py-2 text-gray-700 bg-gray-200 rounded-lg hover:bg-gray-300 focus:ring-2 focus:ring-gray-400 focus:outline-none transition-colors">
-                Cancelar
-              </button>
-              <!-- Botón Crear -->
-              <button type="submit"
-                class="px-4 py-2 bg-orange-500 text-white font-semibold rounded-lg hover:bg-orange-600 focus:ring-2 focus:ring-orange-400 focus:outline-none transition-colors">
-                Crear
-              </button>
-          </div>
+        <!-- Botones de Acción -->
+        <div class="flex justify-end space-x-4">
+          <button
+            type="button"
+            @click="emitClose"
+            class="px-4 py-2 bg-gray-300 text-gray-700 rounded hover:bg-gray-400"
+          >
+            Cancelar
+          </button>
+          <button
+            type="submit"
+            class="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
+          >
+            Guardar
+          </button>
         </div>
       </form>
     </div>
   </div>
-
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, computed } from 'vue'
-import useVuelidate from '@vuelidate/core'
-import { required, numeric, integer } from '@vuelidate/validators'
-import { positive, negative, uuid, maxTwoDecimals } from '../validators/CreateTrabajo.validator'
-import { findProducto, findTramiento, findColor, findPersonal, createTrabajo } from '../actions/trabajos.action'
-import { useToast } from 'vue-toastification'
+import { defineProps, defineEmits, reactive, ref, onMounted } from 'vue';
+import { useVuelidate } from '@vuelidate/core';
+import { createTrabajo, findProducto, findTramiento, findColor, findPersonal } from '../actions/trabajos.action';
+import { createTrabajoValidator } from '../validators/CreateTrabajo.validator';
+import { useToast } from 'vue-toastification';
 
+// Definir las props
+const props = defineProps<{
+  isOpen: boolean;
+}>();
 
+// Definir los eventos emitidos
+const emit = defineEmits<{
+  (e: 'close'): void;
+  (e: 'trabajo-creado'): void;
+}>();
 
-const props = defineProps({ isOpen: Boolean });
-const emit = defineEmits(["close"]);
-
-// Manejamos el modal
-const closeModal = () => {
-  emit("close");
-};
-
-// Inicializamos toast
-const toast = useToast()
-
-// Arrays para selects
-const productos = ref()
-const tratamientos = ref()
-const colores = ref()
-const personal = ref()
-
-// Cargar datos al montar
-onMounted(async () => {
-  const resProd = await findProducto()
-  if (resProd.ok && resProd.data) productos.value = resProd.data
-
-  const resTrat = await findTramiento()
-  if (resTrat.ok && resTrat.data) tratamientos.value = resTrat.data
-
-  const resColor = await findColor()
-  if (resColor.ok && resColor.data) colores.value = resColor.data
-
-  const resPers = await findPersonal()
-  if (resPers.ok && resPers.data) personal.value = resPers.data
-})
-
-// Datos del formulario, replicando la estructura `CreateTrabajoDto`
-const formData = ref({
-  fecha_salida: null as string | null, // Date optional
-  numero_trabajo: null as number | null, // int required
-  id_personal: '', // uuid required
+// Estado del formulario
+const form = reactive({
+  fecha_salida: '',
+  numero_trabajo: 0,
+  id_personal: '',
   detalleTrabajo: {
-    distancia: false, // boolean required
+    distancia: false,
     esferico_derecho: null as number | null,
     esferico_izquierdo: null as number | null,
     cilindro_derecho: null as number | null,
@@ -349,88 +408,145 @@ const formData = ref({
     altura_derecho: null as number | null,
     dip_izquierdo: null as number | null,
     dip_derecho: null as number | null,
-    id_tratamiento: null as string | null,
-    id_producto: '', // uuid required
-    id_color: null as string | null,
+    id_tratamiento: '',
+    id_producto: '',
+    id_color: '',
   },
-})
+});
 
-// Reglas de validación (Vuelidate)
-const rules = computed(() => ({
-  fecha_salida: {
-    // Ejemplo: no la marcamos como required, solo podríamos chequear si es date
-  },
-  numero_trabajo: {
-    required,
-    integer,
-  },
-  id_personal: {
-    required,
-    uuid,
-  },
-  detalleTrabajo: {
-    distancia: { required },
+// Estado para las opciones de los selects
+const productosOptions = ref<{ id_producto: string; nombre: string }[]>([]);
+const tratamientosOptions = ref<{ id_tratamiento: string; nombre: string }[]>([]);
+const coloresOptions = ref<{ id_color: string; nombre: string }[]>([]);
+const personalOptions = ref<{ id_personal: string; nombres: string }[]>([]);
 
-    // maxDecimalPlaces: 2 => con la validación 'maxTwoDecimals'
-    esferico_derecho: { numeric, positive, maxTwoDecimals },
-    esferico_izquierdo: { numeric, positive, maxTwoDecimals },
+// Inicializar Vuelidate
+const rules = createTrabajoValidator;
+const v$ = useVuelidate(rules, form);
 
-    cilindro_derecho: { numeric, negative, maxTwoDecimals },
-    cilindro_izquierdo: { numeric, negative, maxTwoDecimals },
+// Obtener el toast
+const toast = useToast();
 
-    eje_derecho: { integer },
-    eje_izquierdo: { integer },
+// Función para obtener todas las opciones de selects
+const fetchOptions = async () => {
+  try {
+    const [productosRes, tratamientosRes, coloresRes, personalRes] = await Promise.all([
+      findProducto(),
+      findTramiento(),
+      findColor(),
+      findPersonal(),
+    ]);
 
-    prisma_izquierdo: { numeric, maxTwoDecimals },
-    prisma_derecho: { numeric, maxTwoDecimals },
+    if (productosRes.ok && productosRes.data) {
+      productosOptions.value = productosRes.data;
+    } else {
+      toast.error('Error al cargar los productos.');
+    }
 
-    base_izquierdo: { integer },
-    base_derecho: { integer },
+    if (tratamientosRes.ok && tratamientosRes.data) {
+      tratamientosOptions.value = tratamientosRes.data;
+    } else {
+      toast.error('Error al cargar los tratamientos.');
+    }
 
-    adicion_izquierdo: { integer, positive },
-    adicion_derecho: { integer, positive },
+    if (coloresRes.ok && coloresRes.data) {
+      coloresOptions.value = coloresRes.data;
+    } else {
+      toast.error('Error al cargar los colores.');
+    }
 
-    altura_izquierdo: { integer, positive },
-    altura_derecho: { integer, positive },
+    if (personalRes.ok && personalRes.data) {
+      personalOptions.value = personalRes.data;
+    } else {
+      toast.error('Error al cargar el personal.');
+    }
+  } catch (error) {
+    toast.error('Error al cargar las opciones.');
+    console.error(error);
+  }
+};
 
-    dip_izquierdo: { numeric, positive, maxTwoDecimals },
-    dip_derecho: { numeric, positive, maxTwoDecimals },
+// Llamar a fetchOptions cuando el componente se monte
+onMounted(() => {
+  fetchOptions();
+});
 
-    id_tratamiento: { uuid },
-    id_producto: { required, uuid },
-    id_color: { uuid },
-  },
-}))
+// Función para emitir el evento de cierre
+const emitClose = () => {
+  emit('close');
+};
 
-// useVuelidate
-const v$ = useVuelidate(rules, formData)
+// Función para obtener mensajes de error
+const getErrorMessage = (fieldPath: string): string => {
+  const fields = fieldPath.split('.');
+  let field = v$;
+  for (const key of fields) {
+    field = field.value[key];
+    if (!field) break;
+  }
+  if (field && field.$errors.length > 0) {
+    return field.$errors[0].$message;
+  }
+  return '';
+};
 
-// Función para retornar el primer mensaje de error
-function firstError(state: any) {
-  if (!state.$errors?.length) return ''
-  return state.$errors[0].$message || 'Campo inválido'
-}
-
-// Manejar el envío
-async function onSubmit() {
-  const isValid = await v$.value.$validate()
-  if (!isValid) {
-    toast.error('Revisa los campos en rojo')
-    return
+// Función para enviar el formulario
+const submitForm = async () => {
+  v$.value.$touch();
+  if (v$.value.$invalid) {
+    toast.error('Por favor, corrige los errores en el formulario.');
+    return;
   }
 
   try {
-    const response = await createTrabajo(formData.value)
+    // Preparar los datos para enviar
+    const payload = {
+      fecha_salida: form.fecha_salida ? new Date(form.fecha_salida).toISOString() : undefined,
+      numero_trabajo: form.numero_trabajo,
+      id_personal: form.id_personal,
+      detalleTrabajo: {
+        distancia: form.detalleTrabajo.distancia,
+        esferico_derecho: form.detalleTrabajo.esferico_derecho || undefined,
+        esferico_izquierdo: form.detalleTrabajo.esferico_izquierdo || undefined,
+        cilindro_derecho: form.detalleTrabajo.cilindro_derecho || undefined,
+        cilindro_izquierdo: form.detalleTrabajo.cilindro_izquierdo || undefined,
+        eje_derecho: form.detalleTrabajo.eje_derecho || undefined,
+        eje_izquierdo: form.detalleTrabajo.eje_izquierdo || undefined,
+        prisma_izquierdo: form.detalleTrabajo.prisma_izquierdo || undefined,
+        prisma_derecho: form.detalleTrabajo.prisma_derecho || undefined,
+        base_izquierdo: form.detalleTrabajo.base_izquierdo || undefined,
+        base_derecho: form.detalleTrabajo.base_derecho || undefined,
+        adicion_izquierdo: form.detalleTrabajo.adicion_izquierdo || undefined,
+        adicion_derecho: form.detalleTrabajo.adicion_derecho || undefined,
+        altura_izquierdo: form.detalleTrabajo.altura_izquierdo || undefined,
+        altura_derecho: form.detalleTrabajo.altura_derecho || undefined,
+        dip_izquierdo: form.detalleTrabajo.dip_izquierdo || undefined,
+        dip_derecho: form.detalleTrabajo.dip_derecho || undefined,
+        id_tratamiento: form.detalleTrabajo.id_tratamiento || undefined,
+        id_producto: form.detalleTrabajo.id_producto,
+        id_color: form.detalleTrabajo.id_color || undefined,
+      },
+    };
+
+    // Enviar la solicitud al backend usando la acción createTrabajo
+    const response = await createTrabajo(payload);
+
     if (response.ok) {
-      toast.success('Trabajo creado con éxito')
-      // Limpiar formulario (opcional)
-      v$.value.$reset()
+      toast.success('Trabajo creado exitosamente.');
+      emit('trabajo-creado');
     } else {
-      toast.error(response.message || 'Error al crear trabajo')
+      toast.error(response.message || 'Ocurrió un error al crear el trabajo.');
     }
   } catch (error) {
-    console.error(error)
-    toast.error('Error al enviar el formulario')
+    toast.error('Ocurrió un error al enviar el formulario.');
+    console.error('Error al enviar el formulario:', error);
   }
-}
+};
 </script>
+
+<style scoped>
+/* Estilos para los inputs con errores */
+.border-red-500 {
+  border-color: #f87171; /* Tailwind red-400 */
+}
+</style>

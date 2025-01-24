@@ -114,41 +114,41 @@ export class TrabajosService {
       this.errorHandleService.errorHandle(error);
       throw new Error('No se pudo crear el trabajo correctamente.');
     }
-  }
+  }  
   
-  
-  async findAll(paginationDto: PaginationDto, queryGetDto: QueryGetDto, queryTrabajoDto: QueryTrabajoDto ) {
-
+  async findAll(paginationDto: PaginationDto, queryGetDto: QueryGetDto, queryTrabajoDto: QueryTrabajoDto) {
     const { limit, offset } = paginationDto;
     const { order = 'ASC' } = queryGetDto;
     const { sortBy = 'numero_trabajo' } = queryTrabajoDto;
-    try {      
-      const [trabajos, total] = await this.trabajoRepository.findAndCount({
-        where: { activo: true },
-        relations: ['detalleTrabajo', 'personal'],
-        take: limit,
-        skip: offset,
-        order:{[sortBy]: order}
-      });
-        
-      const data = trabajos.map((trabajo) => ({        
-        id_trabajo: trabajo.id_trabajo,        
-        numero_trabajo: trabajo.numero_trabajo,
-        fecha_entrada: trabajo.fecha_entrada,
-        fecha_salida: trabajo.fecha_salida,
-        estado: trabajo.estado,
-        id_detalleTrabajo: trabajo.detalleTrabajo.id_detalleTrabajo,
-        personal: `${trabajo.personal.nombres} ${trabajo.personal.apellido_paterno}`,
-      }));
+  
+    try {
+      // Realizar la consulta usando leftJoinAndSelect para obtener los detalles de las relaciones
+      const [trabajos, total] = await this.trabajoRepository.createQueryBuilder('trabajo')
+        .leftJoinAndSelect('trabajo.detalleTrabajo', 'detalleTrabajo')
+        .leftJoinAndSelect('detalleTrabajo.producto', 'producto')
+        .leftJoinAndSelect('detalleTrabajo.tratamiento', 'tratamiento')
+        .leftJoinAndSelect('detalleTrabajo.color', 'color')
+        .leftJoinAndSelect('trabajo.personal', 'personal')
+        .where('trabajo.activo = :activo', { activo: true })
+        .take(limit)
+        .skip(offset)
+        .orderBy(`trabajo.${sortBy}`, order)
+        .getManyAndCount();
+  
+      // Formatear la respuesta
+
   
       return {
-        data,
-        total        
+        trabajos,
+        total,
       };
     } catch (error) {
       this.errorHandleService.errorHandle(error);
+      throw new Error('Error al obtener los trabajos.');
     }
   }
+  
+
   async findDetalleTrabajo(id: string) {    
     try {      
       const detalle = await this.detalleTrabajoRepository.find({
@@ -207,81 +207,90 @@ export class TrabajosService {
     }
   }
 
-  async update(id: string, updateTrabajoDto: UpdateTrabajoDto): Promise<Trabajo> {
-    try {
-      const { id_personal, detalleTrabajo, ...trabajoData } = updateTrabajoDto;
-  
-      // Verificar si el trabajo existe
-      const trabajo = await this.findOne(id);
-      if (!trabajo) {
-        throw new NotFoundException(`Trabajo con ID "${id}" no encontrado`);
-      }
-  
-      // Verificar y asociar nuevo Personal si se proporciona
-      if (id_personal) {
-        const personal = await this.personalRepository.findOne({
-          where: { id_personal, activo: true },
-        });
-        if (!personal) {
-          throw new NotFoundException(`Personal con ID "${id_personal}" no encontrado`);
-        }
-        trabajo.personal = personal;
-      }
-  
-      let oldProducto: Producto;
-      let newProducto: Producto;
-  
-      // Verificar si se actualizó el id_producto
-      if (detalleTrabajo?.id_producto) {
-        // Obtener el producto antiguo y el nuevo producto
-        oldProducto = trabajo.detalleTrabajo.producto;
-        newProducto = await this.productoRepository.findOne({
-          where: { id_producto: detalleTrabajo.id_producto },
-        });
-        
-        if (!newProducto) {
-          throw new NotFoundException(`Producto con ID "${detalleTrabajo.id_producto}" no encontrado`);
-        }
-  
-        // Si hay un cambio en el producto, realizar la actualización del stock
-        if (oldProducto.id_producto !== newProducto.id_producto) {
-          // Sumar 2 al stock del producto antiguo
-          oldProducto.stock += 2;
-          await this.productoRepository.save(oldProducto);
-  
-          // Restar 2 al stock del nuevo producto
-          newProducto.stock -= 2;
-          await this.productoRepository.save(newProducto);
-        }
-      }
-  
-      // Actualizar el detalle del trabajo si se proporciona
-      if (detalleTrabajo) {
-        const detalle = await this.detalleTrabajoRepository.preload({
-          id_detalleTrabajo: trabajo.detalleTrabajo.id_detalleTrabajo,
-          ...detalleTrabajo,
-        });
-  
-        if (!detalle) {
-          throw new NotFoundException(
-            `DetalleTrabajo con ID "${trabajo.detalleTrabajo.id_detalleTrabajo}" no encontrado`,
-          );
-        }
-        await this.detalleTrabajoRepository.save(detalle);
-      }
-  
-      // Actualizar Trabajo
-      const updatedTrabajo = await this.trabajoRepository.save({
-        ...trabajo,
-        ...trabajoData,
-        detalleTrabajo: trabajo.detalleTrabajo,
-      });
-  
-      return updatedTrabajo;
-    } catch (error) {
-      this.errorHandleService.errorHandle(error);
+async update(id: string, updateTrabajoDto: UpdateTrabajoDto): Promise<Trabajo> {
+  try {
+    const { id_personal, detalleTrabajo, ...trabajoData } = updateTrabajoDto;
+
+    // Verificar si el trabajo existe
+    const trabajo = await this.findOne(id);
+    if (!trabajo) {
+      throw new NotFoundException(`Trabajo con ID "${id}" no encontrado`);
     }
-  }  
+
+    // Verificar y asociar nuevo Personal si se proporciona
+    if (id_personal) {
+      const personal = await this.personalRepository.findOne({
+        where: { id_personal, activo: true },
+      });
+      if (!personal) {
+        throw new NotFoundException(`Personal con ID "${id_personal}" no encontrado`);
+      }
+      trabajo.personal = personal;
+    }
+
+    let oldProducto: Producto;
+    let newProducto: Producto;
+
+    // Verificar si se actualizó el id_producto
+    if (detalleTrabajo?.id_producto) {
+      // Obtener el producto antiguo y el nuevo producto
+      oldProducto = trabajo.detalleTrabajo.producto;
+      newProducto = await this.productoRepository.findOne({
+        where: { id_producto: detalleTrabajo.id_producto },
+      });
+
+      if (!newProducto) {
+        throw new NotFoundException(`Producto con ID "${detalleTrabajo.id_producto}" no encontrado`);
+      }
+
+      // Verificar que ambos productos tienen suficiente stock
+      if (oldProducto.stock < 2) {
+        throw new Error(`No hay suficiente stock en el producto antiguo para revertir la cantidad.`);
+      }
+      if (newProducto.stock < 2) {
+        throw new Error(`No hay suficiente stock en el nuevo producto para asignar el trabajo.`);
+      }
+
+      // Si hay un cambio en el producto, realizar la actualización del stock
+      if (oldProducto.id_producto !== newProducto.id_producto) {
+        // Sumar 2 al stock del producto antiguo
+        oldProducto.stock += 2;
+        await this.productoRepository.save(oldProducto);
+
+        // Restar 2 al stock del nuevo producto
+        newProducto.stock -= 2;
+        await this.productoRepository.save(newProducto);
+      }
+    }
+
+    // Actualizar el detalle del trabajo si se proporciona
+    if (detalleTrabajo) {
+      const detalle = await this.detalleTrabajoRepository.preload({
+        id_detalleTrabajo: trabajo.detalleTrabajo.id_detalleTrabajo,
+        ...detalleTrabajo,
+      });
+
+      if (!detalle) {
+        throw new NotFoundException(
+          `DetalleTrabajo con ID "${trabajo.detalleTrabajo.id_detalleTrabajo}" no encontrado`,
+        );
+      }
+      await this.detalleTrabajoRepository.save(detalle);
+    }
+
+    // Actualizar Trabajo
+    const updatedTrabajo = await this.trabajoRepository.save({
+      ...trabajo,
+      ...trabajoData,
+      detalleTrabajo: trabajo.detalleTrabajo,
+    });
+
+    return updatedTrabajo;
+  } catch (error) {
+    this.errorHandleService.errorHandle(error);
+    throw new Error('No se pudo actualizar el trabajo correctamente.');
+  }
+}
 
   // Desactivar (eliminar lógicamente) un trabajo
   async remove(id: string): Promise<Trabajo> {

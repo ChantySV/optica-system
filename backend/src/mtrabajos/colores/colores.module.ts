@@ -14,6 +14,6 @@ import { AuthModule } from 'src/auth/auth.module';
   ],
   controllers: [ ColoresController ],
   providers: [ ColoresService ],
-  exports:[ ColoresService ]
+  exports:[ TypeOrmModule, ColoresService ]
 })
 export class ColoresModule {}

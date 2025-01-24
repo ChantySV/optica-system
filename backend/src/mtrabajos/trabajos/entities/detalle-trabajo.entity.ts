@@ -1,7 +1,7 @@
 import { Tratamiento } from 'src/mtrabajos/tratamientos/entities/tratamiento.entity';
 import { Producto } from 'src/proveedores-productos/productos/entities/producto.entity';
 import { Color } from 'src/mtrabajos/colores/entities/colore.entity';
-import { Entity, PrimaryGeneratedColumn, Column, OneToOne, JoinColumn } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, OneToOne, JoinColumn, ManyToOne } from 'typeorm';
 
 @Entity('detalleTrabajos')
 export class DetalleTrabajo {
@@ -67,7 +67,7 @@ export class DetalleTrabajo {
   @JoinColumn({ name: 'id_color' })
   color?: Color;
 
-  @OneToOne(() => Producto, (producto) => producto.detalleTrabajos) 
-  @JoinColumn({ name: 'id_producto' }) 
+  @ManyToOne(() => Producto, (producto) => producto.detalleTrabajos, { nullable: false })
+  @JoinColumn({ name: 'id_producto' })
   producto: Producto;
 }

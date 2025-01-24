@@ -56,7 +56,7 @@ export class PersonalService {
 
       return await this.personalRepository.find({
         where: { activo: true },
-        relations: ['usuario', 'trabajos'], 
+        relations: ['usuario'], 
         take: limit,
         skip: offset,
       })
@@ -94,6 +94,21 @@ export class PersonalService {
       this.errorHandleService.errorHandle(error);
     }
   }
+
+  //Solo Nombre
+  async findPersonal() {
+    try {
+      return await this.personalRepository.find(
+        {
+          where: { activo: true, tipo_persona: 'juridica' },
+          select: ['id_personal', 'nombres']
+        });
+    } catch (error) {
+      this.errorHandleService.errorHandle(error);
+    }
+  }
+
+
 
   async findOne(id: string): Promise<Personal> {
     try {

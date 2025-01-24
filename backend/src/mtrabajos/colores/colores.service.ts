@@ -25,10 +25,19 @@ export class ColoresService {
     }
   }
 
-  // Obtener todos los colores activos
-  async findAll(): Promise<Color[]> {
+  // Obtener todos los colores
+  async findAll(){
     try {
-      return await this.colorRepository.find({ where: { activo: true } });
+      return await this.colorRepository.find();
+    } catch (error) {
+      this.errorHandleService.errorHandle(error);
+    }
+  }
+  
+  // Obtener todos los colores activos
+  async findColor(){
+    try {
+      return await this.colorRepository.find({ where: { activo: true }, select:['id_color', 'nombre'] });
     } catch (error) {
       this.errorHandleService.errorHandle(error);
     }

@@ -16,9 +16,15 @@ export class ColoresController {
   }
 
   @Get()
-  @Auth(ValidRoles.encargadoTrabajos)
+  @Auth(ValidRoles.admin)
   findAll() {
     return this.coloresService.findAll();
+  }
+
+  @Get('nombres')
+  @Auth(ValidRoles.encargadoTrabajos)
+  findColor() {
+    return this.coloresService.findColor();
   }
 
   @Patch(':id')

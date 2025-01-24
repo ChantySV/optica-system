@@ -3,7 +3,6 @@
     v-if="isOpen"
     role="dialog"
     aria-labelledby="modal-title"
-    aria-hidden="false"
     class="fixed inset-0 bg-black/50 flex items-center justify-center z-50"
   >
     <div class="bg-white p-6 w-full max-w-md rounded-lg shadow-xl" aria-modal="true">
@@ -11,135 +10,158 @@
         Crear Nuevo Proveedor
       </h2>
 
-      <!-- Formulario con VeeValidate -->
-      <Form @submit="onSubmit" class="space-y-4">
-        <!-- Campo: Nombre -->
+      <!-- FORM con Vuelidate -->
+      <form @submit.prevent="onSubmit" class="space-y-4">
+
+        <!-- NOMBRE (requerido, string) -->
         <div>
           <label for="nombre" class="block text-sm font-medium text-gray-700">
             Nombre
           </label>
-          <Field
-            name="nombre"
+          <input
             id="nombre"
             type="text"
+            v-model="formData.nombre"
             placeholder="Nombre del proveedor"
-            class="w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition"
+            class="w-full px-4 py-2 border border-gray-300 rounded-lg"
           />
-          <ErrorMessage name="nombre" class="text-red-500 text-sm" />
+          <!-- Mostrar errores -->
+          <p v-if="v$.nombre.$error" class="text-red-500 text-sm">
+            {{ firstError(v$.nombre) }}
+          </p>
         </div>
 
-        <!-- Campo: Número -->
+        <!-- NÚMERO (opc) -->
         <div>
           <label for="numero" class="block text-sm font-medium text-gray-700">
             Número
           </label>
-          <Field
-            name="numero"
+          <input
             id="numero"
             type="text"
+            v-model="formData.numero"
             placeholder="Número de contacto"
-            class="w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition"
+            class="w-full px-4 py-2 border border-gray-300 rounded-lg"
           />
-          <ErrorMessage name="numero" class="text-red-500 text-sm" />
+          <!-- Sin validación obligatoria -->
         </div>
 
-        <!-- Campo: Dirección Web -->
+        <!-- DIRECCIÓN WEB (customLink requerido) -->
         <div>
           <label for="direccion_web" class="block text-sm font-medium text-gray-700">
             Dirección Web
           </label>
-          <Field
-            name="direccion_web"
+          <input
             id="direccion_web"
-            type="url"
-            placeholder="https://ejemplo.com"
-            class="w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition"
+            type="text"
+            v-model="formData.direccion_web"
+            placeholder="Direccion Web"
+            class="w-full px-4 py-2 border border-gray-300 rounded-lg"
           />
-          <ErrorMessage name="direccion_web" class="text-red-500 text-sm" />
+          <p v-if="v$.direccion_web.$error" class="text-red-500 text-sm">
+            {{ firstError(v$.direccion_web) }}
+          </p>
         </div>
 
-        <!-- Botones de acción -->
+        <!-- Botones -->
         <div class="flex justify-end space-x-4">
           <button
             type="button"
             @click="closeModal"
-            class="px-4 py-2 text-gray-700 bg-gray-200 rounded-lg shadow-sm hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-400 transition"
+            class="px-4 py-2 text-gray-700 bg-gray-200 rounded-lg"
           >
             Cancelar
           </button>
           <button
             type="submit"
-            class="px-4 py-2 bg-orange-500 text-white font-semibold rounded-lg shadow-sm hover:bg-orange-600 focus:outline-none focus:ring-2 focus:ring-orange-500 transition"
+            class="px-4 py-2 bg-orange-500 text-white font-semibold rounded-lg"
           >
             Crear
           </button>
         </div>
-      </Form>
+
+      </form>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { Form, Field, ErrorMessage, defineRule } from "vee-validate";
-import { useToast } from "vue-toastification";
-import { createProveedorAction } from "../actions/proveedores.action";
+import { ref, computed } from 'vue'
+import useVuelidate from '@vuelidate/core'
+import { required } from '@vuelidate/validators'
+import { customLink } from '../validators/createProveedor.validator' // tu validador personalizado
+import { useToast } from 'vue-toastification'
+import { createProveedorAction } from '../actions/proveedores.action'
+
+const toast = useToast()
 
 // Props para controlar el modal
 const props = defineProps({
-  isOpen: {
-    type: Boolean,
-    required: true,
+  isOpen: Boolean
+})
+
+// Emitir evento para cerrar
+const emit = defineEmits(['close'])
+
+function closeModal() {
+  emit('close')
+}
+
+// Datos del formulario (CreateProveedoreDto sin "activo")
+const formData = ref({
+  nombre: '',
+  numero: '', // opcional
+  direccion_web: ''
+})
+
+// Reglas con Vuelidate
+const rules = computed(() => ({
+  nombre: {
+    required
   },
-});
-
-// Emitir eventos para cerrar el modal
-const emit = defineEmits(["close"]);
-
-// Toast de notificaciones
-const toast = useToast();
-
-// Manejar el cierre del modal
-const closeModal = () => {
-  emit("close");
-};
-
-// Validar y manejar el envío del formulario
-const onSubmit = async (values: Record<string, any>) => {
-  const response = await createProveedorAction({
-    nombre: values.nombre,
-    numero: values.numero || null,
-    direccion_web: values.direccion_web,
-  });
-
-  if (response.ok) {
-    toast.success("Proveedor creado exitosamente");
-    closeModal();
-  } else {
-    toast.error(response.message || "Error al crear el proveedor");
+  numero: {
+    // sin reglas => opcional
+  },
+  direccion_web: {
+    required,
+    customLink // Aplica nuestra validación
   }
-};
+}))
 
-// Definir reglas de validación
-defineRule("required", (value) => {
-  return value ? true : "Este campo es obligatorio";
-});
+// Inicializar Vuelidate
+const v$ = useVuelidate(rules, formData)
 
-// Validación para URLs específicas
-defineRule("customUrl", (value) => {
-  if (!value) return "Este campo es obligatorio";
+// Helper para el primer mensaje de error
+function firstError(state: any): string {
+  if (!state.$errors?.length) return ''
+  return state.$errors[0].$message || 'Campo inválido'
+}
 
-  // Validar que el patrón sea correcto
-  const pattern = /^www\.[a-zA-Z0-9-]{1,15}\.com$/;
-  if (!pattern.test(value)) {
-    return "Debe ser una URL válida con formato www.example.com y no mayor a 15 letras";
+// Manejo del submit
+async function onSubmit() {
+  // Validamos
+  const isValid = await v$.value.$validate()
+  if (!isValid) {
+    toast.error('Revisa los campos marcados')
+    return
   }
 
-  // Extraer el dominio y validar longitud
-  const domain = value.replace(/^www\.|\.com$/g, ""); // Quita "www." y ".com"
-  if (domain.length > 15) {
-    return "El dominio no puede superar los 15 caracteres";
+  // Si pasa validación
+  try {
+    const response = await createProveedorAction(formData.value)
+    if (response.ok) {
+      toast.success('Proveedor creado exitosamente')
+      closeModal()
+    } else {
+      toast.error(response.message || 'Error al crear el proveedor')
+    }
+  } catch (err) {
+    console.error(err)
+    toast.error('Error al enviar el formulario')
   }
-
-  return true;
-});
+}
 </script>
+
+<style scoped>
+/* Estilos de ejemplo con Tailwind */
+</style>

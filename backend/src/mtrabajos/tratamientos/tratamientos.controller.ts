@@ -21,6 +21,12 @@ export class TratamientosController {
     return this.tratamientosService.findAll();
   }
 
+  @Get('nombres')
+  @Auth(ValidRoles.encargadoTrabajos)
+  findTratamiento() {
+    return this.tratamientosService.findTratamiento();
+  }
+
   @Get(':id')
   @Auth(ValidRoles.encargadoTrabajos)
   findOne(@Param('id') id: string) {

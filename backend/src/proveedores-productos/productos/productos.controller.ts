@@ -18,7 +18,7 @@ export class ProductosController {
     return this.productosService.create(createProductoDto);
   }
 
-  @Get('admin')
+  @Get('admin-view')
   @Auth(ValidRoles.encargadoProductos)
   findAllAdmin(
     @Query() paginationDto: PaginationDto,
@@ -27,6 +27,7 @@ export class ProductosController {
   ) {
     return this.productosService.findAllAdmin(paginationDto, queryGetDto, queryProducto);
   }
+
   @Get()
   @Auth(ValidRoles.encargadoProductos)
   findAll(
@@ -35,6 +36,12 @@ export class ProductosController {
     @Query() queryProducto: QueryProductoDto
   ) {
     return this.productosService.findAll(paginationDto, queryGetDto, queryProducto);
+  }
+
+  @Get('nombres')
+  @Auth(ValidRoles.encargadoTrabajos)
+  findProducto() {
+    return this.productosService.findProdutos();
   }
 
   @Get('search')

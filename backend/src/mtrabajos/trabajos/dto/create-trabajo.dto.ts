@@ -1,4 +1,4 @@
-import { IsDate, IsUUID, IsOptional, IsBoolean, IsDecimal, IsInt, ValidateNested, IsNumber, IsPositive, IsNegative, IsISO8601 } from 'class-validator';
+import { IsDate, IsUUID, IsOptional, IsBoolean, IsDecimal, IsInt, ValidateNested, IsNumber, IsPositive, IsNegative, IsISO8601, isInt } from 'class-validator';
 import { Type } from 'class-transformer';
 
 class DetalleTrabajoDto {
@@ -94,11 +94,11 @@ class DetalleTrabajoDto {
 export class CreateTrabajoDto {
   @IsISO8601()
   @IsOptional()
-  fecha_salida?: Date;
+  fecha_salida?: Date; 
 
-  @IsNumber({ maxDecimalPlaces: 2 })
-  costo: number;
-
+  @IsInt()
+  numero_trabajo: number;
+  
   @IsUUID()
   id_personal: string;
 

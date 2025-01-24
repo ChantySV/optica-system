@@ -16,5 +16,5 @@ export class Tratamiento {
   activo: boolean;
 
   @OneToOne(() => DetalleTrabajo, (detalleTrabajo) => detalleTrabajo.tratamiento)
-  detalleTrabajo: DetalleTrabajo;
+  detalleTrabajo: DetalleTrabajo; 
 }

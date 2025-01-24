@@ -66,6 +66,18 @@
             <span>Productos</span>
           </router-link>
         </li>
+
+        <li v-if="isAdmin || permissions.includes('encargado-trabajos')">
+          <router-link
+            to="/trabajos"
+            class="flex items-center px-3 py-2 rounded-md text-gray-300
+                   hover:text-white hover:bg-orange-500 hover:scale-105
+                   transition-all duration-300"
+          >
+            <icon-package class="h-5 w-5 mr-3" />
+            <span>Trabajos</span>
+          </router-link>
+        </li>
       </ul>
 
       <!-- Footer -->

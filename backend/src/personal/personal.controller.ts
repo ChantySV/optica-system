@@ -19,23 +19,28 @@ export class PersonalController {
 
   
   @Get('juridicos')
-  //@Auth(ValidRoles.admin)
+  @Auth(ValidRoles.admin)
   findAllJuridicos( @Query() paginationDto :PaginationDto) {
     return this.personalService.findAllJurídicos( paginationDto );
   }
 
   @Get('naturales')
-  //@Auth(ValidRoles.admin)
+  @Auth(ValidRoles.admin)
   findAllNaturales( @Query() paginationDto :PaginationDto) {
     return this.personalService.findAllNaturales( paginationDto );
   }
 
   @Get()
-  //@Auth(ValidRoles.admin)
+  @Auth(ValidRoles.admin)
   findAll( @Query() paginationDto :PaginationDto) {
     return this.personalService.findAll( paginationDto );
   }
 
+  @Get('nombres')
+  @Auth(ValidRoles.encargadoTrabajos)
+  findPersonal() {
+    return this.personalService.findPersonal();
+  }
 
   @Get(':id')
   @Auth(ValidRoles.admin)

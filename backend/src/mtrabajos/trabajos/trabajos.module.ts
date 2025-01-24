@@ -8,6 +8,10 @@ import { DetalleTrabajo } from './entities/detalle-trabajo.entity';
 import { PersonalModule } from 'src/personal/personal.module';
 import { VentasModule } from 'src/ventas/ventas.module';
 import { AuthModule } from 'src/auth/auth.module';
+import { Producto } from 'src/proveedores-productos/productos/entities/producto.entity';
+import { ProductosModule } from 'src/proveedores-productos/productos/productos.module';
+import { TratamientosModule } from '../tratamientos/tratamientos.module';
+import { ColoresModule } from '../colores/colores.module';
 
 @Module({
   imports: [
@@ -15,6 +19,9 @@ import { AuthModule } from 'src/auth/auth.module';
     PersonalModule,
     CommonModule,        
     TrabajosModule,
+    ProductosModule,
+    TratamientosModule,
+    ColoresModule,
     AuthModule,
   ],
   controllers: [TrabajosController],

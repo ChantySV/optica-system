@@ -7,11 +7,16 @@ import { PersonalService } from 'src/personal/personal.service';
 import { UsuariosService } from 'src/auth/usuarios/usuarios.service';
 
 import { DataSource } from 'typeorm';
+import { ColoresService } from 'src/mtrabajos/colores/colores.service';
+import { TratamientosService } from 'src/mtrabajos/tratamientos/tratamientos.service';
+
 import { seedPersonal } from './data/personal-data';
 import { seedProductos } from './data/productos-data';
 import { seedProveedores } from './data/proveedores-data';
 import { seedRoles } from './data/rol-data';
 import { seedUsuarios } from './data/usuario-data';
+import { seedColores } from './data/color-data';
+import { seedTratamientos } from './data/tratamiento-data';
 
 @Injectable()
 export class SeedService {
@@ -23,6 +28,8 @@ export class SeedService {
     private readonly productosService: ProductosService,
     private readonly usuariosService: UsuariosService,
     private readonly personalService: PersonalService,    
+    private readonly colorService: ColoresService,    
+    private readonly tramamientoService: TratamientosService,    
 
     private readonly dataSource: DataSource,
     private readonly errorHandleService: ErrorHandleService
@@ -55,6 +62,8 @@ export class SeedService {
       await this.seedProductos();
       await this.seedPersonal();
       await this.seedUsuarios();
+      await this.seedColor()
+      await this.seedTratamiento()
       
     } catch (error) {
       this.errorHandleService.errorHandle(error)
@@ -66,8 +75,6 @@ export class SeedService {
       await this.rolesService.create(role);
     }
   }
-
-
 
   private async seedProveedores() {
     for (const proveedor of seedProveedores) {
@@ -93,11 +100,21 @@ export class SeedService {
     }
   }
 
-  private async seedProductosProveedores() {
-    for (const personal of seedPersonal) {
-      await this.personalService.create(personal);
+
+  private async seedColor() {
+    for (const color of seedColores) {
+      await this.colorService.create(color);
     }
   }
+
+  private async seedTratamiento() {
+    for (const tratamiento of seedTratamientos) {
+      await this.tramamientoService.create(tratamiento);
+    }
+  }
+
+  
+
 
 }
 

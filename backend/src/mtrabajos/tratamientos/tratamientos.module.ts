@@ -14,6 +14,6 @@ import { AuthModule } from 'src/auth/auth.module';
   ],
   controllers: [TratamientosController],
   providers: [TratamientosService],
-  exports: [TratamientosService],
+  exports: [TypeOrmModule, TratamientosService],
 })
 export class TratamientosModule {}

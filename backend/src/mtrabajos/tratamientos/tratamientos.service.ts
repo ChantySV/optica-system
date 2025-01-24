@@ -34,6 +34,19 @@ export class TratamientosService {
     }
   }
 
+  //Solo Nombre
+  async findTratamiento() {
+    try {
+      return await this.tratamientoRepository.find(
+        {
+          where: { activo: true },
+          select: ['id_tratamiento', 'nombre']
+        });
+    } catch (error) {
+      this.errorHandleService.errorHandle(error);
+    }
+  }
+
   // Obtener un tratamiento por ID
   async findOne(id: string): Promise<Tratamiento> {
     try {

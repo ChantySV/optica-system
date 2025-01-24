@@ -61,7 +61,7 @@ export class VentasService {
         }
   
         trabajos.push(trabajo);
-        monto_total += Number(trabajo.costo) || 0;
+      
       }
   
       // Crear la venta asociando el usuario autenticado

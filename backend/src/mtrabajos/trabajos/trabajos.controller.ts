@@ -1,13 +1,16 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query } from '@nestjs/common';
 import { TrabajosService } from './trabajos.service';
 import { CreateTrabajoDto } from './dto/create-trabajo.dto';
 import { UpdateTrabajoDto } from './dto/update-trabajo.dto';
 import { Auth } from 'src/auth/usuarios/decorators/get-usuario.decorator';
 import { ValidRoles } from 'src/auth/usuarios/interfaces/valid-roles.interface';
+import { PaginationDto } from 'src/common/pagination-dto';
+import { QueryGetDto } from 'src/common/QueryGet-dto';
+import { QueryTrabajoDto } from './dto/query-response-trabajo.dto';
 
 @Controller('trabajos')
 export class TrabajosController {
-  constructor(private readonly trabajosService: TrabajosService) {}
+  constructor(private readonly trabajosService: TrabajosService) { }
 
   @Post()
   @Auth(ValidRoles.encargadoTrabajos)
@@ -17,14 +20,24 @@ export class TrabajosController {
 
   @Get()
   @Auth(ValidRoles.encargadoTrabajos)
-  findAll() {
-    return this.trabajosService.findAll();
+  findAll(
+    @Query() paginationDto: PaginationDto,        
+    @Query() queryGetDto: QueryGetDto,
+    @Query() queryTrabajoDto: QueryTrabajoDto
+  ) {
+    return this.trabajosService.findAll( paginationDto, queryGetDto, queryTrabajoDto );
   }
 
   @Get(':id')
   @Auth(ValidRoles.encargadoTrabajos)
   findOne(@Param('id') id: string) {
     return this.trabajosService.findOne(id);
+  }
+
+  @Get('detalle/:id')
+  @Auth(ValidRoles.encargadoTrabajos)
+  findDetalleTrabajo(@Param('id') id: string) {
+    return this.trabajosService.findDetalleTrabajo(id);
   }
 
   @Patch(':id')

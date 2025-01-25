@@ -167,13 +167,26 @@ export const findPersonal = async (): Promise<{
   }
 };
 
-// Actualizar un trabajo por ID
-export const updateTrabajo = async (id: string, updateTrabajoDto: any) => {
+// Actualizar un trabajo existente
+export const updateTrabajo = async (
+  id_trabajo: string,
+  updateTrabajoDto: any
+): Promise<{
+  ok: boolean;
+  data?: Trabajo;
+  message?: string;
+}> => {
   try {
-    const response = await backendApi.patch(`/trabajos${id}`, updateTrabajoDto);
-    return response.data;
-  } catch (error) {
-    console.error(`Error al actualizar trabajo con ID ${id}:`, error);
-    throw error;
+    const response = await backendApi.patch(`/trabajos/${id_trabajo}`, updateTrabajoDto);
+    return {
+      ok: true,
+      data: response.data, // Asegúrate de que la respuesta de tu API tenga esta estructura
+    };
+  } catch (error: any) {
+    console.error(error);
+    return {
+      ok: false,
+      message: error.response?.data?.message || 'No se pudo actualizar el trabajo.',
+    };
   }
 };

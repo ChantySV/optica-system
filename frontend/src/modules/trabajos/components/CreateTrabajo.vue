@@ -5,14 +5,13 @@
       <form @submit.prevent="submitForm">
         <!-- Fecha de Salida -->
         <div class="mb-4">
-          <label class="block text-gray-700">Fecha de Salida:</label>
-          <input
-            type="date"
-            v-model="form.fecha_salida"
-            class="w-full px-3 py-2 border rounded"
-            :class="{ 'border-red-500': $v.form.fecha_salida.$error }"
-          />
-          <span v-if="$v.form.fecha_salida.$error" class="text-red-500 text-sm">
+          <label for="fecha_salida" class="block text-sm font-medium text-gray-700 mb-1">
+            Fecha de Salida:
+          </label>
+          <input id="fecha_salida" type="date" v-model="form.fecha_salida"
+            class="w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+            :class="{ 'border-red-500 ring-red-500 focus:ring-red-500': $v.form.fecha_salida.$error }" />
+          <span v-if="$v.form.fecha_salida.$error" class="text-sm text-red-500 mt-1 block">
             {{ getErrorMessage('fecha_salida') }}
           </span>
         </div>
@@ -20,12 +19,8 @@
         <!-- Número de Trabajo -->
         <div class="mb-4">
           <label class="block text-gray-700">Número de Trabajo:</label>
-          <input
-            type="number"
-            v-model.number="form.numero_trabajo"
-            class="w-full px-3 py-2 border rounded"
-            :class="{ 'border-red-500': $v.form.numero_trabajo.$error }"
-          />
+          <input type="number" v-model.number="form.numero_trabajo" class="w-full px-3 py-2 border rounded"
+            :class="{ 'border-red-500': $v.form.numero_trabajo.$error }" />
           <span v-if="$v.form.numero_trabajo.$error" class="text-red-500 text-sm">
             {{ getErrorMessage('numero_trabajo') }}
           </span>
@@ -33,12 +28,9 @@
 
         <!-- ID Personal -->
         <div class="mb-4">
-          <label class="block text-gray-700">ID Personal:</label>
-          <select
-            v-model="form.id_personal"
-            class="w-full px-3 py-2 border rounded"
-            :class="{ 'border-red-500': $v.form.id_personal.$error }"
-          >
+          <label class="block text-gray-700">Personal:</label>
+          <select v-model="form.id_personal" class="w-full px-3 py-2 border rounded"
+            :class="{ 'border-red-500': $v.form.id_personal.$error }">
             <option value="" disabled>Seleccione un personal</option>
             <option v-for="personal in personalOptions" :key="personal.id_personal" :value="personal.id_personal">
               {{ personal.nombres }}
@@ -51,7 +43,6 @@
 
         <!-- Detalle Trabajo -->
         <div class="mb-4">
-          <h3 class="text-lg font-semibold">Detalle del Trabajo</h3>
 
           <!-- Distancia -->
           <div class="mb-2">
@@ -64,13 +55,9 @@
           <!-- Esférico Derecho -->
           <div class="mb-2">
             <label class="block text-gray-700">Esférico Derecho:</label>
-            <input
-              type="number"
-              step="0.01"
-              v-model.number="form.detalleTrabajo.esferico_derecho"
+            <input type="number" step="0.01" v-model.number="form.detalleTrabajo.esferico_derecho"
               class="w-full px-3 py-2 border rounded"
-              :class="{ 'border-red-500': $v.form.detalleTrabajo.esferico_derecho.$error }"
-            />
+              :class="{ 'border-red-500': $v.form.detalleTrabajo.esferico_derecho.$error }" />
             <span v-if="$v.form.detalleTrabajo.esferico_derecho.$error" class="text-red-500 text-sm">
               {{ getErrorMessage('detalleTrabajo.esferico_derecho') }}
             </span>
@@ -79,13 +66,9 @@
           <!-- Esférico Izquierdo -->
           <div class="mb-2">
             <label class="block text-gray-700">Esférico Izquierdo:</label>
-            <input
-              type="number"
-              step="0.01"
-              v-model.number="form.detalleTrabajo.esferico_izquierdo"
+            <input type="number" step="0.01" v-model.number="form.detalleTrabajo.esferico_izquierdo"
               class="w-full px-3 py-2 border rounded"
-              :class="{ 'border-red-500': $v.form.detalleTrabajo.esferico_izquierdo.$error }"
-            />
+              :class="{ 'border-red-500': $v.form.detalleTrabajo.esferico_izquierdo.$error }" />
             <span v-if="$v.form.detalleTrabajo.esferico_izquierdo.$error" class="text-red-500 text-sm">
               {{ getErrorMessage('detalleTrabajo.esferico_izquierdo') }}
             </span>
@@ -94,13 +77,9 @@
           <!-- Cilindro Derecho -->
           <div class="mb-2">
             <label class="block text-gray-700">Cilindro Derecho:</label>
-            <input
-              type="number"
-              step="0.01"
-              v-model.number="form.detalleTrabajo.cilindro_derecho"
+            <input type="number" step="0.01" v-model.number="form.detalleTrabajo.cilindro_derecho"
               class="w-full px-3 py-2 border rounded"
-              :class="{ 'border-red-500': $v.form.detalleTrabajo.cilindro_derecho.$error }"
-            />
+              :class="{ 'border-red-500': $v.form.detalleTrabajo.cilindro_derecho.$error }" />
             <span v-if="$v.form.detalleTrabajo.cilindro_derecho.$error" class="text-red-500 text-sm">
               {{ getErrorMessage('detalleTrabajo.cilindro_derecho') }}
             </span>
@@ -109,13 +88,9 @@
           <!-- Cilindro Izquierdo -->
           <div class="mb-2">
             <label class="block text-gray-700">Cilindro Izquierdo:</label>
-            <input
-              type="number"
-              step="0.01"
-              v-model.number="form.detalleTrabajo.cilindro_izquierdo"
+            <input type="number" step="0.01" v-model.number="form.detalleTrabajo.cilindro_izquierdo"
               class="w-full px-3 py-2 border rounded"
-              :class="{ 'border-red-500': $v.form.detalleTrabajo.cilindro_izquierdo.$error }"
-            />
+              :class="{ 'border-red-500': $v.form.detalleTrabajo.cilindro_izquierdo.$error }" />
             <span v-if="$v.form.detalleTrabajo.cilindro_izquierdo.$error" class="text-red-500 text-sm">
               {{ getErrorMessage('detalleTrabajo.cilindro_izquierdo') }}
             </span>
@@ -124,12 +99,9 @@
           <!-- Eje Derecho -->
           <div class="mb-2">
             <label class="block text-gray-700">Eje Derecho:</label>
-            <input
-              type="number"
-              v-model.number="form.detalleTrabajo.eje_derecho"
+            <input type="number" v-model.number="form.detalleTrabajo.eje_derecho"
               class="w-full px-3 py-2 border rounded"
-              :class="{ 'border-red-500': $v.form.detalleTrabajo.eje_derecho.$error }"
-            />
+              :class="{ 'border-red-500': $v.form.detalleTrabajo.eje_derecho.$error }" />
             <span v-if="$v.form.detalleTrabajo.eje_derecho.$error" class="text-red-500 text-sm">
               {{ getErrorMessage('detalleTrabajo.eje_derecho') }}
             </span>
@@ -138,12 +110,9 @@
           <!-- Eje Izquierdo -->
           <div class="mb-2">
             <label class="block text-gray-700">Eje Izquierdo:</label>
-            <input
-              type="number"
-              v-model.number="form.detalleTrabajo.eje_izquierdo"
+            <input type="number" v-model.number="form.detalleTrabajo.eje_izquierdo"
               class="w-full px-3 py-2 border rounded"
-              :class="{ 'border-red-500': $v.form.detalleTrabajo.eje_izquierdo.$error }"
-            />
+              :class="{ 'border-red-500': $v.form.detalleTrabajo.eje_izquierdo.$error }" />
             <span v-if="$v.form.detalleTrabajo.eje_izquierdo.$error" class="text-red-500 text-sm">
               {{ getErrorMessage('detalleTrabajo.eje_izquierdo') }}
             </span>
@@ -152,13 +121,9 @@
           <!-- Prisma Izquierdo -->
           <div class="mb-2">
             <label class="block text-gray-700">Prisma Izquierdo:</label>
-            <input
-              type="number"
-              step="0.01"
-              v-model.number="form.detalleTrabajo.prisma_izquierdo"
+            <input type="number" step="0.01" v-model.number="form.detalleTrabajo.prisma_izquierdo"
               class="w-full px-3 py-2 border rounded"
-              :class="{ 'border-red-500': $v.form.detalleTrabajo.prisma_izquierdo.$error }"
-            />
+              :class="{ 'border-red-500': $v.form.detalleTrabajo.prisma_izquierdo.$error }" />
             <span v-if="$v.form.detalleTrabajo.prisma_izquierdo.$error" class="text-red-500 text-sm">
               {{ getErrorMessage('detalleTrabajo.prisma_izquierdo') }}
             </span>
@@ -167,13 +132,9 @@
           <!-- Prisma Derecho -->
           <div class="mb-2">
             <label class="block text-gray-700">Prisma Derecho:</label>
-            <input
-              type="number"
-              step="0.01"
-              v-model.number="form.detalleTrabajo.prisma_derecho"
+            <input type="number" step="0.01" v-model.number="form.detalleTrabajo.prisma_derecho"
               class="w-full px-3 py-2 border rounded"
-              :class="{ 'border-red-500': $v.form.detalleTrabajo.prisma_derecho.$error }"
-            />
+              :class="{ 'border-red-500': $v.form.detalleTrabajo.prisma_derecho.$error }" />
             <span v-if="$v.form.detalleTrabajo.prisma_derecho.$error" class="text-red-500 text-sm">
               {{ getErrorMessage('detalleTrabajo.prisma_derecho') }}
             </span>
@@ -182,12 +143,9 @@
           <!-- Base Izquierdo -->
           <div class="mb-2">
             <label class="block text-gray-700">Base Izquierdo:</label>
-            <input
-              type="number"
-              v-model.number="form.detalleTrabajo.base_izquierdo"
+            <input type="number" v-model.number="form.detalleTrabajo.base_izquierdo"
               class="w-full px-3 py-2 border rounded"
-              :class="{ 'border-red-500': $v.form.detalleTrabajo.base_izquierdo.$error }"
-            />
+              :class="{ 'border-red-500': $v.form.detalleTrabajo.base_izquierdo.$error }" />
             <span v-if="$v.form.detalleTrabajo.base_izquierdo.$error" class="text-red-500 text-sm">
               {{ getErrorMessage('detalleTrabajo.base_izquierdo') }}
             </span>
@@ -196,12 +154,9 @@
           <!-- Base Derecho -->
           <div class="mb-2">
             <label class="block text-gray-700">Base Derecho:</label>
-            <input
-              type="number"
-              v-model.number="form.detalleTrabajo.base_derecho"
+            <input type="number" v-model.number="form.detalleTrabajo.base_derecho"
               class="w-full px-3 py-2 border rounded"
-              :class="{ 'border-red-500': $v.form.detalleTrabajo.base_derecho.$error }"
-            />
+              :class="{ 'border-red-500': $v.form.detalleTrabajo.base_derecho.$error }" />
             <span v-if="$v.form.detalleTrabajo.base_derecho.$error" class="text-red-500 text-sm">
               {{ getErrorMessage('detalleTrabajo.base_derecho') }}
             </span>
@@ -210,12 +165,9 @@
           <!-- Adición Izquierdo -->
           <div class="mb-2">
             <label class="block text-gray-700">Adición Izquierdo:</label>
-            <input
-              type="number"
-              v-model.number="form.detalleTrabajo.adicion_izquierdo"
+            <input type="number" v-model.number="form.detalleTrabajo.adicion_izquierdo"
               class="w-full px-3 py-2 border rounded"
-              :class="{ 'border-red-500': $v.form.detalleTrabajo.adicion_izquierdo.$error }"
-            />
+              :class="{ 'border-red-500': $v.form.detalleTrabajo.adicion_izquierdo.$error }" />
             <span v-if="$v.form.detalleTrabajo.adicion_izquierdo.$error" class="text-red-500 text-sm">
               {{ getErrorMessage('detalleTrabajo.adicion_izquierdo') }}
             </span>
@@ -224,12 +176,9 @@
           <!-- Adición Derecho -->
           <div class="mb-2">
             <label class="block text-gray-700">Adición Derecho:</label>
-            <input
-              type="number"
-              v-model.number="form.detalleTrabajo.adicion_derecho"
+            <input type="number" v-model.number="form.detalleTrabajo.adicion_derecho"
               class="w-full px-3 py-2 border rounded"
-              :class="{ 'border-red-500': $v.form.detalleTrabajo.adicion_derecho.$error }"
-            />
+              :class="{ 'border-red-500': $v.form.detalleTrabajo.adicion_derecho.$error }" />
             <span v-if="$v.form.detalleTrabajo.adicion_derecho.$error" class="text-red-500 text-sm">
               {{ getErrorMessage('detalleTrabajo.adicion_derecho') }}
             </span>
@@ -238,12 +187,9 @@
           <!-- Altura Izquierdo -->
           <div class="mb-2">
             <label class="block text-gray-700">Altura Izquierdo:</label>
-            <input
-              type="number"
-              v-model.number="form.detalleTrabajo.altura_izquierdo"
+            <input type="number" v-model.number="form.detalleTrabajo.altura_izquierdo"
               class="w-full px-3 py-2 border rounded"
-              :class="{ 'border-red-500': $v.form.detalleTrabajo.altura_izquierdo.$error }"
-            />
+              :class="{ 'border-red-500': $v.form.detalleTrabajo.altura_izquierdo.$error }" />
             <span v-if="$v.form.detalleTrabajo.altura_izquierdo.$error" class="text-red-500 text-sm">
               {{ getErrorMessage('detalleTrabajo.altura_izquierdo') }}
             </span>
@@ -252,12 +198,9 @@
           <!-- Altura Derecho -->
           <div class="mb-2">
             <label class="block text-gray-700">Altura Derecho:</label>
-            <input
-              type="number"
-              v-model.number="form.detalleTrabajo.altura_derecho"
+            <input type="number" v-model.number="form.detalleTrabajo.altura_derecho"
               class="w-full px-3 py-2 border rounded"
-              :class="{ 'border-red-500': $v.form.detalleTrabajo.altura_derecho.$error }"
-            />
+              :class="{ 'border-red-500': $v.form.detalleTrabajo.altura_derecho.$error }" />
             <span v-if="$v.form.detalleTrabajo.altura_derecho.$error" class="text-red-500 text-sm">
               {{ getErrorMessage('detalleTrabajo.altura_derecho') }}
             </span>
@@ -266,13 +209,9 @@
           <!-- DIP Izquierdo -->
           <div class="mb-2">
             <label class="block text-gray-700">DIP Izquierdo:</label>
-            <input
-              type="number"
-              step="0.01"
-              v-model.number="form.detalleTrabajo.dip_izquierdo"
+            <input type="number" step="0.01" v-model.number="form.detalleTrabajo.dip_izquierdo"
               class="w-full px-3 py-2 border rounded"
-              :class="{ 'border-red-500': $v.form.detalleTrabajo.dip_izquierdo.$error }"
-            />
+              :class="{ 'border-red-500': $v.form.detalleTrabajo.dip_izquierdo.$error }" />
             <span v-if="$v.form.detalleTrabajo.dip_izquierdo.$error" class="text-red-500 text-sm">
               {{ getErrorMessage('detalleTrabajo.dip_izquierdo') }}
             </span>
@@ -281,13 +220,9 @@
           <!-- DIP Derecho -->
           <div class="mb-2">
             <label class="block text-gray-700">DIP Derecho:</label>
-            <input
-              type="number"
-              step="0.01"
-              v-model.number="form.detalleTrabajo.dip_derecho"
+            <input type="number" step="0.01" v-model.number="form.detalleTrabajo.dip_derecho"
               class="w-full px-3 py-2 border rounded"
-              :class="{ 'border-red-500': $v.form.detalleTrabajo.dip_derecho.$error }"
-            />
+              :class="{ 'border-red-500': $v.form.detalleTrabajo.dip_derecho.$error }" />
             <span v-if="$v.form.detalleTrabajo.dip_derecho.$error" class="text-red-500 text-sm">
               {{ getErrorMessage('detalleTrabajo.dip_derecho') }}
             </span>
@@ -296,12 +231,10 @@
           <!-- ID Tratamiento -->
           <div class="mb-2">
             <label class="block text-gray-700">ID Tratamiento:</label>
-            <select
-              v-model="form.detalleTrabajo.id_tratamiento"
-              class="w-full px-3 py-2 border rounded"
-            >
+            <select v-model="form.detalleTrabajo.id_tratamiento" class="w-full px-3 py-2 border rounded">
               <option value="" disabled>Seleccione un tratamiento (opcional)</option>
-              <option v-for="tratamiento in tratamientosOptions" :key="tratamiento.id_tratamiento" :value="tratamiento.id_tratamiento">
+              <option v-for="tratamiento in tratamientosOptions" :key="tratamiento.id_tratamiento"
+                :value="tratamiento.id_tratamiento">
                 {{ tratamiento.nombre }}
               </option>
             </select>
@@ -313,11 +246,8 @@
           <!-- ID Producto -->
           <div class="mb-2">
             <label class="block text-gray-700">ID Producto:</label>
-            <select
-              v-model="form.detalleTrabajo.id_producto"
-              class="w-full px-3 py-2 border rounded"
-              :class="{ 'border-red-500': $v.form.detalleTrabajo.id_producto.$error }"
-            >
+            <select v-model="form.detalleTrabajo.id_producto" class="w-full px-3 py-2 border rounded"
+              :class="{ 'border-red-500': $v.form.detalleTrabajo.id_producto.$error }">
               <option value="" disabled>Seleccione un producto</option>
               <option v-for="producto in productosOptions" :key="producto.id_producto" :value="producto.id_producto">
                 {{ producto.nombre }}
@@ -331,10 +261,7 @@
           <!-- ID Color -->
           <div class="mb-2">
             <label class="block text-gray-700">ID Color:</label>
-            <select
-              v-model="form.detalleTrabajo.id_color"
-              class="w-full px-3 py-2 border rounded"
-            >
+            <select v-model="form.detalleTrabajo.id_color" class="w-full px-3 py-2 border rounded">
               <option value="" disabled>Seleccione un color (opcional)</option>
               <option v-for="color in coloresOptions" :key="color.id_color" :value="color.id_color">
                 {{ color.nombre }}
@@ -348,17 +275,11 @@
 
         <!-- Botones de Acción -->
         <div class="flex justify-end space-x-4">
-          <button
-            type="button"
-            @click="emitClose"
-            class="px-4 py-2 bg-gray-300 text-gray-700 rounded hover:bg-gray-400"
-          >
+          <button type="button" @click="emitClose"
+            class="px-4 py-2 bg-gray-300 text-gray-700 rounded hover:bg-gray-400">
             Cancelar
           </button>
-          <button
-            type="submit"
-            class="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
-          >
+          <button type="submit" class="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600">
             Guardar
           </button>
         </div>

@@ -104,7 +104,7 @@
           </div>
           <button
             @click="logOut"
-            class="px-4 py-2 font-semibold rounded-md bg-gray-700 hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-300 transition-all"
+            class="px-4 py-2 font-semibold rounded-md bg-gray-700 hover:bg-white focus:outline-none focus:ring-2 focus:ring-red-300 hover:text-gray-700 transition-all "
           >
             Cerrar Sesión
           </button>

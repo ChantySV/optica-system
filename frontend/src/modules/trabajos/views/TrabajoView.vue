@@ -1,13 +1,13 @@
 <template>
-  <div class="mb-20 container mx-auto p-6 space-y-6 bg-[#f5f6fa] rounded-lg">
+  <div class="mb-20 container mx-auto p-6 space-y-6 bg-[#f5f6fa] rounded-lg ">
     <!-- Cabecera con título y botón para crear trabajo -->
-    <div class="flex flex-col sm:flex-row justify-between items-center">
-      <h1 class="text-2xl font-semibold text-[#515151]">Trabajos</h1>
+    <div class="flex flex-col sm:flex-row justify-between items-center  pb-4 mb-6">
+      <h1 class="text-2xl font-bold text-[#515151]">Gestión de Trabajos</h1>
       <button
         @click="showModal = true"
-        class="mt-4 sm:mt-0 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+        class="mt-4 sm:mt-0 px-6 py-3 bg-orange-500 text-white font-semibold rounded-lg shadow-md hover:bg-orange-600 focus:outline-none focus:ring-2 focus:ring-orange-400 transition-all"
       >
-        Agregar Trabajo
+        + Agregar Trabajo
       </button>
     </div>
 
@@ -21,7 +21,7 @@
     </div>
 
     <!-- Lista de Trabajos -->
-    <div class="bg-white p-4 rounded-lg shadow-sm">
+    <div class="bg-white p-6 rounded-lg shadow-md">
       <ListaTrabajos />
     </div>
   </div>
@@ -38,10 +38,5 @@ const showModal = ref(false);
 // Método para manejar la creación de un nuevo trabajo
 const handleTrabajoCreado = () => {
   showModal.value = false;
-  // Opcional: Puedes agregar lógica para actualizar la lista de trabajos si no se hace automáticamente
 };
 </script>
-
-<style scoped>
-/* Puedes agregar estilos adicionales aquí si es necesario */
-</style>

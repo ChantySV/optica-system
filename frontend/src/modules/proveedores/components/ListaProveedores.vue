@@ -1,5 +1,5 @@
 <template>
-  <div class="container mx-auto mt-8 bg-white p-6 rounded-lg shadow-md">
+  <div class="container mx-auto mt-8 bg-white p-6 rounded-lg">
     <!-- Título -->
     <h1 class="text-3xl font-semibold text-gray-800 mb-6 text-center">Proveedores</h1>
 

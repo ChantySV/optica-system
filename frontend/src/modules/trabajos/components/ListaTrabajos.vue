@@ -1,5 +1,5 @@
 <template>
-  <div class="container mx-auto mt-8 bg-white p-6 rounded-lg shadow-md">
+  <div class="container mx-auto mt-8 bg-white p-6 rounded-lg">
     <!-- Título -->
     <h1 class="text-3xl font-semibold text-gray-800 mb-6 text-center">Trabajos</h1>
 
@@ -70,7 +70,7 @@
             </td>
             <td class="px-6 py-3 text-center">
               <button @click="openUpdateModal(trabajo)"
-                class="px-4 py-2 bg-gray-800 text-white rounded-lg hover:bg-gray-700 focus:outline-none">
+                class="px-4 py-2 bg-gray-700 text-white rounded-lg hover:bg-gray-600 focus:outline-none">
                 Actualizar
               </button>
             </td>
@@ -106,7 +106,7 @@
     <UpdateTrabajoModal
       v-if="showUpdateModal"
       :isOpen="showUpdateModal"
-      :trabajoSeleccionado="selectedTrabajo"
+      :trabajo="selectedTrabajo"
       @close="closeUpdateModal"
       @trabajo-actualizado="actualizarListaTrabajos"
     />

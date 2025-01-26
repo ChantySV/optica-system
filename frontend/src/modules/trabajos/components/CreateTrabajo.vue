@@ -464,10 +464,3 @@ const submitForm = async () => {
   }
 };
 </script>
-
-<style scoped>
-/* Estilos para los inputs con errores */
-.border-red-500 {
-  border-color: #f87171; /* Tailwind red-400 */
-}
-</style>

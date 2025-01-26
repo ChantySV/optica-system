@@ -59,11 +59,11 @@ export class DetalleTrabajo {
   @Column({ type: 'int', nullable: true })
   dip_derecho?: number;
 
-  @OneToOne(() => Tratamiento, (tratamiento) => tratamiento.detalleTrabajo, { nullable: true })
+  @ManyToOne(() => Tratamiento, (tratamiento) => tratamiento.detalleTrabajos, { nullable: true })
   @JoinColumn({ name: 'id_tratamiento' })
-  tratamiento?: Tratamiento;
+  tratamiento: Tratamiento; 
 
-  @OneToOne(() => Color, (color) => color.detalleTrabajo, { nullable: true })
+  @ManyToOne(() => Color, (color) => color.detalleTrabajo, { nullable: true })
   @JoinColumn({ name: 'id_color' })
   color?: Color;
 

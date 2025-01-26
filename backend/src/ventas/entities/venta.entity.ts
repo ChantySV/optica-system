@@ -11,11 +11,12 @@ export class Venta {
   @Column('decimal', { precision: 10, scale: 2 })
   monto_total: number;
 
-  @Column('timestamp', { default: () => 'CURRENT_TIMESTAMP' })
+  @Column('date', { default: () => 'CURRENT_DATE' })
   fecha_venta: Date;
 
-  @ManyToOne(() => Personal, (personal) => personal.venta, { nullable: false })
-  personal: Personal;
+  @ManyToOne(() => Personal, (personal) => personal.venta, { nullable: true })
+  @JoinColumn({ name: 'id_personal' })
+  personal: Personal;  
 
   @Column({ default: true })
   activo: boolean;

@@ -8,7 +8,7 @@ export class Producto {
   @PrimaryGeneratedColumn('uuid')
   id_producto: string;
 
-  @Column('varchar')
+  @Column('varchar', { unique:true })
   nombre: string;
 
   @Column('int')

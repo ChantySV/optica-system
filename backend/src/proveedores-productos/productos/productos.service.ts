@@ -135,7 +135,7 @@ export class ProductosService {
     }
   }
 
-  // Obtener todos los colores activos
+  // Obtener todos los productos activos
   async findProdutos() {
     try {
       return await this.productoRepository.find({ where: { activo: true }, select: ['id_producto', 'nombre'] });

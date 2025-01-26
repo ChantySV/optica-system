@@ -148,6 +148,27 @@ export class TrabajosService {
     }
   }
   
+  async findPendientes(){
+    try {
+      const [trabajos, total] = await this.trabajoRepository.findAndCount({
+        where: { estado: 'pendiente', activo: true },    
+        relations: ['detalleTrabajo', 'personal'],
+      });      
+      const data = trabajos.map((trabajo) => ({
+        id_trabajo: trabajo.id_trabajo,
+        numero_trabajo: trabajo.numero_trabajo,
+        fecha_entrada: trabajo.fecha_entrada,
+        fecha_salida: trabajo.fecha_salida,
+        estado: trabajo.estado,
+        personal: `${trabajo.personal.nombres} ${trabajo.personal.apellido_paterno}`,
+        detalleTrabajo: trabajo.detalleTrabajo,
+      }));
+
+      return { data, total };
+    } catch (error) {
+      throw new NotFoundException('Error al obtener los trabajos pendientes.');
+    }
+  }
 
   async findDetalleTrabajo(id: string) {    
     try {      

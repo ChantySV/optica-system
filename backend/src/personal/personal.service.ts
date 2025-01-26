@@ -1,6 +1,6 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { ILike, Like, Repository } from 'typeorm';
 import { CreatePersonalDto } from './dto/create-personal.dto';
 import { UpdatePersonalDto } from './dto/update-personal.dto';
 import { Personal } from './entities/personal.entity';
@@ -107,6 +107,31 @@ export class PersonalService {
       this.errorHandleService.errorHandle(error);
     }
   }
+
+  //Solo Nombre
+  async searchPersonaVenta(search: string) {
+    try {
+      return await this.personalRepository.find({
+        where: [
+          {
+            activo: true,
+            // Se asegura de que la búsqueda no sea sensible a mayúsculas/minúsculas
+            nombres: ILike(`%${search.toLowerCase()}%`),
+          },
+          {
+            activo: true,
+            // Se busca también en el apellido y no distingue entre mayúsculas y minúsculas
+            apellido_paterno: ILike(`%${search.toLowerCase()}%`),
+          },
+        ],
+        select: ['id_personal', 'nombres', 'apellido_paterno'],  // Seleccionamos los campos necesarios
+      });
+    } catch (error) {
+      this.errorHandleService.errorHandle(error);
+      throw new Error('Error al realizar la búsqueda de personal.');
+    }
+  }
+  
 
 
 

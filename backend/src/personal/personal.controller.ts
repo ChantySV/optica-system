@@ -30,6 +30,12 @@ export class PersonalController {
     return this.personalService.findAllNaturales( paginationDto );
   }
 
+  @Get('search')
+  @Auth(ValidRoles.encargadoVentas)
+  async search(@Query('search') search: string) {
+    return await this.personalService.searchPersonaVenta(search);
+  }
+
   @Get()
   @Auth(ValidRoles.admin)
   findAll( @Query() paginationDto :PaginationDto) {

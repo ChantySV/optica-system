@@ -33,7 +33,7 @@ export class Usuario {
   @JoinColumn({ name: 'id_personal' })
   personal: Personal;  
 
-  @OneToMany(() => Venta, (venta) => venta.usuario, { nullable: false })  
-  venta: Venta;  
+  @OneToMany(() => Venta, (venta) => venta.usuario)
+  venta: Venta[];
 
 }

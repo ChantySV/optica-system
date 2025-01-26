@@ -14,7 +14,7 @@ export class Personal {
   @PrimaryGeneratedColumn('uuid')
   id_personal: string;
 
-  @Column('varchar')
+  @Column('varchar', {nullable:false})
   nombres: string;
 
   @Column('varchar')
@@ -23,15 +23,15 @@ export class Personal {
   @Column('varchar', { nullable: true })
   apellido_materno: string;
 
-  @Column('varchar', { nullable: true })
+  @Column('varchar', { nullable: true, unique: true })
   email: string;
 
   @Column('int', { nullable: false })
   telefono: number;
 
-  @Column('varchar', { nullable:false })
+  @Column('varchar', { nullable: false })
   tipo_persona: string;
-  
+
   @Column('boolean', { default: true })
   activo: boolean;
 

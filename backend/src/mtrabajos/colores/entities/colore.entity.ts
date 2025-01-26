@@ -1,5 +1,5 @@
 import { DetalleTrabajo } from 'src/mtrabajos/trabajos/entities/detalle-trabajo.entity';
-import { Entity, PrimaryGeneratedColumn, Column, OneToOne, JoinColumn, BeforeInsert, BeforeUpdate } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, OneToOne, JoinColumn, BeforeInsert, BeforeUpdate, OneToMany } from 'typeorm';
 
 @Entity('colores')
 export class Color {
@@ -12,7 +12,7 @@ export class Color {
   @Column({ default: true })
   activo: boolean;
 
-  @OneToOne(() => DetalleTrabajo, (detalleTrabajo) => detalleTrabajo.color)  
+  @OneToMany(() => DetalleTrabajo, (detalleTrabajo) => detalleTrabajo.color)  
   detalleTrabajo: DetalleTrabajo;
 
   @BeforeInsert()

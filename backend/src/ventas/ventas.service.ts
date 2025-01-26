@@ -1,6 +1,6 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Like, Repository, SelectQueryBuilder } from 'typeorm';
 import { Venta } from './entities/venta.entity';
 import { DetalleVenta } from './entities/detalle-venta.entity';
 import { CreateVentaDto } from './dto/create-venta.dto';
@@ -9,6 +9,9 @@ import { ErrorHandleService } from 'src/common/services/error-handle/error-handl
 import { Personal } from 'src/personal/entities/personal.entity';
 import { Trabajo } from 'src/mtrabajos/trabajos/entities/trabajo.entity';
 import { Usuario } from 'src/auth/usuarios/entities/usuario.entity';
+import { PaginationDto } from 'src/common/pagination-dto';
+import { QueryGetDto } from 'src/common/QueryGet-dto';
+import { QueryVentaDto } from './dto/query-venta.dto';
 
 @Injectable()
 export class VentasService {
@@ -26,27 +29,23 @@ export class VentasService {
     private readonly trabajoRepository: Repository<Trabajo>,
 
     private readonly errorHandleService: ErrorHandleService,
-  ) {}
+  ) { }
 
-  async create(createVentaDto: CreateVentaDto, user: Usuario): Promise<Venta> {
+  async create(createVentaDto: CreateVentaDto, user: Usuario) {
     try {
-      const { id_persona, detalleVentas } = createVentaDto;
+      const { monto_total, id_persona, detalleVentas } = createVentaDto;
   
-      // Validar que el personal exista
       const personal = await this.personalRepository.findOne({ where: { id_personal: id_persona } });
       if (!personal) {
         throw new NotFoundException(`El personal con ID "${id_persona}" no fue encontrado.`);
       }
   
-      // Validar que haya al menos un detalle de venta
       if (!detalleVentas || detalleVentas.length === 0) {
         throw new BadRequestException('Debe incluir al menos un detalle de venta.');
       }
   
-      let monto_total = 0;
       const trabajos = [];
   
-      // Validar y calcular el monto total
       for (const detalle of detalleVentas) {
         const trabajo = await this.trabajoRepository.findOne({
           where: { id_trabajo: detalle.id_trabajo },
@@ -61,19 +60,22 @@ export class VentasService {
         }
   
         trabajos.push(trabajo);
-      
+  
+        // Cambiar el estado del trabajo a 'entregado'
+        trabajo.estado = 'entregado';
+  
+        // Guardar el trabajo actualizado en la base de datos
+        await this.trabajoRepository.save(trabajo);
       }
   
-      // Crear la venta asociando el usuario autenticado
       const venta = this.ventaRepository.create({
         personal,
         usuario: user,
-        monto_total: parseFloat(monto_total.toFixed(2)), // Monto total calculado
+        monto_total: parseFloat(monto_total.toFixed(2)),
       });
   
       const savedVenta = await this.ventaRepository.save(venta);
   
-      // Crear los detalles de venta
       for (const trabajo of trabajos) {
         const nuevoDetalle = this.detalleVentaRepository.create({
           trabajo,
@@ -86,18 +88,122 @@ export class VentasService {
       return savedVenta;
     } catch (error) {
       this.errorHandleService.errorHandle(error);
+      throw new BadRequestException('Hubo un error al crear la venta.');
     }
   }
-  
+
   // Obtener todas las ventas activas
-  async findAll(): Promise<Venta[]> {
+  async findAll(paginationDto: PaginationDto, queryGetDto: QueryGetDto, queryVentaDto: QueryVentaDto) {
+    const { limit, offset } = paginationDto
+    const { order = 'ASC' } = queryGetDto;
+    const { sortBy = 'monto_total' } = queryVentaDto
+
     try {
-      return await this.ventaRepository.find({
+      const [ventas, total] = await this.ventaRepository.findAndCount({
         where: { activo: true },
-        relations: ['personal', 'detalleVentas' ],
+        relations: ['usuario', 'detalleVentas', 'detalleVentas.trabajo', 'personal'],
+        take: limit,
+        skip: offset,
+        order: { [sortBy]: order }
       });
+
+      const data = ventas.map((venta) => ({
+        id_venta: venta.id_venta,
+        monto_total: venta.monto_total,
+        fecha_venta: venta.fecha_venta,
+        usuario: venta.usuario.nombre_usuario,
+        personal: venta.personal.nombres,
+        detalleVentas: venta.detalleVentas.map((detalle) => ({
+          id_detalle: detalle.id_detalleVenta,
+          numero_trabajo: detalle.trabajo.numero_trabajo,
+          id_trabajo: detalle.trabajo.id_trabajo
+        })),
+      }));
+
+      return { data, total }
     } catch (error) {
       this.errorHandleService.errorHandle(error);
+      throw error
+    }
+  }
+
+//Barra de busqueda
+  async searchVenta(search: string, paginationDto: PaginationDto) {
+    const { limit, offset } = paginationDto;
+
+    try {
+      // Crear un QueryBuilder para la entidad Venta
+      const queryBuilder = this.ventaRepository.createQueryBuilder('venta')
+        .leftJoinAndSelect('venta.personal', 'personal') 
+        .where('venta.activo = :activo', { activo: true })
+        .andWhere(
+          `(personal.nombres LIKE :search)`,
+          { search: `%${search}%` },
+        )
+        .take(limit)
+        .skip(offset)
+        .orderBy('venta.fecha_venta', 'DESC');      
+      const [ventas, total] = await queryBuilder.getManyAndCount();
+
+      return { ventas, total };
+    } catch (error) {
+      this.errorHandleService.errorHandle(error);
+      throw new BadRequestException('Error al buscar ventas');
+    }
+  }
+
+  //Get Precio Venta Producto
+  async findPrecioVenta(id_trabajo: string): Promise<any> {
+    try {    
+      const trabajo = await this.trabajoRepository.findOne({
+        where: { id_trabajo },
+        relations: ['detalleTrabajo', 'detalleTrabajo.producto'],
+      });
+
+      if (!trabajo) {
+        throw new NotFoundException(`Trabajo con ID "${id_trabajo}" no encontrado`);
+      }
+
+      return trabajo.detalleTrabajo.producto.precio_venta * 2;
+    } catch (error) {
+      this.errorHandleService.errorHandle(error);
+      throw new Error('Error al obtener el trabajo con los precios de venta.');
+    }
+  }
+
+  //Get Detalle Venta
+  async findDetalleVenta(id_venta: string): Promise<any> {
+    try {
+      const venta = await this.ventaRepository.findOne({
+        where: { id_venta },
+        relations: ['detalleVentas', 'detalleVentas.trabajo', 'detalleVentas.trabajo.detalleTrabajo', 'detalleVentas.trabajo.detalleTrabajo.producto'],
+      });
+
+      if (!venta) {
+        throw new NotFoundException(`Venta con ID "${id_venta}" no encontrada`);
+      }
+
+      // Mapeamos los detalles de la venta para incluir los datos de los trabajos y productos asociados
+      const data = {
+        id_venta: venta.id_venta,
+        monto_total: venta.monto_total,
+        fecha_venta: venta.fecha_venta,
+        // usuario: venta.usuario.nombre_usuario,
+        detalleVentas: venta.detalleVentas.map((detalle) => ({
+          numero_trabajo: detalle.trabajo.numero_trabajo,
+          estado: detalle.trabajo?.estado,
+          producto: {
+            id_producto: detalle.trabajo?.detalleTrabajo?.producto?.id_producto,
+            nombre_producto: detalle.trabajo?.detalleTrabajo?.producto?.nombre,
+            precio_venta: detalle.trabajo?.detalleTrabajo?.producto?.precio_venta,
+          },
+        })),
+      };
+
+      return data;
+    } catch (error) {
+      console.error(error);
+      throw new Error('Error al obtener el detalle de la venta.');
     }
   }
 

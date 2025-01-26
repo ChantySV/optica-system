@@ -1,14 +1,15 @@
 import { Injectable } from '@nestjs/common';
+import { DataSource } from 'typeorm';
+
 import { ErrorHandleService } from 'src/common/services/error-handle/error-handle.service';
 import { ProductosService } from 'src/proveedores-productos/productos/productos.service';
 import { ProveedoresService } from 'src/proveedores-productos/proveedores/proveedores.service';
 import { RolesService } from 'src/auth/roles/roles.service';
 import { PersonalService } from 'src/personal/personal.service';
 import { UsuariosService } from 'src/auth/usuarios/usuarios.service';
-
-import { DataSource } from 'typeorm';
 import { ColoresService } from 'src/mtrabajos/colores/colores.service';
 import { TratamientosService } from 'src/mtrabajos/tratamientos/tratamientos.service';
+import { TrabajosService } from 'src/mtrabajos/trabajos/trabajos.service';
 
 import { seedPersonal } from './data/personal-data';
 import { seedProductos } from './data/productos-data';
@@ -17,6 +18,7 @@ import { seedRoles } from './data/rol-data';
 import { seedUsuarios } from './data/usuario-data';
 import { seedColores } from './data/color-data';
 import { seedTratamientos } from './data/tratamiento-data';
+import { seedTrabajos } from './data/trabajos-data';
 
 @Injectable()
 export class SeedService {
@@ -30,6 +32,7 @@ export class SeedService {
     private readonly personalService: PersonalService,    
     private readonly colorService: ColoresService,    
     private readonly tramamientoService: TratamientosService,    
+    private readonly trabajoService: TrabajosService,    
 
     private readonly dataSource: DataSource,
     private readonly errorHandleService: ErrorHandleService
@@ -64,6 +67,7 @@ export class SeedService {
       await this.seedUsuarios();
       await this.seedColor()
       await this.seedTratamiento()
+      // await this.seedTrabajo()
       
     } catch (error) {
       this.errorHandleService.errorHandle(error)
@@ -111,10 +115,14 @@ export class SeedService {
     for (const tratamiento of seedTratamientos) {
       await this.tramamientoService.create(tratamiento);
     }
+  
+  }
+  private async seedTrabajo() {
+    for (const trabajo of seedTrabajos) {
+      await this.trabajoService.create(trabajo);
+    }
   }
 
   
-
-
 }
 

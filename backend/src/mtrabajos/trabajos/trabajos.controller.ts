@@ -28,6 +28,12 @@ export class TrabajosController {
     return this.trabajosService.findAll( paginationDto, queryGetDto, queryTrabajoDto );
   }
 
+  @Get('pendientes')
+  @Auth(ValidRoles.encargadoVentas)
+  async getPendientes() {
+    return await this.trabajosService.findPendientes();
+  }
+
   @Get(':id')
   @Auth(ValidRoles.encargadoTrabajos)
   findOne(@Param('id') id: string) {

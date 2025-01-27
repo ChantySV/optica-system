@@ -33,7 +33,7 @@
                 <span v-else>▼</span>
               </span>
             </th>
-            <th class="px-6 py-3 text-left">Acciones</th>
+            <th class="px-6 py-3 text-center">Acciones</th>
           </tr>
         </thead>
         <tbody>

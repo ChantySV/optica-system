@@ -5,7 +5,7 @@
     <div class="w-full max-w-md p-8 bg-white shadow-lg rounded-lg">
       <!-- Título / Marca -->
       <div class="flex justify-center mb-6">
-        <span class="text-3xl font-bold text-orange-600">Óptica Visión</span>
+        <span class="text-3xl font-bold text-orange-600">OPTALVISION</span>
       </div>
 
       <!-- Formulario de Login -->

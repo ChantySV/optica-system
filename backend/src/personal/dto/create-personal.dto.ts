@@ -14,11 +14,11 @@ export class CreatePersonalDto {
   @IsString()
   @IsEmail()
   @IsOptional()
-  email?: string;
+  email?: string | null ;
 
   @IsInt()  
   @IsOptional()
-  telefono?: number;
+  telefono?: number | null;
 
   @IsString()    
   tipo_persona: string;

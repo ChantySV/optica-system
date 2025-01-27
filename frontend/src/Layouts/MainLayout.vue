@@ -11,7 +11,7 @@
         <div class="w-10 h-10 bg-white rounded-full flex items-center justify-center">
           <span class="text-orange-500 font-bold text-lg">V</span>
         </div>
-        <h1 class="text-lg font-bold text-white" v-if="sidebarOpen">Óptica Visión</h1>
+        <h1 class="text-lg font-bold text-white" v-if="sidebarOpen">OptalVision</h1>
       </div>
 
       <!-- Menú de navegación -->

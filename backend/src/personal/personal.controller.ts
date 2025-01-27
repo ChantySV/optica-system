@@ -5,6 +5,8 @@ import { UpdatePersonalDto } from './dto/update-personal.dto';
 import { Auth } from 'src/auth/usuarios/decorators/get-usuario.decorator';
 import { ValidRoles } from 'src/auth/usuarios/interfaces/valid-roles.interface';
 import { PaginationDto } from 'src/common/pagination-dto';
+import { QueryPersonalDto } from './dto/query-response-personal.dto';
+import { QueryGetDto } from 'src/common/QueryGet-dto';
 
 @Controller('personal')
 
@@ -20,14 +22,28 @@ export class PersonalController {
   
   @Get('juridicos')
   @Auth(ValidRoles.admin)
-  findAllJuridicos( @Query() paginationDto :PaginationDto) {
-    return this.personalService.findAllJurídicos( paginationDto );
+  findAllJuridicos( 
+    @Query() paginationDto: PaginationDto,
+    @Query() queryGetDto: QueryGetDto,
+    @Query() queryPersonalDto: QueryPersonalDto
+  ) {
+    return this.personalService.findAllJuridicos( paginationDto, queryGetDto, queryPersonalDto);
   }
 
   @Get('naturales')
+  @Auth(ValidRoles.encargadoVentas)
+  findAllNaturales( 
+    @Query() paginationDto: PaginationDto,
+    @Query() queryGetDto: QueryGetDto,
+    @Query() queryPersonalDto: QueryPersonalDto
+  ) {
+    return this.personalService.findAllNaturales( paginationDto, queryGetDto, queryPersonalDto );
+  }
+
+  @Get('search-admin')
   @Auth(ValidRoles.admin)
-  findAllNaturales( @Query() paginationDto :PaginationDto) {
-    return this.personalService.findAllNaturales( paginationDto );
+  async searchAdmin(@Query('search') search: string) {
+    return await this.personalService.searchPersonaAdmin(search);
   }
 
   @Get('search')

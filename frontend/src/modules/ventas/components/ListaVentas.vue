@@ -94,7 +94,7 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue';
-import { getVentas, findDetalleVenta, searchVentas } from '../actions/venta.action';
+import { getVentas, searchVentas } from '../actions/venta.action';
 import DetalleVentaModal from './DetalleVenta.vue';
 import UpdateVentaModal from './UpdateVenta.vue';
 import { useToast } from 'vue-toastification';

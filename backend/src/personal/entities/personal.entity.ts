@@ -21,13 +21,13 @@ export class Personal {
   apellido_paterno: string;
 
   @Column('varchar', { nullable: true })
-  apellido_materno: string;
+  apellido_materno?: string | null;
 
   @Column('varchar', { nullable: true, unique: true })
-  email: string;
+  email?: string | null;
 
   @Column('int', { nullable: false })
-  telefono: number;
+  telefono: number | null;
 
   @Column('varchar', { nullable: false })
   tipo_persona: string;

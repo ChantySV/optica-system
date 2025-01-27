@@ -1,8 +1,12 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, SetMetadata } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, SetMetadata, Query } from '@nestjs/common';
 import { UsuariosService } from './usuarios.service';
 import { CreateUsuarioDto, UpdateUsuarioDto, LoginUsuarioDto } from './dto/index';
 import { Auth } from './decorators/get-usuario.decorator';
 import { ValidRoles } from './interfaces/valid-roles.interface';
+import { PaginationDto } from 'src/common/pagination-dto';
+import { QueryGetDto } from 'src/common/QueryGet-dto';
+import { queryResponseUsuarioDto } from './dto/query-response-usuario.dto';
+import { FilterUsuarioDto } from './dto/filter-usuario.dto';
 
 
 @Controller('usuarios')
@@ -22,8 +26,12 @@ export class UsuariosController {
 
   @Get()
   @Auth( ValidRoles.admin )
-  findAll() {
-    return this.usuariosService.findAll();
+  findAll(
+    @Query() paginationDto: PaginationDto,
+    @Query() queryGetDto: QueryGetDto,
+    @Query() filterUsuarioDto: FilterUsuarioDto,
+  ) {
+    return this.usuariosService.findAll(paginationDto, queryGetDto, filterUsuarioDto);
   }
 
   @Get(':id')

@@ -104,7 +104,7 @@ const onLogin = async () => {
 
     switch (userRole) {
       case 'admin':
-        router.push('/admin');
+        router.push('/admin/personal');
         break;
       case 'encargado-ventas':
         router.push('/ventas');

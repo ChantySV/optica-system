@@ -25,11 +25,11 @@ export class Usuario {
   @Column('boolean', { default: true })
   activo: boolean;
 
-  @ManyToOne(() => Role, (role) => role.usuarios, { nullable: false })
+  @ManyToOne(() => Role, (role) => role.usuarios, { nullable: true })
   @JoinColumn({ name: 'id_rol' })
   role: Role;
 
-  @OneToOne(() => Personal, (personal) => personal.usuario, { nullable: false })
+  @OneToOne(() => Personal, (personal) => personal.usuario, { nullable: true })
   @JoinColumn({ name: 'id_personal' })
   personal: Personal;  
 

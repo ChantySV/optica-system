@@ -78,7 +78,7 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import { useToast } from 'vue-toastification';
-import { createPersona } from '../actions/admin.action'; // Asegúrate de tener esta acción definida
+import { createPersona } from '../actions/admin-personal.action'; // Asegúrate de tener esta acción definida
 
 // Emits
 const emit = defineEmits<{

@@ -26,7 +26,7 @@ export class Personal {
   @Column('varchar', { nullable: true, unique: true })
   email?: string | null;
 
-  @Column('int', { nullable: false })
+  @Column('int', { nullable: true })
   telefono: number | null;
 
   @Column('varchar', { nullable: false })

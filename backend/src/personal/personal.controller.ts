@@ -30,6 +30,12 @@ export class PersonalController {
     return this.personalService.findAllJuridicos( paginationDto, queryGetDto, queryPersonalDto);
   }
 
+  @Get('juridicos-admin')
+  @Auth(ValidRoles.admin)
+  findAllJuridicosAdmin() {
+    return this.personalService.findAllJuridicosAdmin();
+  }
+
   @Get('naturales')
   @Auth(ValidRoles.encargadoVentas)
   findAllNaturales( 

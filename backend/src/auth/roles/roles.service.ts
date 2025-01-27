@@ -25,10 +25,12 @@ export class RolesService {
     }
   }
 
-  async findAll(): Promise<Role[]> {
-    return await this.roleRepository.find({
-      where: { activo: true }      
-    });
+  async findAll(): Promise<{ok: boolean, data:Role[]}> {
+    const data = await this.roleRepository.find();
+    return {
+      ok:true,
+      data
+    }
   }
 
   async findOne(id: string): Promise<Role> {

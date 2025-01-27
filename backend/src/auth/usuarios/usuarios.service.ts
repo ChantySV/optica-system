@@ -1,8 +1,8 @@
-import { Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
+import { BadRequestException, ConflictException, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { JwtService } from '@nestjs/jwt';
 
-import { Repository } from 'typeorm';
+import { Repository, SelectQueryBuilder } from 'typeorm';
 
 import { Usuario } from './entities/usuario.entity';
 import { Role } from '../roles/entities/role.entity';
@@ -13,6 +13,10 @@ import { JwtPayload } from './interfaces/jwt-payload.interface';
 import * as bcrypt from 'bcrypt'
 
 import { ErrorHandleService } from '../../common/services/error-handle/error-handle.service';
+import { PaginationDto } from 'src/common/pagination-dto';
+import { QueryGetDto } from 'src/common/QueryGet-dto';
+import { queryResponseUsuarioDto } from './dto/query-response-usuario.dto';
+import { FilterUsuarioDto } from './dto/filter-usuario.dto';
 
 
 @Injectable()
@@ -32,49 +36,140 @@ export class UsuariosService {
     private readonly errorHandleService: ErrorHandleService,
   ) { }
 
-  async create(createUsuarioDto: CreateUsuarioDto): Promise<Usuario> {
+  async create(createUsuarioDto: CreateUsuarioDto): Promise<{ ok: boolean; data: any; message?: string }> {
     try {
       const { id_rol, id_personal, contrasenha, ...usuarioData } = createUsuarioDto;
-
+      
+      const existingUsuario = await this.usuarioRepository.findOne({ where: { nombre_usuario: usuarioData.nombre_usuario } });
+      if (existingUsuario) {
+        throw new ConflictException('El nombre de usuario ya está en uso.');
+      }
+      
       const role = id_rol
         ? await this.roleRepository.findOne({ where: { id_rol, activo: true } })
         : null;
       if (id_rol && !role) {
         throw new NotFoundException(`Rol con ID "${id_rol}" no encontrado`);
       }
-
+      
       const personal = id_personal
         ? await this.personalRepository.findOne({
-          where: { id_personal, activo: true },
-        })
+            where: { id_personal, activo: true },
+          })
         : null;
       if (id_personal && !personal) {
-        throw new NotFoundException(
-          `Personal con ID "${id_personal}" no encontrado`,
-        );
+        throw new NotFoundException(`Personal con ID "${id_personal}" no encontrado`);
       }
 
+      // Hashear la contraseña de forma asíncrona
+      const hashedPassword = await bcrypt.hash(contrasenha, 10);
+      
       const usuario = this.usuarioRepository.create({
         ...usuarioData,
         role,
         personal,
-        contrasenha: bcrypt.hashSync(contrasenha, 10)
+        contrasenha: hashedPassword,
       });
 
-      return await this.usuarioRepository.save(usuario);
+      const savedUsuario = await this.usuarioRepository.save(usuario);
+      
+      const data = {
+        nombre_usuario: savedUsuario.nombre_usuario,
+        activo: savedUsuario.activo,
+        role: {
+          nombre_rol: savedUsuario.role.nombre_rol,
+        },
+        personal: {
+          nombres: savedUsuario.personal.nombres,
+        },
+      };
+
+      return {
+        ok: true,
+        data,
+      };
     } catch (error) {
       this.errorHandleService.errorHandle(error);
+      // Retornar una respuesta consistente en caso de error
+      return {
+        ok: false,
+        data: null,
+        message: error.message || 'Error al crear el usuario.',
+      };
     }
   }
 
-  async findAll(): Promise<Usuario[]> {
+  async findAll(
+    paginationDto: PaginationDto,
+    queryGetDto: QueryGetDto,
+    filterUsuarioDto: FilterUsuarioDto,
+  ): Promise<{ ok: true; data: any[]; total: number }> {
     try {
-      return await this.usuarioRepository.find({
-        where: { activo: true },
-        relations: ['role', 'personal'],
-      });
+      const { limit, offset } = paginationDto;
+      const { order = 'ASC' } = queryGetDto;
+      const { sortBy = 'nombre_usuario' } = queryGetDto; 
+      
+      const query: SelectQueryBuilder<Usuario> = this.usuarioRepository.createQueryBuilder('usuario')
+        .leftJoinAndSelect('usuario.role', 'role')
+        .leftJoinAndSelect('usuario.personal', 'personal');
+
+      // Aplicar filtros
+      if (filterUsuarioDto.nombre_usuario) {
+        query.andWhere('usuario.nombre_usuario ILIKE :nombre_usuario', { nombre_usuario: `%${filterUsuarioDto.nombre_usuario}%` });
+      }
+
+      if (filterUsuarioDto.nombre_rol) {
+        query.andWhere('role.nombre_rol ILIKE :nombre_rol', { nombre_rol: `%${filterUsuarioDto.nombre_rol}%` });
+      }
+
+      if (filterUsuarioDto.nombres) {
+        query.andWhere('personal.nombres ILIKE :nombres', { nombres: `%${filterUsuarioDto.nombres}%` });
+      }
+      
+      if (['nombre_usuario', 'activo', 'nombre_rol', 'nombres'].includes(sortBy)) {
+        if (sortBy === 'nombre_rol') {
+          query.orderBy('role.nombre_rol', order);
+        } else if (sortBy === 'nombres') {
+          query.orderBy('personal.nombres', order);
+        } else {
+          query.orderBy(`usuario.${sortBy}`, order);
+        }
+      } else {
+        throw new BadRequestException('Campo de ordenamiento inválido.');
+      }
+
+      query.take(limit).skip(offset);
+
+      query.select([
+        'usuario.id_usuario',
+        'usuario.nombre_usuario',
+        'usuario.activo',
+        'role.id_rol',
+        'role.nombre_rol',
+        'personal.id_personal',
+        'personal.nombres',
+      ]);
+
+      const [usuarios, total] = await query.getManyAndCount();
+
+      const data = usuarios.map(usuario => ({
+        id_usuario: usuario.id_usuario,
+        nombre_usuario: usuario.nombre_usuario,
+        activo: usuario.activo,
+        role: {
+          id_rol: usuario.role.id_rol,
+          nombre_rol: usuario.role.nombre_rol,
+        },
+        personal: {
+          id_personal: usuario.personal.id_personal,
+          nombres: usuario.personal.nombres,
+        },
+      }));
+
+      return { ok: true, data, total };
     } catch (error) {
       this.errorHandleService.errorHandle(error);
+      throw error;
     }
   }
 
@@ -95,15 +190,59 @@ export class UsuariosService {
     }
   }
 
-  async update(
-    id: string,
-    updateUsuarioDto: UpdateUsuarioDto,
-  ): Promise<Usuario> {
+  async update(id_usuario: string, updateUsuarioDto: UpdateUsuarioDto): Promise<{ ok: boolean; data: any }> {
     try {
-      const { id_rol, id_personal, ...usuarioData } = updateUsuarioDto;
-
+      // Verificar si el usuario existe
       const usuario = await this.usuarioRepository.findOne({
-        where: { id_usuario: id, activo: true },
+        where: { id_usuario },
+        relations: ['role', 'personal'],
+      });
+
+      if (!usuario) {
+        throw new NotFoundException(`Usuario con ID "${id_usuario}" no encontrado`);
+      }
+
+      // Verificar si el nombre de usuario ya está en uso por otro usuario
+      if (updateUsuarioDto.nombre_usuario && updateUsuarioDto.nombre_usuario !== usuario.nombre_usuario) {
+        const existingUsuario = await this.usuarioRepository.findOne({
+          where: { nombre_usuario: updateUsuarioDto.nombre_usuario },
+        });
+        if (existingUsuario) {
+          throw new ConflictException('El nombre de usuario ya está en uso.');
+        }
+      }
+
+      // Actualizar los campos
+      usuario.nombre_usuario = updateUsuarioDto.nombre_usuario || usuario.nombre_usuario;
+      usuario.role = updateUsuarioDto.id_rol ? { id_rol: updateUsuarioDto.id_rol } as any : usuario.role;
+      usuario.personal = updateUsuarioDto.id_personal ? { id_personal: updateUsuarioDto.id_personal } as any : usuario.personal;      
+
+      // Guardar los cambios
+      const updatedUsuario = await this.usuarioRepository.save(usuario);
+
+      // Mapea los datos para la respuesta, excluyendo el ID
+      const data = {
+        nombre_usuario: updatedUsuario.nombre_usuario,
+        activo: updatedUsuario.activo,
+        role: {
+          nombre_rol: updatedUsuario.role.nombre_rol,
+        },
+        personal: {
+          nombres: updatedUsuario.personal.nombres,
+        },
+      };
+
+      return { ok: true, data };
+    } catch (error) {
+      this.errorHandleService.errorHandle(error);
+      throw error;
+    }
+  }
+
+  async remove(id: string): Promise<{ok: boolean, data: any}> {
+    try {
+      const usuario = await this.usuarioRepository.findOne({
+        where: { id_usuario: id },
         relations: ['role', 'personal'],
       });
 
@@ -111,43 +250,25 @@ export class UsuariosService {
         throw new NotFoundException(`Usuario con ID "${id}" no encontrado`);
       }
 
-      if (id_rol) {
-        const role = await this.roleRepository.findOne({
-          where: { id_rol, activo: true },
-        });
-        if (!role) {
-          throw new NotFoundException(`Rol con ID "${id_rol}" no encontrado`);
-        }
-        usuario.role = role;
-      }
+      usuario.activo = !usuario.activo; // Alterna el estado
+      const updatedUsuario = await this.usuarioRepository.save(usuario);
 
-      if (id_personal) {
-        const personal = await this.personalRepository.findOne({
-          where: { id_personal, activo: true },
-        });
-        if (!personal) {
-          throw new NotFoundException(
-            `Personal con ID "${id_personal}" no encontrado`,
-          );
-        }
-        usuario.personal = personal;
-      }
+      // Mapea los datos para la respuesta, excluyendo el ID
+      const data = {
+        nombre_usuario: updatedUsuario.nombre_usuario,
+        activo: updatedUsuario.activo,
+        role: {
+          nombre_rol: updatedUsuario.role.nombre_rol,
+        },
+        personal: {
+          nombres: updatedUsuario.personal.nombres,
+        },
+      };
 
-      Object.assign(usuario, usuarioData);
-
-      return await this.usuarioRepository.save(usuario);
+      return { ok: true, data };
     } catch (error) {
       this.errorHandleService.errorHandle(error);
-    }
-  }
-
-  async remove(id: string): Promise<Usuario> {
-    try {
-      const usuario = await this.findOne(id);
-      usuario.activo = false;
-      return await this.usuarioRepository.save(usuario);
-    } catch (error) {
-      this.errorHandleService.errorHandle(error);
+      throw error;
     }
   }
 

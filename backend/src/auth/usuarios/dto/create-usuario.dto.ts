@@ -15,13 +15,11 @@ export class CreateUsuarioDto {
 
   @IsBoolean()
   @IsOptional()
-  activo?: boolean;
+  activo: boolean;
 
-  @IsUUID()
-  @IsOptional()
-  id_rol?: string;
+  @IsUUID()  
+  id_rol: string;
 
-  @IsUUID()
-  @IsOptional()
-  id_personal?: string;
+  @IsUUID() 
+  id_personal: string;
 }

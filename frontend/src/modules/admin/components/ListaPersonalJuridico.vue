@@ -103,7 +103,7 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue';
-import { findAllJuridicos, removePersona, searchPersonaAdmin } from '../actions/admin.action';
+import { findAllJuridicos, removePersona, searchPersonaAdmin } from '../actions/admin-personal.action';
 import { useToast } from 'vue-toastification';
 import type { personalInteface } from '../interfaces/personalResponse.interface';
 import UpdatePersonaModal from './UpdatePersonal.vue';

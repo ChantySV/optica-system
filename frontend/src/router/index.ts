@@ -33,18 +33,28 @@ const router = createRouter({
 
 router.beforeEach((to, from, next) => {
   const authStore = useAuthStore();
-  // Revisa si la ruta requiere autenticación
+
+  // Verificar si la ruta requiere autenticación
   if (to.meta.requiresAuth && !authStore.isAuthenticated) {
-    return next({ name: 'login' }); // Redirige al login si no está autenticado
+    return next({ name: 'login' });
   }
 
-  // Revisa si hay una restricción de rol y si el usuario cumple con ella
-  if (to.meta.role && authStore.user?.role.nombre_rol !== to.meta.role) {
-    return next({ name: 'login' }); // Redirige o muestra un mensaje de no autorizado
+  // Verificar rol
+  if (to.meta.role) {
+    const userRole = authStore.user?.role.nombre_rol;
+
+    // Admin puede acceder a todas las rutas
+    if (userRole === 'admin') {
+      return next();
+    }
+
+    // Restringir acceso según el rol
+    if (userRole !== to.meta.role) {
+      return next({ name: 'login' });
+    }
   }
+
   next();
 });
-
-
 
 export default router;

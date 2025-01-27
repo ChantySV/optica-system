@@ -16,16 +16,54 @@
 
       <!-- Menú de navegación -->
       <ul v-if="sidebarOpen" class="menu flex-1 p-4 space-y-3">
-        <!-- Admin -->
-        <li v-if="isAdmin || permissions.includes('admin')">
+        <!-- Admin Usuarios -->
+        <li v-if="isAdmin">
           <router-link
-            to="/admin"
+            to="/admin/personal"
             class="flex items-center px-3 py-2 rounded-md text-gray-300
                    hover:text-white hover:bg-orange-500 hover:scale-105
                    transition-all duration-300"
           >
             <icon-file-invoice class="h-5 w-5 mr-3" />
-            <span>Admin</span>
+            <span>Personal</span>
+          </router-link>
+        </li>
+
+        <!-- Admin Usuarios -->
+        <li v-if="isAdmin">
+          <router-link
+            to="/admin/usuarios"
+            class="flex items-center px-3 py-2 rounded-md text-gray-300
+                   hover:text-white hover:bg-orange-500 hover:scale-105
+                   transition-all duration-300"
+          >
+            <icon-file-invoice class="h-5 w-5 mr-3" />
+            <span>Usuarios</span>
+          </router-link>
+        </li>
+
+        <!-- Admin Varios -->
+        <li v-if="isAdmin">
+          <router-link
+            to="/admin/varios"
+            class="flex items-center px-3 py-2 rounded-md text-gray-300
+                   hover:text-white hover:bg-orange-500 hover:scale-105
+                   transition-all duration-300"
+          >
+            <icon-file-invoice class="h-5 w-5 mr-3" />
+            <span>Varios</span>
+          </router-link>
+        </li>
+
+        <li v-if="isAdmin">
+          <router-link
+            to="/productos"
+            class="flex items-center px-3 py-2 rounded-md text-gray-300
+                   hover:text-white hover:bg-orange-500 hover:scale-105
+                   transition-all duration-300"
+          >
+            <icon-package class="h-5 w-5 mr-3" />
+            <span>Productos</span>
           </router-link>
         </li>
 
@@ -45,7 +83,7 @@
         <!-- Encargado de Productos -->
         <li v-if="isAdmin || permissions.includes('encargado-productos')">
           <router-link
-            to="/Proveedores"
+            to="/proveedores"
             class="flex items-center px-3 py-2 rounded-md text-gray-300
                    hover:text-white hover:bg-orange-500 hover:scale-105
                    transition-all duration-300"

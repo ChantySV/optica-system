@@ -113,7 +113,7 @@
 import { ref, watch } from 'vue';
 import { useToast } from 'vue-toastification';
 import type { personalInteface } from '../interfaces/personalResponse.interface';
-import { updatePersona } from '../actions/admin.action';
+import { updatePersona } from '../actions/admin-personal.action';
 
 // Props
 const props = defineProps<{

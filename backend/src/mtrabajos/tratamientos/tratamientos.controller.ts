@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query, Res } from '@nestjs/common';
 import { TratamientosService } from './tratamientos.service';
 import { CreateTratamientoDto } from './dto/create-tratamiento.dto';
 import { UpdateTratamientoDto } from './dto/update-tratamiento.dto';
@@ -17,8 +17,10 @@ export class TratamientosController {
 
   @Get()
   @Auth(ValidRoles.encargadoTrabajos)
-  findAll() {
-    return this.tratamientosService.findAll();
+  findAll(
+  @Query() query,    
+  ) {
+    return this.tratamientosService.findAll(query);
   }
 
   @Get('nombres')

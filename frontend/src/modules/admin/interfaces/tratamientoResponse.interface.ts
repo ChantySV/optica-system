@@ -1,4 +1,6 @@
-export interface TratamientoInterface {
+export interface Tratamiento {
   id_tratamiento: string;
-  nombre:         string;
+  nombre: string;
+  descripcion: string | null;
+  activo: boolean;
 }

@@ -1,6 +1,6 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Repository, FindManyOptions, Like } from 'typeorm';
 import { ErrorHandleService } from 'src/common/services/error-handle/error-handle.service';
 
 import { Tratamiento } from './entities/tratamiento.entity';
@@ -15,22 +15,61 @@ export class TratamientosService {
     private readonly errorHandleService: ErrorHandleService,
   ) {}
 
-  // Crear un nuevo tratamiento
-  async create(createTratamientoDto: CreateTratamientoDto): Promise<Tratamiento> {
+  async create(createTratamientoDto: CreateTratamientoDto): Promise<{ ok: boolean; data: Tratamiento; message?: string }> {
     try {
+      const existing = await this.tratamientoRepository.findOne({ where: { nombre: createTratamientoDto.nombre } });
+      if (existing) {
+        throw new ConflictException('El nombre del tratamiento ya está en uso.');
+      }
+
       const tratamiento = this.tratamientoRepository.create(createTratamientoDto);
-      return await this.tratamientoRepository.save(tratamiento);
+      const saved = await this.tratamientoRepository.save(tratamiento);
+
+      return {
+        ok: true,
+        data: saved,
+      };
     } catch (error) {
       this.errorHandleService.errorHandle(error);
+      return {
+        ok: false,
+        data: null,
+        message: error.message || 'Error al crear el tratamiento.',
+      };
     }
   }
 
   // Obtener todos los tratamientos activos
-  async findAll(): Promise<Tratamiento[]> {
+  async findAll(query: any): Promise<{ ok: boolean; data: Tratamiento[]; total: number; message?: string }> {
     try {
-      return await this.tratamientoRepository.find({ where: { activo: true } });
+      const { page = 1, limit = 10, sortBy = 'nombre', order = 'ASC', filters } = query;
+
+      const findOptions: FindManyOptions<Tratamiento> = {
+        where: {},
+        order: {
+          [sortBy]: order.toUpperCase() === 'ASC' ? 'ASC' : 'DESC',
+        },
+        skip: (page - 1) * limit,
+        take: limit,
+      };
+
+      if (filters && filters.nombre) {
+        findOptions.where = {
+          ...findOptions.where,
+          nombre: Like(`%${filters.nombre}%`),
+        };
+      }
+
+      const [data, total] = await this.tratamientoRepository.findAndCount(findOptions);
+
+      return {
+        ok: true,
+        data,
+        total,
+      };
     } catch (error) {
       this.errorHandleService.errorHandle(error);
+      throw error;
     }
   }
 
@@ -82,14 +121,17 @@ export class TratamientosService {
   }
 
   // Desactivar (eliminar lógicamente) un tratamiento
-  async remove(id: string): Promise<Tratamiento> {
-    try {
-      const tratamiento = await this.findOne(id);
+  async remove(id: string) {
 
-      tratamiento.activo = false; // Desactivación lógica
-      return await this.tratamientoRepository.save(tratamiento);
-    } catch (error) {
-      this.errorHandleService.errorHandle(error);
+    const tratamiento = await this.findOne(id);
+    if (!tratamiento) {
+      throw new NotFoundException(`Personal con ID "${id}" no encontrado`);
     }
+    tratamiento.activo = !tratamiento.activo; 
+    const updatedTratamiento = await this.tratamientoRepository.save(tratamiento);
+    return { ok: true, data: updatedTratamiento };
+  } catch (error) {
+    this.errorHandleService.errorHandle(error);
+    throw error;
   }
 }

@@ -22,18 +22,3 @@ services:
       PGADMIN_DEFAULT_PASSWORD:  ${PGADMIN_PASSWORD}
     ports:
       - "80:80"   
-
- # Backend Nest.js
-  backend:
-    build: .
-    container_name: nest-backend
-    environment:
-      DB_HOST: ${DB_HOST}
-      DB_PORT: ${DB_PORT}
-      DB_NAME: ${DB_NAME}
-      DB_USERNAME: ${DB_USERNAME}
-      DB_PASSWORD: ${DB_PASSWORD}
-    ports:
-      - "4000:4000"
-    depends_on:
-      - db

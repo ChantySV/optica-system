@@ -1,8 +1,8 @@
 <template>
   <div class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
-    <div class="bg-white p-6 rounded-lg shadow-lg w-full max-w-md relative">
-      <h2 class="text-2xl font-bold mb-4 text-center">Actualizar Tratamiento</h2>
-      <form @submit.prevent="submitUpdate">
+    <div class="bg-white p-6 rounded-lg shadow-lg w-full max-w-md mx-4">
+      <h2 class="text-2xl font-bold mb-4 text-center">Crear Tratamiento</h2>
+      <form @submit.prevent="submitCreate">
         <div class="mb-4">
           <label class="block text-gray-700 mb-2" for="nombre">Nombre</label>
           <input
@@ -34,14 +34,14 @@
           <button
             type="submit"
             :disabled="loading"
-            class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 focus:outline-none disabled:bg-blue-300"
+            class="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 focus:outline-none disabled:bg-green-300"
           >
-            Actualizar
+            Crear
           </button>
         </div>
       </form>
       <div v-if="loading" class="absolute inset-0 flex items-center justify-center bg-white bg-opacity-75 rounded-lg">
-        <svg class="animate-spin h-8 w-8 text-blue-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+        <svg class="animate-spin h-8 w-8 text-green-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
           <circle
             class="opacity-25"
             cx="12"
@@ -62,18 +62,13 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch, onMounted } from 'vue';
-import { updateTratamiento } from '../../actions/admin-tratamientos.action';
+import { ref, onMounted } from 'vue';
+import { createTratamiento } from '../../actions/admin-tratamientos.action';
 import { useToast } from 'vue-toastification';
-import type { Tratamiento } from '../../interfaces/tratamientoResponse.interface';
-
-const props = defineProps<{
-  tratamiento: Tratamiento | null;
-}>();
 
 const emit = defineEmits<{
   (e: 'close'): void;
-  (e: 'updated'): void;
+  (e: 'created'): void;
 }>();
 
 const form = ref({
@@ -88,51 +83,37 @@ const closeModal = () => {
   emit('close');
 };
 
-const populateForm = () => {
-  if (props.tratamiento) {
-    form.value.nombre = props.tratamiento.nombre;
-    form.value.descripcion = props.tratamiento.descripcion;
-  }
-};
-
-const submitUpdate = async () => {
-  if (!props.tratamiento) {
-    toast.error('No hay un tratamiento seleccionado para actualizar.');
-    return;
-  }
-
+const submitCreate = async () => {
   loading.value = true;
   try {
     const payload = {
       nombre: form.value.nombre,
       descripcion: form.value.descripcion,
+      activo: true,
     };
 
-    const response = await updateTratamiento(props.tratamiento.id_tratamiento, payload);
+    const response = await createTratamiento(payload);
 
     if (response.ok) {
-      toast.success('Tratamiento actualizado exitosamente.');
-      emit('updated');
+      toast.success('Tratamiento creado exitosamente.');
+      emit('created');
       closeModal();
     } else {
-      toast.error(response.message || 'Error al actualizar el tratamiento.');
+      toast.error(response.message || 'Error al crear el tratamiento.');
     }
   } catch (error: any) {
-    console.error('Error al actualizar tratamiento:', error);
-    toast.error(error.message || 'Error al actualizar el tratamiento.');
+    console.error('Error al crear tratamiento:', error);
+    toast.error(error.message || 'Error al crear el tratamiento.');
   } finally {
     loading.value = false;
   }
 };
-
-watch(
-  () => props.tratamiento,
-  () => {
-    populateForm();
-  }
-);
-
-onMounted(() => {
-  populateForm();
-});
 </script>
+
+<style scoped>
+@media (max-width: 768px) {
+  .max-w-md {
+    max-width: 90%;
+  }
+}
+</style>

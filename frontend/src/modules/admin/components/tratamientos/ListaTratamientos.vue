@@ -5,7 +5,7 @@
     <div class="flex justify-end mb-4">
       <button
         @click="openCreateModal"
-        class="px-6 py-2 bg-blue-500 text-white font-medium rounded-lg shadow hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400"
+        class="px-6 py-2 bg-orange-500 text-white font-medium rounded-lg shadow hover:bg-orange-600 "
       >
         Crear Tratamiento
       </button>
@@ -20,7 +20,7 @@
       />
       <button
         @click="onSearch"
-        class="px-6 py-2 bg-blue-500 text-white font-medium rounded-lg shadow hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400"
+        class="px-6 py-2 bg-orange-500 text-white font-medium rounded-lg shadow hover:bg-orange-600"
       >
         Buscar
       </button>
@@ -89,12 +89,26 @@
                 {{ tratamiento.activo ? 'Sí' : 'No' }}
               </span>
             </td>
-            <td class="px-6 py-3 text-center">
+            <td class="px-6 py-3 text-center space-x-2">
               <button
                 @click="openUpdateModal(tratamiento)"
                 class="px-4 py-2 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600 focus:outline-none"
               >
                 Actualizar
+              </button>
+              <button
+                v-if="tratamiento.activo"
+                @click="confirmToggleActivo(tratamiento, false)"
+                class="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 focus:outline-none"
+              >
+                Borrar
+              </button>
+              <button
+                v-else
+                @click="confirmToggleActivo(tratamiento, true)"
+                class="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 focus:outline-none"
+              >
+                Restaurar
               </button>
             </td>
           </tr>
@@ -120,6 +134,11 @@
       </div>
     </div>
 
+    <CreateTratamientoModal
+      v-if="isCreateModalOpen"
+      @close="isCreateModalOpen = false"
+      @created="handleCreate"
+    />
     <UpdateTratamientoModal
       v-if="isUpdateModalOpen"
       :tratamiento="selectedTratamiento"
@@ -131,10 +150,11 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue';
-import { findAllTratamientos, updateTratamiento } from '../actions/tratamientos.actions';
+import { findAllTratamientos, updateTratamiento } from '../../actions/admin-tratamientos.action';
 import { useToast } from 'vue-toastification';
-import type { Tratamiento } from '../interfaces/tratamiento.interface';
-import UpdateTratamientoModal from './UpdateTratamientoModal.vue';
+import type { Tratamiento } from '../../interfaces/tratamientoResponse.interface';
+import UpdateTratamientoModal from './UpdateTratamiento.vue';
+import CreateTratamientoModal from './CreateTratamientos.vue';
 
 const tratamientos = ref<Tratamiento[]>([]);
 const loading = ref(true);
@@ -149,6 +169,7 @@ const sortField = ref('nombre');
 const sortOrder = ref<'ASC' | 'DESC'>('ASC');
 const toast = useToast();
 const isUpdateModalOpen = ref(false);
+const isCreateModalOpen = ref(false);
 const selectedTratamiento = ref<Tratamiento | null>(null);
 
 const hasFilters = computed(() => {
@@ -222,13 +243,20 @@ const goToNextPage = () => {
 };
 
 const toggleActivo = async (id_tratamiento: string, activo: boolean) => {
-  const result = await updateTratamiento(id_tratamiento, { activo: !activo });
+  const result = await updateTratamiento(id_tratamiento, { activo });
   if (result.ok) {
-    const action = result.data.activo ? 'activado' : 'desactivado';
+    const action = activo ? 'restaurado' : 'borrado';
     toast.success(`Tratamiento ${action} exitosamente.`);
     loadTratamientos();
   } else {
-    toast.error(result.message || 'Error al actualizar el estado del tratamiento.');
+    toast.error( `Error al ${activo ? 'restaurar' : 'borrar'} el tratamiento.`);
+  }
+};
+
+const confirmToggleActivo = (tratamiento: Tratamiento, activo: boolean) => {
+  const action = activo ? 'restaurar' : 'borrar';
+  if (confirm(`¿Estás seguro de ${action} este tratamiento?`)) {
+    toggleActivo(tratamiento.id_tratamiento, activo);
   }
 };
 
@@ -237,7 +265,15 @@ const openUpdateModal = (tratamiento: Tratamiento) => {
   isUpdateModalOpen.value = true;
 };
 
+const openCreateModal = () => {
+  isCreateModalOpen.value = true;
+};
+
 const handleUpdate = () => {
+  loadTratamientos();
+};
+
+const handleCreate = () => {
   loadTratamientos();
 };
 
@@ -247,4 +283,19 @@ onMounted(() => {
 </script>
 
 <style scoped>
+@media (max-width: 768px) {
+  .container {
+    padding: 1rem;
+  }
+  table {
+    font-size: 0.875rem;
+  }
+  th, td {
+    padding: 0.5rem;
+  }
+  button {
+    padding: 0.5rem 1rem;
+    font-size: 0.875rem;
+  }
+}
 </style>

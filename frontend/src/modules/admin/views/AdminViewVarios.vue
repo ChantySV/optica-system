@@ -1,5 +1,12 @@
+<script setup lang="ts">
+import ListaTratamientos from '../components/tratamientos/ListaTratamientos.vue';
+
+</script>
+
 <template>
-  <h1>
-    varios
-  </h1>
+  <div class="mb-20">
+
+    <ListaTratamientos/>
+  </div>
+
 </template>

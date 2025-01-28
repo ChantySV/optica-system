@@ -4,6 +4,14 @@ import { Type } from 'class-transformer';
 class DetalleTrabajoDto {
   @IsBoolean()
   distancia: boolean;
+  
+  @IsInt()
+  @IsOptional()
+  adicion?: number;
+
+  @IsInt()
+  @IsOptional()
+  base?: number;
 
   @IsNumber({ maxDecimalPlaces: 2 })
   @IsPositive()
@@ -32,52 +40,6 @@ class DetalleTrabajoDto {
   @IsInt()
   @IsOptional()
   eje_izquierdo?: number;
-
-  @IsNumber({ maxDecimalPlaces: 2 })
-  @IsOptional()
-  prisma_izquierdo?: number;
-
-  @IsNumber({ maxDecimalPlaces: 2 })
-  @IsOptional()
-  prisma_derecho?: number;
-
-  @IsInt()
-  @IsOptional()
-  base_izquierdo?: number;
-
-  @IsInt()
-  @IsOptional()
-  base_derecho?: number;
-
-  @IsInt()
-  @IsOptional()
-  @IsPositive()
-  adicion_izquierdo?: number;
-
-  @IsInt()
-  @IsOptional()
-  @IsPositive()
-  adicion_derecho?: number;
-
-  @IsInt()
-  @IsOptional()
-  @IsPositive()
-  altura_izquierdo?: number;
-
-  @IsInt()
-  @IsOptional()
-  @IsPositive()
-  altura_derecho?: number;
-
-  @IsNumber({ maxDecimalPlaces: 2 })
-  @IsPositive()
-  @IsOptional()
-  dip_izquierdo?: number;
-
-  @IsNumber({ maxDecimalPlaces: 2 })
-  @IsPositive()
-  @IsOptional()
-  dip_derecho?: number;
 
   @IsUUID()
   @IsOptional()

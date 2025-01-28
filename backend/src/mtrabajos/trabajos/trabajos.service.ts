@@ -1,6 +1,6 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Repository, SelectQueryBuilder } from 'typeorm';
 import { ErrorHandleService } from 'src/common/services/error-handle/error-handle.service';
 
 import { Trabajo } from './entities/trabajo.entity';
@@ -17,6 +17,7 @@ import { Color } from '../colores/entities/colore.entity';
 import { Tratamiento } from '../tratamientos/entities/tratamiento.entity';
 import { PmpService } from 'src/proveedores-productos/pmp/pmp.service';
 import { ConceptoEnum } from 'src/proveedores-productos/pmp/entities/pmp.entity';
+import { FindAllTrabajoDto } from './dto/find-all-trabajo.dto';
 
 @Injectable()
 export class TrabajosService {
@@ -114,37 +115,37 @@ export class TrabajosService {
     }
   }  
   
-  async findAll(paginationDto: PaginationDto, queryGetDto: QueryGetDto, queryTrabajoDto: QueryTrabajoDto) {
-    const { limit, offset } = paginationDto;
-    const { order = 'ASC' } = queryGetDto;
-    const { sortBy = 'numero_trabajo' } = queryTrabajoDto;
   
-    try {
-      // Realizar la consulta usando leftJoinAndSelect para obtener los detalles de las relaciones
-      const [trabajos, total] = await this.trabajoRepository.createQueryBuilder('trabajo')
-        .leftJoinAndSelect('trabajo.detalleTrabajo', 'detalleTrabajo')
-        .leftJoinAndSelect('detalleTrabajo.producto', 'producto')
-        .leftJoinAndSelect('detalleTrabajo.tratamiento', 'tratamiento')
-        .leftJoinAndSelect('detalleTrabajo.color', 'color')
-        .leftJoinAndSelect('trabajo.personal', 'personal')
-        .where('trabajo.activo = :activo', { activo: true })
-        .take(limit)
-        .skip(offset)
-        .orderBy(`trabajo.${sortBy}`, order)
-        .getManyAndCount();
+  async findAll(dto: FindAllTrabajoDto) {
+    const { page, limit, search, sortField, sortOrder } = dto;
   
-      // Formatear la respuesta
-
+    const query: SelectQueryBuilder<Trabajo> = this.trabajoRepository.createQueryBuilder('trabajo')
+      .leftJoinAndSelect('trabajo.personal', 'personal')
+      .leftJoinAndSelect('trabajo.detalleTrabajo', 'detalleTrabajo')
+      .leftJoinAndSelect('detalleTrabajo.producto', 'producto')
+      .leftJoinAndSelect('detalleTrabajo.color', 'color')
+      .leftJoinAndSelect('detalleTrabajo.tratamiento', 'tratamiento')
+      .leftJoinAndSelect('trabajo.detalleVenta', 'detalleVenta');
   
-      return {
-        trabajos,
-        total,
-      };
-    } catch (error) {
-      this.errorHandleService.errorHandle(error);
-      throw new Error('Error al obtener los trabajos.');
+    if (search) {
+      query.where('trabajo.numero_trabajo = :numero', { numero: Number(search) });
     }
+    
+    query.orderBy(`trabajo.${sortField}`, sortOrder as 'ASC' | 'DESC')
+      .skip((page - 1) * limit)
+      .take(limit);
+  
+    const [data, total] = await query.getManyAndCount();
+  
+    return {
+      ok: true,
+      data,
+      total,
+      page,
+      limit,
+    };
   }
+  
   
   async findPendientes(){
     try {
@@ -175,7 +176,6 @@ export class TrabajosService {
         relations: ['producto', 'color', 'tratamiento'],
       });
   
-      // Mapeo para extraer solo la información relevante
       const data = detalle.map(tra => ({
         id_detalleTrabajo: tra.id_detalleTrabajo,
         distancia: tra.distancia,
@@ -185,19 +185,9 @@ export class TrabajosService {
         cilindro_izquierdo: tra.cilindro_izquierdo,
         eje_derecho: tra.eje_derecho,
         eje_izquierdo: tra.eje_izquierdo,
-        prisma_izquierdo: tra.prisma_izquierdo,
-        prisma_derecho: tra.prisma_derecho,
-        base_izquierdo: tra.base_izquierdo,
-        base_derecho: tra.base_derecho,
-        adicion_izquierdo: tra.adicion_izquierdo,
-        adicion_derecho: tra.adicion_derecho,
-        altura_izquierdo: tra.altura_izquierdo,
-        altura_derecho: tra.altura_derecho,
-        dip_izquierdo: tra.dip_izquierdo,
-        dip_derecho: tra.dip_derecho,
-        producto: tra.producto ? tra.producto.nombre : null, // Solo el nombre del producto
-        color: tra.color ? tra.color.nombre : null,       // Solo el nombre del color
-        tratamiento: tra.tratamiento ? tra.tratamiento.nombre : null, // Solo el nombre del tratamiento
+        producto: tra.producto ? tra.producto.nombre : null,
+        color: tra.color.nombre || null,      
+        tratamiento:  tra.tratamiento.nombre || null, 
       }));
   
       return {

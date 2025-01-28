@@ -43,7 +43,7 @@
             <th class="px-6 py-3 text-left">Usuario</th>
             <th class="px-6 py-3 text-left">Comprador</th>
             <th class="px-6 py-3 text-center">Detalle</th>
-            <th class="px-6 py-3 text-center">Acciones</th>
+
           </tr>
         </thead>
         <tbody>
@@ -59,12 +59,12 @@
                 Ver Detalle
               </button>
             </td>
-            <td class="px-6 py-3 text-center">
+            <!-- <td class="px-6 py-3 text-center">
               <button @click="openUpdateModal(venta)"
                 class="px-4 py-2 bg-gray-800 text-white font-medium rounded-lg hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500">
                 Actualizar
               </button>
-            </td>
+            </td> -->
           </tr>
         </tbody>
       </table>

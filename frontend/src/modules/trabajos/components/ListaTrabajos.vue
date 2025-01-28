@@ -1,79 +1,109 @@
+<!-- src/components/TrabajoList.vue -->
+
 <template>
-  <div class="container mx-auto mt-8 bg-white p-6 rounded-lg">
+  <div class="container mx-auto p-6 bg-white rounded-lg ">
     <!-- Título -->
-    <h1 class="text-3xl font-semibold text-gray-800 mb-6 text-center">Trabajos</h1>
+    <h1 class="text-3xl font-bold text-gray-800 mb-6">Listado de Trabajos</h1>
 
-    <!-- Mensajes de carga y error -->
-    <div v-if="loading" class="text-center text-gray-500 text-lg">
-      Cargando trabajos...
-    </div>
-    <div v-else-if="error" class="text-center text-red-500 text-lg">
-      {{ error }}
+    <!-- Barra de Búsqueda -->
+    <div class="flex flex-col md:flex-row items-center justify-between mb-4 space-y-4 md:space-y-0">
+      <!-- Búsqueda por Número de Trabajo -->
+      <div class="flex items-center space-x-2">
+        <input
+          type="number"
+          v-model="searchQuery"
+          placeholder="Buscar por Número de Trabajo"
+          class="border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-300"
+        />
+        <button
+          @click="fetchTrabajos"
+          class="px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 "
+        >
+          Buscar
+        </button>
+      </div>
     </div>
 
-    <!-- Tabla de trabajos -->
-    <div v-else class="overflow-x-auto">
-      <table class="w-full table-auto bg-white rounded-lg shadow-lg">
-        <thead class="bg-gray-200 text-gray-700 uppercase text-sm">
+    <!-- Tabla de Trabajos -->
+    <div class="overflow-x-auto">
+      <table class="w-full table-auto bg-white rounded-lg shadow-lg overflow-hidden">
+        <thead class="bg-gray-200 text-gray-700 uppercase text-sm border">
           <tr>
-            <!-- Encabezados con funcionalidad de ordenamiento -->
-            <th class="px-6 py-3 text-left cursor-pointer hover:underline" @click="sortBy('numero_trabajo')">
+            <!-- Número de Trabajo -->
+            <th
+              class="px-6 py-3 text-left cursor-pointer hover:underline"
+              @click="changeSort('numero_trabajo')"
+            >
               Número de Trabajo
               <span v-if="sortField === 'numero_trabajo'">
                 <span v-if="sortOrder === 'ASC'">▲</span>
                 <span v-else>▼</span>
               </span>
             </th>
-            <th class="px-6 py-3 text-left cursor-pointer hover:underline" @click="sortBy('fecha_entrada')">
+
+            <!-- Fecha de Entrada -->
+            <th
+              class="px-6 py-3 text-left cursor-pointer hover:underline"
+              @click="changeSort('fecha_entrada')"
+            >
               Fecha de Entrada
               <span v-if="sortField === 'fecha_entrada'">
                 <span v-if="sortOrder === 'ASC'">▲</span>
                 <span v-else>▼</span>
               </span>
             </th>
-            <th class="px-6 py-3 text-left cursor-pointer hover:underline" @click="sortBy('estado')">
+
+            <!-- Estado -->
+            <th
+              class="px-6 py-3 text-left cursor-pointer hover:underline"
+              @click="changeSort('estado')"
+            >
               Estado
               <span v-if="sortField === 'estado'">
                 <span v-if="sortOrder === 'ASC'">▲</span>
                 <span v-else>▼</span>
               </span>
             </th>
-            <th class="px-6 py-3 text-left cursor-pointer hover:underline" @click="sortBy('fecha_salida')">
-              Fecha de Salida
-              <span v-if="sortField === 'fecha_salida'">
-                <span v-if="sortOrder === 'ASC'">▲</span>
-                <span v-else>▼</span>
-              </span>
-            </th>
-            <th class="px-6 py-3 text-left">Personal</th>
-            <th class="px-6 py-3 text-center">Detalle</th>
+
+            <!-- Acciones -->
             <th class="px-6 py-3 text-center">Acciones</th>
           </tr>
         </thead>
         <tbody>
-          <tr v-for="trabajo in trabajos" :key="trabajo.id_trabajo"
-            class="border-b last:border-none hover:bg-gray-100 transition-colors">
-            <td class="px-6 py-3 text-gray-800">{{ trabajo.numero_trabajo }}</td>
-            <td class="px-6 py-3 text-gray-800">{{ formatDate(trabajo.fecha_entrada) }}</td>
-            <td class="px-6 py-3 text-gray-800">{{ capitalize(trabajo.estado) }}</td>
-            <td class="px-6 py-3 text-gray-800">
-              {{ trabajo.fecha_salida ? formatDate(trabajo.fecha_salida) : 'No disponible' }}
-            </td>
-            <td class="px-6 py-3 text-gray-800">
-              {{ formatPersonal(trabajo.personal) }}
-            </td>
+          <tr
+            v-for="trabajo in trabajos"
+            :key="trabajo.id_trabajo"
+            class="border-b last:border-none hover:bg-gray-100 transition-colors"
+          >
+            <td class="px-6 py-3 text-gray-700">{{ trabajo.numero_trabajo }}</td>
+            <td class="px-6 py-3 text-gray-700">{{ formatDate(trabajo.fecha_entrada) }}</td>
+            <td class="px-6 py-3 text-gray-700">{{ trabajo.estado }}</td>
             <td class="px-6 py-3 text-center">
-              <button @click="openDetalleModal(trabajo)"
-                class="px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 focus:outline-none">
+              <button
+                @click="openDetailModal(trabajo)"
+                class="px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 focus:outline-none"
+              >
                 Detalle
               </button>
-            </td>
-            <td class="px-6 py-3 text-center">
-              <button @click="openUpdateModal(trabajo)"
-                class="px-4 py-2 bg-gray-700 text-white rounded-lg hover:bg-gray-600 focus:outline-none">
+              <!-- <button
+                @click="openUpdateModal(trabajo)"
+                class="px-4 py-2 bg-gray-700 text-white rounded-lg hover:bg-gray-600 focus:outline-none ml-2"
+              >
                 Actualizar
-              </button>
+              </button> -->
+              <!-- <button
+                @click="confirmDelete(trabajo)"
+                :class="[
+                  'px-4 py-2 text-white rounded-lg hover:opacity-80 focus:outline-none ml-2',
+                  trabajo.activo ? 'bg-gray-700' : 'bg-green-700'
+                ]"
+              >
+                {{ trabajo.activo ? 'Eliminar' : 'Restaurar' }}
+              </button> -->
             </td>
+          </tr>
+          <tr v-if="trabajos.length === 0">
+            <td colspan="4" class="px-6 py-4 text-center text-gray-500">No se encontraron trabajos.</td>
           </tr>
         </tbody>
       </table>
@@ -83,171 +113,155 @@
         <button
           :disabled="currentPage === 1 || loading"
           @click="goToPreviousPage"
-          class="px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-500 disabled:bg-gray-400 disabled:cursor-not-allowed"
+          class="px-4 py-2 bg-blue-500 text-white rounded-lg shadow hover:bg-blue-600 disabled:bg-gray-300 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-blue-400"
         >
           Anterior
         </button>
-        <span class="text-gray-700 font-medium">Página {{ currentPage }}</span>
+        <span class="text-gray-700 font-medium">Página {{ currentPage }} de {{ totalPages }}</span>
         <button
-          :disabled="!hasNextPage || loading"
+          :disabled="currentPage === totalPages "
           @click="goToNextPage"
-          class="px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-500 disabled:bg-gray-400 disabled:cursor-not-allowed"
+          class="px-4 py-2 bg-blue-500 text-white rounded-lg shadow hover:bg-blue-600 disabled:bg-gray-300 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-blue-400"
         >
           Siguiente
         </button>
       </div>
     </div>
 
-    <!-- Modal para mostrar detalle del trabajo -->
-    <DetalleTrabajoModal v-if="showDetalleModal" :isOpen="showDetalleModal" :trabajo="selectedTrabajo"
-      @close="closeDetalleModal" />
-
-    <!-- Modal de Actualización -->
-    <UpdateTrabajoModal
-      v-if="showUpdateModal"
-      :isOpen="showUpdateModal"
+    <!-- Modales -->
+    <TrabajoDetailModal
+      v-if="isDetailModalOpen"
       :trabajo="selectedTrabajo"
-      @close="closeUpdateModal"
-      @trabajo-actualizado="actualizarListaTrabajos"
+      @close="isDetailModalOpen = false"
+    />
+    <TrabajoUpdateModal
+      v-if="isUpdateModalOpen"
+      :trabajo="selectedTrabajo"
+      @close="isUpdateModalOpen = false"
+      @updated="fetchTrabajos"
+    />
+    <ConfirmDeleteModal
+      v-if="isDeleteModalOpen"
+      :trabajo="selectedTrabajo"
+      @close="isDeleteModalOpen = false"
+      @deleted="fetchTrabajos"
     />
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue';
-import { getTrabajos } from '../actions/trabajos.action'; // Verifica la ruta
-import DetalleTrabajoModal from './DetalleTrabajos.vue';
-import UpdateTrabajoModal from './UpdateTrabajo.vue'; // Asegúrate de que el nombre coincide
+import { ref, onMounted, computed } from 'vue';
+import { getTrabajos } from '../actions/trabajos.action';
+import type { Trabajo, FindAllTrabajoResponse } from '../interfaces/TrabajosResponse.interface';
+import TrabajoDetailModal from './DetalleTrabajos.vue';
+import TrabajoUpdateModal from './UpdateTrabajo.vue';
+import ConfirmDeleteModal from './ConfirmDelete.vue';
 import { useToast } from 'vue-toastification';
-import type { Trabajo } from '../interfaces/TrabajosResponse.interface'; // Asegúrate de ajustar la ruta y los nombres
-
-// Variables reactivas
-const trabajos = ref<Trabajo[]>([]);
-const loading = ref(true);
-const error = ref<string | null>(null);
-const totalItems = ref(0);
-const itemsPerPage = 10;
-const currentPage = ref(1);
-const showDetalleModal = ref(false);
-
-const showUpdateModal = ref(false);
-const selectedTrabajo = ref<Trabajo | null>(null);
 
 const toast = useToast();
 
-// Variables para ordenamiento
-const sortField = ref<keyof Trabajo>('numero_trabajo');
+// Estados
+const trabajos = ref<Trabajo[]>([]);
+const totalTrabajos = ref(0);
+const currentPage = ref(1);
+const limit = ref(10);
+const totalPages = computed(() => Math.ceil(totalTrabajos.value / limit.value));
+
+const searchQuery = ref('');
+const sortField = ref('fecha_entrada');
 const sortOrder = ref<'ASC' | 'DESC'>('ASC');
 
-// Función para ordenar por un campo específico
-const sortBy = (field: keyof Trabajo) => {
-  if (sortField.value === field) {
-    // Si ya está ordenado por esta columna, alterna el orden
-    sortOrder.value = sortOrder.value === 'ASC' ? 'DESC' : 'ASC';
-  } else {
-    // Cambia la columna de orden y establece orden ascendente por defecto
-    sortField.value = field;
-    sortOrder.value = 'ASC';
-  }
-  // Resetear a la primera página al cambiar el ordenamiento
-  currentPage.value = 1;
-  // Recarga los trabajos con los nuevos parámetros de orden
-  loadTrabajos();
-};
-
-// Computed para verificar si hay una siguiente página
-const hasNextPage = computed(() => totalItems.value > currentPage.value * itemsPerPage);
-
-// Función para cargar trabajos desde el backend
-const loadTrabajos = async () => {
-  loading.value = true;
-  error.value = null;
-
-  const offset = (currentPage.value - 1) * itemsPerPage;
-
-  const response = await getTrabajos(itemsPerPage, offset, sortField.value, sortOrder.value);
-  if (response.ok && response.data) {
-    trabajos.value = response.data.trabajos;
-    totalItems.value = response.data.total;
-  } else {
-    error.value = response.message || 'Error al cargar los trabajos.';
-    toast.error('Error al cargar los trabajos.');
-  }
-  loading.value = false;
-};
-
-// Función para navegar a la página anterior
-const goToPreviousPage = () => {
-  if (currentPage.value > 1) {
-    currentPage.value -= 1;
-    loadTrabajos();
-  }
-};
-
-// Función para navegar a la página siguiente
-const goToNextPage = () => {
-  if (hasNextPage.value) {
-    currentPage.value += 1;
-    loadTrabajos();
-  }
-};
-
-// Función para abrir el modal de detalles
-const openDetalleModal = (trabajo: Trabajo) => {
-  selectedTrabajo.value = trabajo;
-  showDetalleModal.value = true;
-};
-
-// Función para cerrar el modal de detalles
-const closeDetalleModal = () => {
-  showDetalleModal.value = false;
-  selectedTrabajo.value = null;
-};
-
-// Función para abrir el modal de actualización
-const openUpdateModal = (trabajo: Trabajo) => {
-  selectedTrabajo.value = trabajo;
-  showUpdateModal.value = true;
-};
-
-// Función para cerrar el modal de actualización
-const closeUpdateModal = () => {
-  showUpdateModal.value = false;
-  selectedTrabajo.value = null;
-};
-
-// Función para actualizar la lista después de una actualización exitosa
-const actualizarListaTrabajos = () => {
-  loadTrabajos();
-};
-
-// Cargar trabajos al montar el componente
-onMounted(() => {
-  loadTrabajos();
-});
+// Modales
+const isDetailModalOpen = ref(false);
+const isUpdateModalOpen = ref(false);
+const isDeleteModalOpen = ref(false);
+const selectedTrabajo = ref<Trabajo | null>(null);
 
 // Función para formatear fechas
-const formatDate = (date: Date | string): string => {
+const formatDate = (date: string) => {
   const options: Intl.DateTimeFormatOptions = { year: 'numeric', month: 'long', day: 'numeric' };
   return new Date(date).toLocaleDateString('es-ES', options);
 };
 
-// Función para formatear la información del personal
-const formatPersonal = (personal: Trabajo['personal']): string => {
-  const apellidoMaterno = personal.apellido_materno ? ` ${personal.apellido_materno}` : '';
-  return `${personal.nombres} ${personal.apellido_paterno}${apellidoMaterno}`;
+// Fetch Trabajos
+const fetchTrabajos = async () => {
+  try {
+    const response: FindAllTrabajoResponse = await getTrabajos(
+      searchQuery.value,
+      currentPage.value,
+      limit.value,
+      sortField.value,
+      sortOrder.value
+    );
+    if (response.ok) {
+      trabajos.value = response.data;
+      totalTrabajos.value = response.total;
+    } else {
+      toast.error(response.message || 'Error al cargar los trabajos.');
+    }
+  } catch (error: any) {
+    toast.error(error.message || 'Error al cargar los trabajos.');
+  }
 };
 
-// Función para capitalizar el estado
-const capitalize = (word: string): string => {
-  if (!word) return '';
-  return word.charAt(0).toUpperCase() + word.slice(1);
+// Cambiar de Página
+const goToPreviousPage = () => {
+  if (currentPage.value > 1) {
+    currentPage.value -= 1;
+    fetchTrabajos();
+  }
 };
+
+const goToNextPage = () => {
+  if (currentPage.value < totalPages.value) {
+    currentPage.value += 1;
+    fetchTrabajos();
+  }
+};
+
+// Cambiar Ordenamiento al hacer clic en la cabecera
+const changeSort = (field: string) => {
+  if (sortField.value === field) {
+    // Si ya está ordenado por este campo, alternar el orden
+    sortOrder.value = sortOrder.value === 'ASC' ? 'DESC' : 'ASC';
+  } else {
+    // Cambiar a un nuevo campo de ordenamiento
+    sortField.value = field;
+    sortOrder.value = 'ASC'; // Orden ascendente por defecto
+  }
+  fetchTrabajos();
+};
+
+// Abrir Modal de Detalles
+const openDetailModal = (trabajo: Trabajo) => {
+  selectedTrabajo.value = trabajo;
+  isDetailModalOpen.value = true;
+};
+
+// Abrir Modal de Actualización
+const openUpdateModal = (trabajo: Trabajo) => {
+  selectedTrabajo.value = trabajo;
+  isUpdateModalOpen.value = true;
+};
+
+// Confirmar Eliminación
+const confirmDelete = (trabajo: Trabajo) => {
+  selectedTrabajo.value = trabajo;
+  isDeleteModalOpen.value = true;
+};
+
+// Cargar datos al montar el componente
+onMounted(() => {
+  fetchTrabajos();
+});
 </script>
 
 <style scoped>
-/* Estilos para los inputs con errores */
-.border-red-500 {
-  border-color: #f87171; /* Tailwind red-400 */
+/* Agrega estilos personalizados si es necesario */
+
+/* Estilos para los indicadores de ordenamiento */
+th span {
+  margin-left: 5px;
+  font-size: 0.8rem;
 }
 </style>

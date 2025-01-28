@@ -4,9 +4,7 @@ import { CreateTrabajoDto } from './dto/create-trabajo.dto';
 import { UpdateTrabajoDto } from './dto/update-trabajo.dto';
 import { Auth } from 'src/auth/usuarios/decorators/get-usuario.decorator';
 import { ValidRoles } from 'src/auth/usuarios/interfaces/valid-roles.interface';
-import { PaginationDto } from 'src/common/pagination-dto';
-import { QueryGetDto } from 'src/common/QueryGet-dto';
-import { QueryTrabajoDto } from './dto/query-response-trabajo.dto';
+import { FindAllTrabajoDto } from './dto/find-all-trabajo.dto';
 
 @Controller('trabajos')
 export class TrabajosController {
@@ -21,11 +19,9 @@ export class TrabajosController {
   @Get()
   @Auth(ValidRoles.encargadoTrabajos)
   findAll(
-    @Query() paginationDto: PaginationDto,        
-    @Query() queryGetDto: QueryGetDto,
-    @Query() queryTrabajoDto: QueryTrabajoDto
+    @Query() dto: FindAllTrabajoDto,
   ) {
-    return this.trabajosService.findAll( paginationDto, queryGetDto, queryTrabajoDto );
+    return this.trabajosService.findAll( dto );
   }
 
   @Get('pendientes')

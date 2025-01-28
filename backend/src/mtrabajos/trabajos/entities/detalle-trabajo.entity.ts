@@ -11,6 +11,12 @@ export class DetalleTrabajo {
   @Column()
   distancia: boolean;
 
+  @Column({ type: 'int', nullable: true })
+  base?: number;
+
+  @Column({ type: 'int', nullable: true })
+  adicion?: number;
+
   @Column('decimal', { nullable: true })
   esferico_derecho?: number;
 
@@ -29,43 +35,13 @@ export class DetalleTrabajo {
   @Column({ type: 'int', nullable: true })
   eje_izquierdo?: number;
 
-  @Column({ type: 'int', nullable: true })
-  prisma_izquierdo?: number;
-
-  @Column({ type: 'int', nullable: true })
-  prisma_derecho?: number;
-
-  @Column({ type: 'int', nullable: true })
-  base_izquierdo?: number;
-
-  @Column({ type: 'int', nullable: true })
-  base_derecho?: number;
-
-  @Column({ type: 'int', nullable: true })
-  adicion_izquierdo?: number;
-
-  @Column({ type: 'int', nullable: true })
-  adicion_derecho?: number;
-
-  @Column({ type: 'int', nullable: true })
-  altura_izquierdo?: number;
-
-  @Column({ type: 'int', nullable: true })
-  altura_derecho?: number;
-
-  @Column({ type: 'decimal', nullable: true })
-  dip_izquierdo?: number;
-
-  @Column({ type: 'int', nullable: true })
-  dip_derecho?: number;
-
   @ManyToOne(() => Tratamiento, (tratamiento) => tratamiento.detalleTrabajos, { nullable: true })
   @JoinColumn({ name: 'id_tratamiento' })
-  tratamiento: Tratamiento; 
+  tratamiento?: Tratamiento | null;
 
   @ManyToOne(() => Color, (color) => color.detalleTrabajo, { nullable: true })
   @JoinColumn({ name: 'id_color' })
-  color?: Color;
+  color?: Color | null;
 
   @ManyToOne(() => Producto, (producto) => producto.detalleTrabajos, { nullable: false })
   @JoinColumn({ name: 'id_producto' })

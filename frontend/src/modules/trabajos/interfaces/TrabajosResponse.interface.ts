@@ -1,81 +1,64 @@
-export interface TrabajoResponse {
-  trabajos: Trabajo[];
-  total:    number;
-}
+// src/interfaces/trabajo.interface.ts
 
-export interface Trabajo {
-  id_trabajo:     string;
-  numero_trabajo: number;
-  fecha_entrada:  Date;
-  fecha_salida:   Date | null;
-  activo:         boolean;
-  estado:         Estado;
-  detalleTrabajo: DetalleTrabajo;
-  personal:       Personal;
-}
-
-export interface DetalleTrabajo {
-  id_detalleTrabajo:  string;
-  distancia:          boolean;
-  esferico_derecho:   null | string;
-  esferico_izquierdo: null | string;
-  cilindro_derecho:   null | string;
-  cilindro_izquierdo: null | string;
-  eje_derecho:        number | null;
-  eje_izquierdo:      number | null;
-  prisma_izquierdo:   number | null;
-  prisma_derecho:     number | null;
-  base_izquierdo:     number | null;
-  base_derecho:       number | null;
-  adicion_izquierdo:  number | null;
-  adicion_derecho:    number | null;
-  altura_izquierdo:   number | null;
-  altura_derecho:     number | null;
-  dip_izquierdo:      null | string;
-  dip_derecho:        number | null;
-  producto:           Producto;
-  tratamiento:        Tratamiento | null;
-  color:              Color | null;
-}
-
-export interface Color {
-  id_color: string;
-  nombre:   string;
-  activo:   boolean;
+export interface Personal {
+  id_personal: string;
+  nombre: string;
+  // Agrega otros campos según tu entidad Personal
 }
 
 export interface Producto {
-  id_producto:   string;
-  nombre:        string;
-  stock:         number;
-  precio_compra: string;
-  precio_venta:  string;
-  activo:        boolean;
+  id_producto: string;
+  nombre: string;
+  // Agrega otros campos según tu entidad Producto
 }
 
-export interface Tratamiento {
-  id_tratamiento: string;
-  nombre:         string;
-  descripcion:    string;
-  activo:         boolean;
+export interface DetalleTrabajo {
+  id_detalleTrabajo: string;
+  distancia: boolean;
+  base?: number;
+  adicion?: number;
+  esferico_derecho?: number;
+  esferico_izquierdo?: number;
+  cilindro_derecho?: number;
+  cilindro_izquierdo?: number;
+  eje_derecho?: number;
+  eje_izquierdo?: number;
+  tratamiento?: string | "" ;
+  color?: string | ""
+  producto: Producto;
 }
 
-export enum Estado {
-  Entregado = "entregado",
-  Pendiente = "pendiente",
+export interface DetalleVenta {
+  id_detalleVenta: string;
+  // Agrega otros campos según tu entidad DetalleVenta
 }
 
-export interface Personal {
-  id_personal:      string;
-  nombres:          string;
-  apellido_paterno: string;
-  apellido_materno: null;
-  email:            string;
-  telefono:         number;
-  tipo_persona:     TipoPersona;
-  activo:           boolean;
+export interface Trabajo {
+  id_trabajo: string;
+  numero_trabajo: number;
+  fecha_entrada: string; // Fecha en formato ISO
+  fecha_salida?: string; // Fecha en formato ISO
+  activo: boolean;
+  estado: string;
+  personal: Personal;
+  detalleTrabajo?: DetalleTrabajo;
+  detalleVenta?: DetalleVenta;
 }
 
-export enum TipoPersona {
-  Juridica = "juridica",
+export interface FindAllTrabajoResponse {
+  ok: boolean;
+  data: Trabajo[];
+  total: number;
+  page: number;
+  limit: number;
+}
+
+export interface UpdateTrabajoResponse {
+  ok: boolean;
+  data: Trabajo;
+}
+
+export interface RemoveTrabajoResponse {
+  ok: boolean;
+  message: string;
 }

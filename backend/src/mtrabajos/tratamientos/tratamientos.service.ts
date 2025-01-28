@@ -103,7 +103,7 @@ export class TratamientosService {
   }
 
   // Actualizar un tratamiento
-  async update(id: string, updateTratamientoDto: UpdateTratamientoDto): Promise<Tratamiento> {
+  async update(id: string, updateTratamientoDto: UpdateTratamientoDto) {
     try {
       const tratamiento = await this.tratamientoRepository.preload({
         id_tratamiento: id,
@@ -113,10 +113,15 @@ export class TratamientosService {
       if (!tratamiento) {
         throw new NotFoundException(`Tratamiento con ID "${id}" no encontrado`);
       }
+      await this.tratamientoRepository.save(tratamiento);
 
-      return await this.tratamientoRepository.save(tratamiento);
+      return{
+        ok:true, 
+        ...tratamiento
+      }
     } catch (error) {
       this.errorHandleService.errorHandle(error);
+      return
     }
   }
 
@@ -130,8 +135,6 @@ export class TratamientosService {
     tratamiento.activo = !tratamiento.activo; 
     const updatedTratamiento = await this.tratamientoRepository.save(tratamiento);
     return { ok: true, data: updatedTratamiento };
-  } catch (error) {
-    this.errorHandleService.errorHandle(error);
-    throw error;
   }
+
 }

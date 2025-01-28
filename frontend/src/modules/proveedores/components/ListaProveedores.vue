@@ -43,7 +43,7 @@
             <td class="px-6 py-3 text-gray-800">{{ proveedor.numero || 'No disponible' }}</td>
             <td class="px-6 py-3 text-gray-800">
               <a :href="proveedor.direccion_web" target="_blank" class="text-orange-500 hover:underline">
-                {{ proveedor.direccion_web }}
+                {{ proveedor.direccion_web.length > 20 ? proveedor.direccion_web.slice(0, 20) + '...' : proveedor.direccion_web }}
               </a>
             </td>
             <td class="px-6 py-3 text-center">

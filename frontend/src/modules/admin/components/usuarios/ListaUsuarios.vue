@@ -1,7 +1,7 @@
 <!-- src/components/AdminUsuarios.vue -->
 
 <template>
-  <div class="container mx-auto mt-8 bg-white p-6 rounded-lg shadow">
+  <div class="container mx-auto mt-8 bg-white p-6 rounded-lg">
     <!-- Título -->
     <h1 class="text-3xl font-bold text-gray-700 mb-6 text-center">Lista de Usuarios</h1>
 

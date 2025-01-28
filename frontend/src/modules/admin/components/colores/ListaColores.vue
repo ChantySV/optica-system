@@ -1,13 +1,13 @@
 <template>
   <div class="container mx-auto mt-8 bg-white p-6 rounded-lg shadow">
-    <h1 class="text-3xl font-bold text-gray-700 mb-6 text-center">Lista de Tratamientos</h1>
+    <h1 class="text-3xl font-bold text-gray-700 mb-6 text-center">Lista de Colores</h1>
 
     <div class="flex justify-end mb-4">
       <button
         @click="openCreateModal"
         class="px-6 py-2 bg-orange-500 text-white font-medium rounded-lg shadow hover:bg-orange-600 "
       >
-        Crear Tratamiento
+        Crear Color
       </button>
     </div>
 
@@ -20,7 +20,7 @@
       />
       <button
         @click="onSearch"
-        class="px-6 py-2 bg-orange-500 text-white font-medium rounded-lg shadow hover:bg-orange-600"
+        class="px-6 py-2 bg-orange-500 text-white font-medium rounded-lg shadow hover:bg-orange-600 focus:outline-none focus:ring-2 focus:ring-blue-400"
       >
         Buscar
       </button>
@@ -52,16 +52,6 @@
             </th>
             <th
               class="px-6 py-3 text-left cursor-pointer hover:underline"
-              @click="sortBy('descripcion')"
-            >
-              Descripción
-              <span v-if="sortField === 'descripcion'">
-                <span v-if="sortOrder === 'ASC'">▲</span>
-                <span v-else>▼</span>
-              </span>
-            </th>
-            <th
-              class="px-6 py-3 text-left cursor-pointer hover:underline"
               @click="sortBy('activo')"
             >
               Activo
@@ -75,37 +65,36 @@
         </thead>
         <tbody>
           <tr
-            v-for="tratamiento in tratamientos"
-            :key="tratamiento.id_tratamiento"
+            v-for="color in colors"
+            :key="color.id_color"
             class="border-b last:border-none hover:bg-gray-100 transition-colors"
           >
-            <td class="px-6 py-3 text-gray-700">{{ tratamiento.nombre }}</td>
-            <td class="px-6 py-3 text-gray-700">{{ tratamiento.descripcion.length > 20 ? tratamiento.descripcion.slice(0, 20) + '...' : tratamiento.descripcion }}</td>
+            <td class="px-6 py-3 text-gray-700">{{ color.nombre }}</td>
             <td class="px-6 py-3 text-center">
               <span
-                :class="tratamiento.activo ? 'bg-orange-500' : 'bg-gray-700'"
+                :class="color.activo ? 'bg-orange-500' : 'bg-gray-700'"
                 class="px-3 py-1 rounded-full text-white"
               >
-                {{ tratamiento.activo ? 'Sí' : 'No' }}
+                {{ color.activo ? 'Sí' : 'No' }}
               </span>
             </td>
             <td class="px-6 py-3 text-center space-x-2">
               <button
-                @click="openUpdateModal(tratamiento)"
+                @click="openUpdateModal(color)"
                 class="px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 focus:outline-none"
               >
                 Actualizar
               </button>
               <button
-                v-if="tratamiento.activo"
-                @click="confirmToggleActivo(tratamiento, false)"
+                v-if="color.activo"
+                @click="confirmToggleActivo(color, false)"
                 class="px-4 py-2 bg-gray-700 text-white rounded-lg hover:bg-gray-600 focus:outline-none"
               >
                 Borrar
               </button>
               <button
                 v-else
-                @click="confirmToggleActivo(tratamiento, true)"
+                @click="confirmToggleActivo(color, true)"
                 class="px-4 py-2 bg-gray-700 text-white rounded-lg hover:bg-gray-600 focus:outline-none"
               >
                 Restaurar
@@ -119,7 +108,7 @@
         <button
           :disabled="currentPage === 1 || loading"
           @click="goToPreviousPage"
-          class="px-4 py-2 bg-orange-500 text-white rounded-lg shadow hover:bg-orange-600 disabled:bg-gray-300 disabled:cursor-not-allowed "
+          class="px-4 py-2 bg-orange-500 text-white rounded-lg shadow hover:bg-orange-600 disabled:bg-gray-300 disabled:cursor-not-allowed"
         >
           Anterior
         </button>
@@ -127,21 +116,21 @@
         <button
           :disabled="!hasNextPage || loading"
           @click="goToNextPage"
-          class="px-4 py-2 bg-orange-500 text-white rounded-lg shadow hover:bg-orange-600 disabled:bg-gray-300 disabled:cursor-not-allowed "
+          class="px-4 py-2 bg-orange-500 text-white rounded-lg shadow hover:bg-orange-600 disabled:bg-gray-300 disabled:cursor-not-allowed"
         >
           Siguiente
         </button>
       </div>
     </div>
 
-    <CreateTratamientoModal
+    <CreateColorModal
       v-if="isCreateModalOpen"
       @close="isCreateModalOpen = false"
       @created="handleCreate"
     />
-    <UpdateTratamientoModal
+    <UpdateColorModal
       v-if="isUpdateModalOpen"
-      :tratamiento="selectedTratamiento"
+      :color="selectedColor"
       @close="isUpdateModalOpen = false"
       @updated="handleUpdate"
     />
@@ -150,13 +139,13 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue';
-import { findAllTratamientos, updateTratamiento } from '../../actions/admin-tratamientos.action';
+import { findAllColors, updateColor } from '../../actions/admin-color.action';
 import { useToast } from 'vue-toastification';
-import type { Tratamiento } from '../../interfaces/tratamientoResponse.interface';
-import UpdateTratamientoModal from './UpdateTratamiento.vue';
-import CreateTratamientoModal from './CreateTratamientos.vue';
+import type { Color } from '../../interfaces/ColorResponse.interface';
+import UpdateColorModal from './UpdateColores.vue';
+import CreateColorModal from './CreateColores.vue';
 
-const tratamientos = ref<Tratamiento[]>([]);
+const colors = ref<Color[]>([]);
 const loading = ref(true);
 const error = ref<string | null>(null);
 const totalItems = ref(0);
@@ -170,7 +159,7 @@ const sortOrder = ref<'ASC' | 'DESC'>('ASC');
 const toast = useToast();
 const isUpdateModalOpen = ref(false);
 const isCreateModalOpen = ref(false);
-const selectedTratamiento = ref<Tratamiento | null>(null);
+const selectedColor = ref<Color | null>(null);
 
 const hasFilters = computed(() => {
   return filters.value.nombre.trim() !== '';
@@ -178,12 +167,12 @@ const hasFilters = computed(() => {
 
 const hasNextPage = computed(() => totalItems.value > currentPage.value * itemsPerPage);
 
-const loadTratamientos = async () => {
+const loadColors = async () => {
   loading.value = true;
   error.value = null;
 
   try {
-    const response = await findAllTratamientos({
+    const response = await findAllColors({
       page: currentPage.value,
       limit: itemsPerPage,
       sortBy: sortField.value,
@@ -194,14 +183,15 @@ const loadTratamientos = async () => {
     });
 
     if (response.ok) {
-      tratamientos.value = response.data;
+      console.log(response);
+      colors.value = response.data;
       totalItems.value = response.total;
     } else {
-      toast.error(response.message || 'Error al cargar los tratamientos.');
+      toast.error(response.message || 'Error al cargar los colores.');
     }
   } catch (err) {
     console.error(err);
-    error.value = 'Error al cargar los tratamientos.';
+    error.value = 'Error al cargar los colores.';
   } finally {
     loading.value = false;
   }
@@ -209,13 +199,13 @@ const loadTratamientos = async () => {
 
 const onSearch = async () => {
   currentPage.value = 1;
-  await loadTratamientos();
+  await loadColors();
 };
 
 const resetSearch = () => {
   filters.value.nombre = '';
   currentPage.value = 1;
-  loadTratamientos();
+  loadColors();
 };
 
 const sortBy = (field: string) => {
@@ -225,43 +215,43 @@ const sortBy = (field: string) => {
     sortField.value = field;
     sortOrder.value = 'ASC';
   }
-  loadTratamientos();
+  loadColors();
 };
 
 const goToPreviousPage = () => {
   if (currentPage.value > 1) {
     currentPage.value--;
-    loadTratamientos();
+    loadColors();
   }
 };
 
 const goToNextPage = () => {
   if (hasNextPage.value) {
     currentPage.value++;
-    loadTratamientos();
+    loadColors();
   }
 };
 
-const toggleActivo = async (id_tratamiento: string, activo: boolean) => {
-  const result = await updateTratamiento(id_tratamiento, { activo });
+const toggleActivo = async (id_color: string, activo: boolean) => {
+  const result = await updateColor(id_color, { activo });
   if (result.ok) {
     const action = activo ? 'restaurado' : 'borrado';
-    toast.success(`Tratamiento ${action} exitosamente.`);
-    loadTratamientos();
+    toast.success(`Color ${action} exitosamente.`);
+    loadColors();
   } else {
-    toast.error( `Error al ${activo ? 'restaurar' : 'borrar'} el tratamiento.`);
+    toast.error(result.message || `Error al ${activo ? 'restaurar' : 'borrar'} el color.`);
   }
 };
 
-const confirmToggleActivo = (tratamiento: Tratamiento, activo: boolean) => {
+const confirmToggleActivo = (color: Color, activo: boolean) => {
   const action = activo ? 'restaurar' : 'borrar';
-  if (confirm(`¿Estás seguro de ${action} este tratamiento?`)) {
-    toggleActivo(tratamiento.id_tratamiento, activo);
+  if (confirm(`¿Estás seguro de ${action} este color?`)) {
+    toggleActivo(color.id_color, activo);
   }
 };
 
-const openUpdateModal = (tratamiento: Tratamiento) => {
-  selectedTratamiento.value = tratamiento;
+const openUpdateModal = (color: Color) => {
+  selectedColor.value = color;
   isUpdateModalOpen.value = true;
 };
 
@@ -270,15 +260,15 @@ const openCreateModal = () => {
 };
 
 const handleUpdate = () => {
-  loadTratamientos();
+  loadColors();
 };
 
 const handleCreate = () => {
-  loadTratamientos();
+  loadColors();
 };
 
 onMounted(() => {
-  loadTratamientos();
+  loadColors();
 });
 </script>
 

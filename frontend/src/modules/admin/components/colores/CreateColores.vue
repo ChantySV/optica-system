@@ -1,7 +1,7 @@
 <template>
   <div class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
     <div class="bg-white p-6 rounded-lg shadow-lg w-full max-w-md mx-4">
-      <h2 class="text-2xl font-bold mb-4 text-center">Crear Tratamiento</h2>
+      <h2 class="text-2xl font-bold mb-4 text-center">Crear Color</h2>
       <form @submit.prevent="submitCreate">
         <div class="mb-4">
           <label class="block text-gray-700 mb-2" for="nombre">Nombre</label>
@@ -14,27 +14,18 @@
             placeholder="Ingresa el nombre"
           />
         </div>
-        <div class="mb-4">
-          <label class="block text-gray-700 mb-2" for="descripcion">Descripción</label>
-          <textarea
-            id="descripcion"
-            v-model="form.descripcion"
-            class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none"
-            placeholder="Ingresa la descripción"
-          ></textarea>
-        </div>
         <div class="flex justify-end mt-6">
           <button
             type="button"
             @click="closeModal"
-            class="px-4 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 focus:outline-none mr-2 text-white"
+            class="px-4 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 focus:outline-none mr-2"
           >
             Cancelar
           </button>
           <button
             type="submit"
             :disabled="loading"
-            class="px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 focus:outline-none disabled:bg-green-300"
+            class="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 focus:outline-none disabled:bg-green-300"
           >
             Crear
           </button>
@@ -62,8 +53,8 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
-import { createTratamiento } from '../../actions/admin-tratamientos.action';
+import { ref } from 'vue';
+import { createColor } from '../../actions/admin-color.action';
 import { useToast } from 'vue-toastification';
 
 const emit = defineEmits<{
@@ -73,7 +64,7 @@ const emit = defineEmits<{
 
 const form = ref({
   nombre: '',
-  descripcion: '',
+  activo: true,
 });
 
 const loading = ref(false);
@@ -88,22 +79,21 @@ const submitCreate = async () => {
   try {
     const payload = {
       nombre: form.value.nombre,
-      descripcion: form.value.descripcion,
-      activo: true,
+      activo: form.value.activo,
     };
 
-    const response = await createTratamiento(payload);
+    const response = await createColor(payload);
 
     if (response.ok) {
-      toast.success('Tratamiento creado exitosamente.');
+      toast.success('Color creado exitosamente.');
       emit('created');
       closeModal();
     } else {
-      toast.error(response.message || 'Error al crear el tratamiento.');
+      toast.error(response.message || 'Error al crear el color.');
     }
   } catch (error: any) {
-    console.error('Error al crear tratamiento:', error);
-    toast.error(error.message || 'Error al crear el tratamiento.');
+    console.error('Error al crear color:', error);
+    toast.error(error.message || 'Error al crear el color.');
   } finally {
     loading.value = false;
   }

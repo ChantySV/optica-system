@@ -1,7 +1,7 @@
 // src/actions/colores.actions.ts
 
 import { backendApi } from '@/api/backendApi';
-import type { Color } from '../interfaces/ColorResponse.interface';
+import type { Color } from '../interfaces/colorResponse.interface';
 
 interface FindAllColorsParams {
   page: number;

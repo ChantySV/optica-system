@@ -11,6 +11,8 @@ import { ErrorHandleService } from 'src/common/services/error-handle/error-handl
 import { PaginationDto } from 'src/common/pagination-dto';
 import { QueryGetDto } from 'src/common/QueryGet-dto';
 import { QueryProductoDto } from './dto/query-producto.dto';
+import { ConceptoEnum, Pmp } from '../pmp/entities/pmp.entity';
+import { PmpService } from '../pmp/pmp.service';
 
 @Injectable()
 export class ProductosService {
@@ -20,6 +22,8 @@ export class ProductosService {
 
     @InjectRepository(Proveedor)
     private readonly proveedorRepository: Repository<Proveedor>,
+
+    private readonly pmpService: PmpService,
 
     @InjectRepository(ProductoProveedor)
     private readonly productoProveedorRepository: Repository<ProductoProveedor>,
@@ -48,6 +52,8 @@ export class ProductosService {
       });
 
       await this.productoProveedorRepository.save(productoProveedor);
+
+      await this.pmpService.createPmp(savedProducto.id_producto,  createProductoDto.stock, ConceptoEnum.COMPRA);
 
       return savedProducto;
     } catch (error) {

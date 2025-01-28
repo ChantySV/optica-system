@@ -23,6 +23,12 @@ export default [
         component: () => import('@/modules/admin/views/AdminViewVarios.vue'),
         meta: { requiresAuth: true, role: 'admin' },
       },
+      {
+        path: 'pmp',
+        name: 'admin-pmp',
+        component: () => import('@/modules/admin/views/AdminViewPmp.vue'),
+        meta: { requiresAuth: true, role: 'admin' },
+      },
     ],
   },
 ];

@@ -65,13 +65,13 @@
             <td class="px-6 py-3 text-center">
               <button
                 @click="openUpdateModal(producto)"
-                class="px-4 py-2 bg-gray-800 text-white rounded-lg hover:bg-gray-700 focus:outline-none"
+                class="px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 focus:outline-none"
               >
                 Actualizar
               </button>
               <button
                 @click="onDelete(producto.id_producto)"
-                class="ml-2 px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-500 focus:outline-none"
+                class="ml-2 px-4 py-2 bg-gray-700 text-white rounded-lg hover:bg-gray-600 focus:outline-none"
               >
                 Eliminar
               </button>

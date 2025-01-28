@@ -54,7 +54,7 @@
 
         <!-- Campo: Selección de personalInteface -->
         <div class="mb-4">
-          <label class="block text-gray-700 mb-2" for="id_personal">personalInteface</label>
+          <label class="block text-gray-700 mb-2" for="id_personal">Personal</label>
           <select
             id="id_personal"
             v-model="form.id_personal"
@@ -80,7 +80,7 @@
           <button
             type="submit"
             :disabled="loading"
-            class="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 focus:outline-none disabled:bg-green-300"
+            class="px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600"
           >
             Crear
           </button>

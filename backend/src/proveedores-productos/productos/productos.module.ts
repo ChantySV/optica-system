@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
 import { ProductosService } from './productos.service';
@@ -8,6 +8,7 @@ import { ProductoProveedor } from './entities/produto-proveedor.entity';
 import { ProveedoresModule } from '../proveedores/proveedores.module';
 import { CommonModule } from 'src/common/common.module';
 import { AuthModule } from 'src/auth/auth.module';
+import { PmpModule } from '../pmp/pmp.module';
 
 @Module({
   imports: [
@@ -15,6 +16,7 @@ import { AuthModule } from 'src/auth/auth.module';
     ProveedoresModule, 
     CommonModule,
     AuthModule,
+    forwardRef(() => PmpModule), 
   ],
   controllers: [ ProductosController ],
   providers: [ ProductosService ],

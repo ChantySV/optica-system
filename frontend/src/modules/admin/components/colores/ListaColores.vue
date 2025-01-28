@@ -141,7 +141,7 @@
 import { ref, computed, onMounted } from 'vue';
 import { findAllColors, updateColor } from '../../actions/admin-color.action';
 import { useToast } from 'vue-toastification';
-import type { Color } from '../../interfaces/ColorResponse.interface';
+import type { Color } from '../../interfaces/colorResponse.interface';
 import UpdateColorModal from './UpdateColores.vue';
 import CreateColorModal from './CreateColores.vue';
 

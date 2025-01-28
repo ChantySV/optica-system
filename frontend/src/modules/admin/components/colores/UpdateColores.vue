@@ -56,7 +56,7 @@
 import { ref, watch, onMounted } from 'vue';
 import { updateColor } from '../../actions/admin-color.action';
 import { useToast } from 'vue-toastification';
-import type { Color } from '../../interfaces/ColorResponse.interface';
+import type { Color } from '../../interfaces/colorResponse.interface';
 
 const props = defineProps<{
   color: Color | null;

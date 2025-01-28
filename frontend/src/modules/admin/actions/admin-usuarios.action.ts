@@ -121,25 +121,24 @@ export const createUsuario = async (
 
 export const findAllJuridicosAdmin = async () => {
   try {
-    const response = await backendApi.get< {
-      ok: boolean
-      data:{
-      id_personal: string,
-      nombres: string,
-      apellido_paterno: string,
-      apellido_materno: string | null,
-      email: string | null,
-      telefono: number,
-      tipo_persona: string,
-      activo: boolean
-    }
-  }>('/personal/juridicos-admin');
-    console.log(response);
-    if (response.data && typeof response.data.ok === 'boolean') {
+    const response = await backendApi.get<{
+      ok: boolean;
+      data: {
+        id_personal: string;
+        nombres: string;
+        apellido_paterno: string;
+        apellido_materno: string | null;
+        email: string | null;
+        telefono: number;
+        tipo_persona: string;
+        activo: boolean;
+      }[];
+    }>('/personal/juridicos-admin');
+
+    if (response.data?.ok && Array.isArray(response.data.data)) {
       return {
-        ok: response.data.ok,
-        data: response.data,
-        message: response.data.message,
+        ok: true,
+        data: response.data.data, // Asegura que sea un array
       };
     } else {
       return {

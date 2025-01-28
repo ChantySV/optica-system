@@ -15,6 +15,8 @@ import { QueryGetDto } from 'src/common/QueryGet-dto';
 import { QueryTrabajoDto } from './dto/query-response-trabajo.dto';
 import { Color } from '../colores/entities/colore.entity';
 import { Tratamiento } from '../tratamientos/entities/tratamiento.entity';
+import { PmpService } from 'src/proveedores-productos/pmp/pmp.service';
+import { ConceptoEnum } from 'src/proveedores-productos/pmp/entities/pmp.entity';
 
 @Injectable()
 export class TrabajosService {
@@ -37,6 +39,9 @@ export class TrabajosService {
     @InjectRepository(Producto)
     private readonly productoRepository: Repository<Producto>,
 
+    private readonly pmpService: PmpService,
+    
+
     private readonly errorHandleService: ErrorHandleService,
   ) {}
 
@@ -45,7 +50,6 @@ export class TrabajosService {
     try {
       const { id_personal, detalleTrabajo, ...trabajoData } = createTrabajoDto;
   
-      // Verificar si el personal existe
       const personal = await this.personalRepository.findOne({
         where: { id_personal, activo: true },
       });
@@ -53,7 +57,6 @@ export class TrabajosService {
         throw new NotFoundException(`Personal con ID "${id_personal}" no encontrado`);
       }
   
-      // Verificar si el producto existe
       const producto = await this.productoRepository.findOne({
         where: { id_producto: detalleTrabajo.id_producto },
       });
@@ -61,7 +64,6 @@ export class TrabajosService {
         throw new NotFoundException(`Producto con ID "${detalleTrabajo.id_producto}" no encontrado`);
       }
   
-      // Verificar si el color existe (si se proporciona)
       let color = null;
       if (detalleTrabajo.id_color) {
         color = await this.colorRepository.findOne({
@@ -72,7 +74,6 @@ export class TrabajosService {
         }
       }
   
-      // Verificar si el tratamiento existe (si se proporciona)
       let tratamiento = null;
       if (detalleTrabajo.id_tratamiento) {
         tratamiento = await this.tratamientoRepository.findOne({
@@ -83,16 +84,14 @@ export class TrabajosService {
         }
       }
   
-      // Crear y guardar el detalle de trabajo, incluyendo color y tratamiento si se proporcionan
       const detalle = this.detalleTrabajoRepository.create({
         ...detalleTrabajo,
         producto,
-        color,  // Asignamos el color si existe
-        tratamiento,  // Asignamos el tratamiento si existe
+        color,  
+        tratamiento, 
       });
       const savedDetalle = await this.detalleTrabajoRepository.save(detalle);
   
-      // Crear y guardar el trabajo
       const trabajo = this.trabajoRepository.create({
         ...trabajoData,
         detalleTrabajo: savedDetalle,
@@ -100,14 +99,13 @@ export class TrabajosService {
       });
       const savedTrabajo = await this.trabajoRepository.save(trabajo);
   
-      // Reducir el stock del producto en 2
       if (producto.stock >= 2) {
-        producto.stock -= 2;  // Reducir el stock en 2
-        await this.productoRepository.save(producto);  // Guardar el producto con el stock actualizado
+        producto.stock -= 2;  
+        await this.productoRepository.save(producto); 
       } else {
         throw new Error(`No hay suficiente stock para realizar el trabajo.`);
       }
-  
+          await this.pmpService.createPmp(producto.id_producto,  2, ConceptoEnum.VENTA);
       return savedTrabajo;
     } catch (error) {
       console.log(error);

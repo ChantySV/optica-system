@@ -57,13 +57,13 @@
 
         <li v-if="isAdmin">
           <router-link
-            to="/productos"
+            to="/admin/pmp"
             class="flex items-center px-3 py-2 rounded-md text-gray-300
                    hover:text-white hover:bg-orange-500 hover:scale-105
                    transition-all duration-300"
           >
             <icon-package class="h-5 w-5 mr-3" />
-            <span>Productos</span>
+            <span>Rendimiento</span>
           </router-link>
         </li>
 
@@ -120,7 +120,7 @@
 
       <!-- Footer -->
       <div v-if="sidebarOpen" class="p-4 bg-[#252525] text-gray-400 text-sm border-t border-gray-600">
-        <p>© 2025 V-Dashboard</p>
+        <p>© 2025 OptalVision</p>
       </div>
     </aside>
 

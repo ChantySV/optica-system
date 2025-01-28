@@ -1,6 +1,7 @@
 import { Entity, PrimaryGeneratedColumn, Column, OneToMany, OneToOne, JoinColumn } from 'typeorm';
 import { DetalleTrabajo } from 'src/mtrabajos/trabajos/entities/detalle-trabajo.entity';
 import { ProductoProveedor } from './produto-proveedor.entity';
+import { Pmp } from '../../pmp/entities/pmp.entity';
 
 
 @Entity('productos')
@@ -28,4 +29,7 @@ export class Producto {
 
   @OneToMany(() => DetalleTrabajo, (detalleTrabajo) => detalleTrabajo.producto)
   detalleTrabajos: DetalleTrabajo[];   
+
+  @OneToMany(() => Pmp, (pmp) => pmp.producto)
+  pmp: Pmp[];
 }

@@ -12,6 +12,8 @@ import { Producto } from 'src/proveedores-productos/productos/entities/producto.
 import { ProductosModule } from 'src/proveedores-productos/productos/productos.module';
 import { TratamientosModule } from '../tratamientos/tratamientos.module';
 import { ColoresModule } from '../colores/colores.module';
+import { PmpService } from 'src/proveedores-productos/pmp/pmp.service';
+import { PmpModule } from 'src/proveedores-productos/pmp/pmp.module';
 
 @Module({
   imports: [
@@ -21,6 +23,7 @@ import { ColoresModule } from '../colores/colores.module';
     TrabajosModule,
     ProductosModule,
     TratamientosModule,
+    PmpModule,
     ColoresModule,
     AuthModule,
   ],

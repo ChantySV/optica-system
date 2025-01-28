@@ -128,17 +128,20 @@ export class PersonalService {
   }
 
  //Buscar Juridicos-admin
- async findAllJuridicosAdmin(): Promise<Personal[]> {
+ async findAllJuridicosAdmin() {
   try {
     const data = await this.personalRepository
       .createQueryBuilder('personal')
-      .leftJoin('personal.usuario', 'usuario') // Asegúrate de que la relación está bien definida
+      .leftJoin('personal.usuario', 'usuario') 
       .where('personal.tipo_persona = :tipo', { tipo: 'juridica' })
       .andWhere('personal.activo = :activo', { activo: true })
-      .andWhere('usuario.id_usuario IS NULL') // Excluir personal que ya tienen un usuario
+      .andWhere('usuario.id_usuario IS NULL')
       .getMany();
 
-    return data;
+    return {
+      ok:true,
+      data
+    };
   } catch (error) {
     this.errorHandleService.errorHandle(error);
     throw new BadRequestException('Error al obtener la lista de jurídicos.');

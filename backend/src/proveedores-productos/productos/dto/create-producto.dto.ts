@@ -18,5 +18,5 @@ export class CreateProductoDto {
   activo?: boolean;
 
   @IsUUID()
-  id_proveedor: string; // Incluimos el ID del proveedor aquí
+  id_proveedor: string;
 }

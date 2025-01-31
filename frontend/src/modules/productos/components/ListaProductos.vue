@@ -127,14 +127,11 @@ const currentPage = ref(1);
 const sortField = ref('nombre');
 const sortOrder = ref<'ASC' | 'DESC'>('ASC');
 
-// Estado del modal de actualización
 const showUpdateModal = ref(false);
 const selectedProducto = ref<Result | null>(null);
 
-// Calcular si hay una siguiente página
 const hasNextPage = computed(() => totalItems.value > currentPage.value * itemsPerPage);
 
-// Cargar productos
 const loadProductos = async () => {
   loading.value = true;
   error.value = null;
@@ -152,7 +149,6 @@ const loadProductos = async () => {
   loading.value = false;
 };
 
-// Ordenar productos
 const sortBy = (field: string) => {
   if (sortField.value === field) {
     sortOrder.value = sortOrder.value === 'ASC' ? 'DESC' : 'ASC';
@@ -163,7 +159,6 @@ const sortBy = (field: string) => {
   loadProductos();
 };
 
-// Manejar cambio a la página anterior
 const goToPreviousPage = () => {
   if (currentPage.value > 1) {
     currentPage.value--;
@@ -171,7 +166,6 @@ const goToPreviousPage = () => {
   }
 };
 
-// Manejar cambio a la página siguiente
 const goToNextPage = () => {
   if (hasNextPage.value) {
     currentPage.value++;
@@ -179,18 +173,15 @@ const goToNextPage = () => {
   }
 };
 
-// Abrir el modal de actualización
 const openUpdateModal = (producto: Result) => {
   selectedProducto.value = producto;
   showUpdateModal.value = true;
 };
 
-// Cerrar el modal de actualización
 const closeUpdateModal = () => {
   showUpdateModal.value = false;
 };
 
-// Manejar eliminación de un producto
 const onDelete = async (id_producto: string) => {
   const confirmDelete = confirm('¿Estás seguro de eliminar este producto?');
   if (confirmDelete) {
@@ -204,7 +195,6 @@ const onDelete = async (id_producto: string) => {
   }
 };
 
-// Cargar productos al montar el componente
 onMounted(() => {
   loadProductos();
 });

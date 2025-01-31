@@ -16,17 +16,27 @@ export class ProveedoresService {
     private readonly proveedorRepository: Repository<Proveedor>,
     private readonly errorHandleService: ErrorHandleService,
   ) { }
-
+  
+  private cleanUrl(url: string): string {
+    let cleanedUrl = url.replace(/^(https?:\/\/)?(www\.)?/, ''); 
+    cleanedUrl = cleanedUrl.split('/')[0]; 
+    return cleanedUrl;
+  }
+  
   async create(createProveedoreDto: CreateProveedoreDto): Promise<ProveedorResponseDto> {
     try {
+      if (createProveedoreDto.direccion_web) {
+        createProveedoreDto.direccion_web = this.cleanUrl(createProveedoreDto.direccion_web);
+      }  
       const proveedor = this.proveedorRepository.create(createProveedoreDto);
-      const savedProveedor = await this.proveedorRepository.save(proveedor);
+      const savedProveedor = await this.proveedorRepository.save(proveedor);  
       return this.mapToDto(savedProveedor);
     } catch (error) {
       this.errorHandleService.errorHandle(error);
     }
   }
 
+  
   async findProveedor() {    
     try {
       const proveedores = await this.proveedorRepository.find({
@@ -87,13 +97,17 @@ export class ProveedoresService {
 
   async update(id: string, updateProveedoreDto: UpdateProveedoreDto): Promise<ProveedorResponseDto> {
     try {
+      if (updateProveedoreDto.direccion_web) {
+        updateProveedoreDto.direccion_web = this.cleanUrl(updateProveedoreDto.direccion_web);
+      }
+  
       const proveedor = await this.proveedorRepository.preload({
         id_proveedor: id,
         ...updateProveedoreDto,
       });
-
+  
       if (!proveedor) throw new NotFoundException(`Proveedor con ID "${id}" no encontrado`);
-
+  
       const savedProveedor = await this.proveedorRepository.save(proveedor);
       return this.mapToDto(savedProveedor);
     } catch (error) {

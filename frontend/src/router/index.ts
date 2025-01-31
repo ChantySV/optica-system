@@ -34,21 +34,17 @@ const router = createRouter({
 router.beforeEach((to, from, next) => {
   const authStore = useAuthStore();
 
-  // Verificar si la ruta requiere autenticación
   if (to.meta.requiresAuth && !authStore.isAuthenticated) {
     return next({ name: 'login' });
   }
 
-  // Verificar rol
   if (to.meta.role) {
     const userRole = authStore.user?.role.nombre_rol;
 
-    // Admin puede acceder a todas las rutas
     if (userRole === 'admin') {
       return next();
     }
 
-    // Restringir acceso según el rol
     if (userRole !== to.meta.role) {
       return next({ name: 'login' });
     }

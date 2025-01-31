@@ -1,36 +1,37 @@
-import { helpers } from '@vuelidate/validators'
+import { required, helpers, maxLength } from "@vuelidate/validators";
 
-/**
- * Valida que el link:
- *  - Puede traer protocolo http(s) o no.
- *  - Permite caminos ("/c/..."), pero los ignora.
- *  - Al final, el dominio debe ser "www.chatgpt.com".
- *  - No debe pasar de 15 caracteres de dominio.
- */
-export const customLink = helpers.withMessage(
-  'El link debe corresponder a "www.chatgpt.com" y no exceder 15 caracteres en el dominio',
-  (value: string) => {
-    if (!value) {
-      // Aquí puedes decidir si quieres permitir vacío.
-      // Si se requiere siempre, retorna false (campo obligatorio)
-      return false
-    }
+const phoneNumber = helpers.withMessage(
+  "El número de teléfono no es válido",
+  (value: string) => !value || /^\d{7,15}$/.test(value)
+);
 
-    // 1) Elimina protocolo (http:// o https://)
-    const sinProtocolo = value.replace(/^https?:\/\//, '')
+const onlyAlphabet = helpers.withMessage(
+  "El nombre solo puede contener letras del abecedario anglosajón (A-Z, a-z).",
+  (value: string) => /^[A-Za-z]+$/.test(value)
+);
 
-    // 2) Tomamos la parte del dominio (antes de la primera "/")
-    const [domain] = sinProtocolo.split('/')
+const maxURLLength = helpers.withMessage(
+  "El campo no puede superar los 30 caracteres.",
+  maxLength(30)
+);
 
-    // 3) Chequear longitud
-    // "www.chatgpt.com" = 15 caracteres
-    if (domain.length > 15) return false
+const validDomainOrURL = helpers.withMessage(
+  "Debe ser una URL válida (ejemplo: example.com o https://example.com).",
+  (value: string) =>
+    !value ||
+    /^(https?:\/\/)?([a-zA-Z0-9-]+\.)+[a-zA-Z]{2,}$/.test(value)
+);
 
-    // 4) Verificar que sea exactamente "www.chatgpt.com"
-    if (domain !== 'www.chatgpt.com') {
-      return false
-    }
-
-    return true
-  }
-)
+export const validationRules = {
+  nombre: {
+    required: helpers.withMessage("El nombre es obligatorio.", required),
+    onlyAlphabet,
+    maxURLLength
+  },
+  numero: { phoneNumber },
+  direccion_web: {
+    required: helpers.withMessage("La dirección web es obligatoria.", required),
+    validDomainOrURL,
+    maxURLLength
+  },
+};

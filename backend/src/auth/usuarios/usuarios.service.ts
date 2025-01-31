@@ -61,7 +61,6 @@ export class UsuariosService {
         throw new NotFoundException(`Personal con ID "${id_personal}" no encontrado`);
       }
 
-      // Hashear la contraseña de forma asíncrona
       const hashedPassword = await bcrypt.hash(contrasenha, 10);
       
       const usuario = this.usuarioRepository.create({

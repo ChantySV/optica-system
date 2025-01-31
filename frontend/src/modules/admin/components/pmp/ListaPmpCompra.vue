@@ -74,7 +74,7 @@
         <button
           :disabled="currentPage === 1"
           @click="changePage(currentPage - 1)"
-          class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 focus:outline-none disabled:bg-gray-300 disabled:cursor-not-allowed"
+          class="px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 focus:outline-none disabled:bg-gray-300 disabled:cursor-not-allowed"
         >
           Anterior
         </button>

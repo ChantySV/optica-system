@@ -42,7 +42,7 @@
             <td class="px-6 py-3 text-gray-800">{{ proveedor.nombre }}</td>
             <td class="px-6 py-3 text-gray-800">{{ proveedor.numero || 'No disponible' }}</td>
             <td class="px-6 py-3 text-gray-800">
-              <a :href="proveedor.direccion_web" target="_blank" class="text-orange-500 hover:underline">
+              <a :href="`https://${proveedor.direccion_web}`" target="_blank" class="text-orange-500 hover:underline">
                 {{ proveedor.direccion_web.length > 20 ? proveedor.direccion_web.slice(0, 20) + '...' : proveedor.direccion_web }}
               </a>
             </td>
@@ -84,7 +84,7 @@
 import { ref, computed, onMounted } from 'vue';
 import { getProveedoresAction, deleteProveedorAction } from '../actions/proveedores.action';
 import UpdateProveedor from './UpdateProveedores.vue';
-import ProveedoresResponseInterface from '../interfaces/proveedoresResponse.interface';
+import type { ProveedoresResponseInterface } from '../interfaces/proveedoresResponse.interface';
 
 const proveedores = ref<ProveedoresResponseInterface[]>([]);
 const loading = ref(true);

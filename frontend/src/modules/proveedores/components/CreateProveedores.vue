@@ -10,13 +10,13 @@
         Crear Nuevo Proveedor
       </h2>
 
-      <!-- FORM con Vuelidate -->
+      <!-- FORM  -->
       <form @submit.prevent="onSubmit" class="space-y-4">
 
-        <!-- NOMBRE (requerido, string) -->
+        <!-- NOMBRE -->
         <div>
           <label for="nombre" class="block text-sm font-medium text-gray-700">
-            Nombre
+            Nombre Proveedor
           </label>
           <input
             id="nombre"
@@ -25,13 +25,12 @@
             placeholder="Nombre del proveedor"
             class="w-full px-4 py-2 border border-gray-300 rounded-lg"
           />
-          <!-- Mostrar errores -->
           <p v-if="v$.nombre.$error" class="text-red-500 text-sm">
-            {{ firstError(v$.nombre) }}
+            {{ v$.nombre.$errors[0].$message }}
           </p>
         </div>
 
-        <!-- NÚMERO (opc) -->
+        <!-- NÚMERO  -->
         <div>
           <label for="numero" class="block text-sm font-medium text-gray-700">
             Número
@@ -43,10 +42,12 @@
             placeholder="Número de contacto"
             class="w-full px-4 py-2 border border-gray-300 rounded-lg"
           />
-          <!-- Sin validación obligatoria -->
+          <p v-if="v$.numero.$error" class="text-red-500 text-sm">
+            {{ v$.numero.$errors[0].$message }}
+          </p>
         </div>
 
-        <!-- DIRECCIÓN WEB (customLink requerido) -->
+        <!-- DIRECCIÓN WEB  -->
         <div>
           <label for="direccion_web" class="block text-sm font-medium text-gray-700">
             Dirección Web
@@ -59,7 +60,7 @@
             class="w-full px-4 py-2 border border-gray-300 rounded-lg"
           />
           <p v-if="v$.direccion_web.$error" class="text-red-500 text-sm">
-            {{ firstError(v$.direccion_web) }}
+            {{ v$.direccion_web.$errors[0].$message }}
           </p>
         </div>
 
@@ -87,66 +88,39 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue'
-import useVuelidate from '@vuelidate/core'
-import { required } from '@vuelidate/validators'
-import { customLink } from '../validators/createProveedor.validator' // tu validador personalizado
+import { useVuelidate } from '@vuelidate/core'
+import { validationRules } from '../validators/createProveedor.validator'
 import { useToast } from 'vue-toastification'
 import { createProveedorAction } from '../actions/proveedores.action'
 
 const toast = useToast()
 
-// Props para controlar el modal
 const props = defineProps({
   isOpen: Boolean
 })
 
-// Emitir evento para cerrar
 const emit = defineEmits(['close'])
 
 function closeModal() {
   emit('close')
 }
 
-// Datos del formulario (CreateProveedoreDto sin "activo")
 const formData = ref({
-  nombre: '',
-  numero: '', // opcional
-  direccion_web: ''
-})
+  nombre: "",
+  numero: "",
+  direccion_web: "",
+});
 
-// Reglas con Vuelidate
-const rules = computed(() => ({
-  nombre: {
-    required
-  },
-  numero: {
-    // sin reglas => opcional
-  },
-  direccion_web: {
-    required,
-    customLink // Aplica nuestra validación
-  }
-}))
+const rules = computed(() => validationRules);
 
-// Inicializar Vuelidate
-const v$ = useVuelidate(rules, formData)
+const v$ = useVuelidate(rules, formData);
 
-// Helper para el primer mensaje de error
-function firstError(state: any): string {
-  if (!state.$errors?.length) return ''
-  return state.$errors[0].$message || 'Campo inválido'
-}
-
-// Manejo del submit
 async function onSubmit() {
-  // Validamos
   const isValid = await v$.value.$validate()
   if (!isValid) {
     toast.error('Revisa los campos marcados')
     return
   }
-
-  // Si pasa validación
   try {
     const response = await createProveedorAction(formData.value)
     if (response.ok) {
@@ -161,7 +135,3 @@ async function onSubmit() {
   }
 }
 </script>
-
-<style scoped>
-/* Estilos de ejemplo con Tailwind */
-</style>

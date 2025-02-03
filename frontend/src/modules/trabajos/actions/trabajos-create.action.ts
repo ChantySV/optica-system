@@ -13,40 +13,33 @@ export const createTrabajo = async (createTrabajo: any) => {
       data,
     };
   } catch (error: any) {
-    console.error('Error al crear trabajo:', error);
-
-    const message =
-      error?.response?.data?.message ||
-      'Ocurrió un error al intentar crear el trabajo.';
-
-    return {
-      ok: false,
-      message,
-    };
+    if (error.response && error.response.data.message) {
+      return {
+        ok: false,
+        code: error.response.data.code || 'UNKNOWN_ERROR',
+        message: error.response.data.message };
+    } else {
+      return { ok: false, message: 'Ocurrió un error al crear el trabajo.' };
+    }
   }
 };
 
-// Función auxiliar para convertir cadenas de fecha a objetos Date
 const convertirFechas = (trabajos: Trabajo[]): Trabajo[] => {
   return trabajos.map(trabajo => ({
     ...trabajo,
     fecha_entrada: trabajo.fecha_entrada ? new Date(trabajo.fecha_entrada) : null,
     fecha_salida: trabajo.fecha_salida ? new Date(trabajo.fecha_salida) : null,
-    // Si hay más campos de fecha dentro de DetalleTrabajo, conviértelos aquí
     detalleTrabajo: {
       ...trabajo.detalleTrabajo,
-      // Supongamos que hay campos de fecha dentro de DetalleTrabajo
-      // fecha_algun_campo: trabajo.detalleTrabajo.fecha_algun_campo ? new Date(trabajo.detalleTrabajo.fecha_algun_campo) : null,
     },
   }));
 };
 
 
-// Obtener todos los trabajos con paginación y orden
 export const getTrabajos = async (
   limit: number,
   offset: number,
-  sortBy: keyof Trabajo = 'numero_trabajo', // Asegura que sortBy sea una clave válida de Trabajo
+  sortBy: keyof Trabajo = 'numero_trabajo',
   order: 'ASC' | 'DESC' = 'ASC'
 ): Promise<{
   ok: boolean;
@@ -82,7 +75,6 @@ export const getTrabajos = async (
   }
 };
 
-//Obtener Productos
 export const findProducto = async (): Promise<{
   ok: boolean;
   data?: { id_producto: string, nombre: string }[];
@@ -171,22 +163,19 @@ export const findPersonal = async (): Promise<{
 export const updateTrabajo = async (
   id_trabajo: string,
   updateTrabajoDto: any
-): Promise<{
-  ok: boolean;
-  data?: Trabajo;
-  message?: string;
-}> => {
+) => {
   try {
     const response = await backendApi.patch(`/trabajos/${id_trabajo}`, updateTrabajoDto);
     return {
       ok: true,
-      data: response.data, // Asegúrate de que la respuesta de tu API tenga esta estructura
+      data: response.data,
     };
   } catch (error: any) {
     console.error(error);
     return {
       ok: false,
-      message: error.response?.data?.message || 'No se pudo actualizar el trabajo.',
+      message: error.response?.data?.message || 'Error al actualizar el trabajo.',
+      code: error.response?.data?.code || null,
     };
   }
 };

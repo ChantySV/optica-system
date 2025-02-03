@@ -104,7 +104,7 @@ const props = defineProps({
   },
 });
 
-const emit = defineEmits(['close', 'refresh']);
+const emit = defineEmits(['close', 'refreshList']);
 
 const form = reactive({
   nombre: '',
@@ -142,7 +142,7 @@ const onSubmit = async () => {
   const response = await createProductoAction({ ...form });
   if (response.ok) {
     toast.success('Producto agregado exitosamente.');
-    emit('refresh');
+    emit('refreshList');
     closeModal();
   } else {
     toast.error('Error al agregar producto.');

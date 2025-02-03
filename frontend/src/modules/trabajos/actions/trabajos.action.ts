@@ -25,6 +25,28 @@ export const getTrabajos = async (
   }
 };
 
+export const getTrabajosEntregados = async (
+  search?: string,
+  page: number = 1,
+  limit: number = 10,
+  sortField: string = 'fecha_entrada',
+  sortOrder: 'ASC' | 'DESC' = 'ASC'
+): Promise<FindAllTrabajoResponse> => {
+  try {
+    const params: any = { page, limit, sortField, sortOrder };
+    if (search) {
+      params.search = search;
+    }
+
+    const response = await backendApi.get('/trabajos/entregados', { params });
+
+    return response.data;
+  } catch (error: any) {
+    console.error('Error en getTrabajos:', error);
+    throw error.response?.data || { ok: false, message: 'Error al obtener los trabajos.' };
+  }
+};
+
 
 export const getTrabajoById = async (id: string): Promise<Trabajo> => {
   try {
@@ -51,7 +73,7 @@ export const updateTrabajo = async (id: string, data: Partial<Trabajo>): Promise
 };
 
 
-export const removeTrabajo = async (id: string): Promise<RemoveTrabajoResponse> => {
+export const removeTrabajo = async (id: string)=> {
   try {
     const response = await backendApi.delete(`/trabajos/${id}`);
     return response.data;

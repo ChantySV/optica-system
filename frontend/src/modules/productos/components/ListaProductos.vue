@@ -106,7 +106,7 @@
       :isOpen="showUpdateModal"
       :producto="selectedProducto"
       @close="closeUpdateModal"
-      @refresh="loadProductos"
+      @refreshList="loadProductos"
     />
   </div>
 </template>
@@ -116,6 +116,9 @@ import { ref, computed, onMounted } from 'vue';
 import { getProductosAction, deleteProductoAction } from '../actions/productos.action';
 import UpdateProducto from './UpdateProductos.vue';
 import type { Result } from '../interfaces/productosResponse.interface';
+import { useToast } from 'vue-toastification';
+
+const toast = useToast();
 
 const productos = ref<Result[]>([]);
 const loading = ref(true);
@@ -187,10 +190,10 @@ const onDelete = async (id_producto: string) => {
   if (confirmDelete) {
     const response = await deleteProductoAction(id_producto);
     if (response.ok) {
-      alert('Producto eliminado correctamente.');
+      toast.success('Producto eliminado correctamente.');
       loadProductos();
     } else {
-      alert(response.message || 'Error al eliminar el producto.');
+      toast.error('Error al eliminar el producto.');
     }
   }
 };

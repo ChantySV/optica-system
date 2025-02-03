@@ -106,7 +106,7 @@ const props = defineProps({
   },
 })
 
-const emit = defineEmits(['close', 'refresh'])
+const emit = defineEmits(['close', 'refreshList'])
 
 const closeModal = () => {
   emit('close')
@@ -136,7 +136,7 @@ async function onSubmit() {
 
   if (response.ok) {
     toast.success('Proveedor actualizado exitosamente')
-    emit('refresh')
+    emit('refreshList')
     closeModal()
   } else {
     toast.error(response.message || 'Error al actualizar el proveedor')
@@ -147,7 +147,7 @@ watch(
   () => props.proveedor,
   (newProveedor) => {
     formData.nombre = newProveedor.nombre
-    formData.numero = newProveedor.numero || ''
+    formData.numero = newProveedor.numero || null
     formData.direccion_web = newProveedor.direccion_web
     formData.activo = newProveedor.activo
   },

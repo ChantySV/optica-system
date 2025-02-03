@@ -1,5 +1,5 @@
 import { IsDate, IsUUID, IsOptional, IsBoolean, IsDecimal, IsInt, ValidateNested, IsNumber, IsPositive, IsNegative, IsISO8601, isInt } from 'class-validator';
-import { Type } from 'class-transformer';
+import { Transform, Type } from 'class-transformer';
 
 class DetalleTrabajoDto {
   @IsBoolean()
@@ -54,10 +54,7 @@ class DetalleTrabajoDto {
 }
 
 export class CreateTrabajoDto {
-  @IsISO8601()
-  @IsOptional()
-  fecha_salida?: Date; 
-
+  
   @IsInt()
   numero_trabajo: number;
   

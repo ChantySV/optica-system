@@ -1,113 +1,340 @@
-<!-- src/components/TrabajoUpdateModal.vue -->
-
 <template>
-  <div class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
-    <div class="bg-white p-6 rounded-lg shadow-lg w-11/12 md:w-2/3 lg:w-1/2">
-      <div class="flex justify-between items-center mb-4">
-        <h2 class="text-2xl font-semibold text-gray-700">Actualizar Trabajo</h2>
-        <button @click="$emit('close')" class="text-gray-500 hover:text-gray-700 focus:outline-none">
-          &times;
-        </button>
-      </div>
+  <div v-if="isOpen" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+    <div class="bg-white rounded-lg w-11/12 md:w-3/4 lg:w-1/2 p-6 overflow-auto max-h-screen">
+      <h2 class="text-xl font-semibold mb-4">Actualizar Trabajo</h2>
 
       <form @submit.prevent="submitForm">
-        <div class="space-y-4">
-          <div>
-            <label for="fecha_salida" class="block text-gray-700">Fecha de Salida</label>
-            <input
-              type="date"
-              id="fecha_salida"
-              v-model="form.fecha_salida"
-              class="mt-1 block w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-300"
-            />
-          </div>
-
-          <div>
-            <label for="estado" class="block text-gray-700">Estado</label>
-            <select
-              id="estado"
-              v-model="form.estado"
-              class="mt-1 block w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-300"
-            >
-              <option value="pendiente">Pendiente</option>
-              <option value="completado">Completado</option>
-              <option value="cancelado">Cancelado</option>
-            </select>
-          </div>
+        <!-- Número de Trabajo -->
+        <div class="mb-4">
+          <label class="block text-gray-700">Número de Trabajo:</label>
+          <input type="number" v-model.number="form.numero_trabajo" class="w-full px-3 py-2 border rounded" />
+          <p v-if="v$.numero_trabajo.$error" class="text-red-500 text-sm">
+            {{ v$.numero_trabajo.$errors[0].$message }}
+          </p>
         </div>
 
-        <div class="flex justify-end mt-6 space-x-4">
-          <button
-            type="button"
-            @click="$emit('close')"
-            class="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 focus:outline-none"
-          >
+        <!-- ID Personal -->
+        <div class="mb-4">
+          <label class="block text-gray-700">Personal Encargada del Trabajo:</label>
+          <select v-model="form.id_personal" class="w-full px-3 py-2 border rounded">
+            <option value="">Seleccione un personal</option>
+            <option v-for="personal in personalOptions" :key="personal.id_personal" :value="personal.id_personal">
+              {{ personal.nombres }}
+            </option>
+          </select>
+          <p v-if="v$.id_personal.$error" class="text-red-500 text-sm">
+            {{ v$.id_personal.$errors[0].$message }}
+          </p>
+        </div>
+
+        <!-- Detalle Trabajo -->
+        <div class="mb-4">
+          <h3 class="text-lg font-semibold">Detalle del Trabajo</h3>
+
+          <!-- Distancia -->
+          <div class="mb-2">
+            <label class="inline-flex items-center">
+              <input type="checkbox" v-model="form.detalleTrabajo.distancia" class="form-checkbox" />
+              <span class="ml-2">Distancia</span>
+            </label>
+          </div>
+
+          <!-- Adición -->
+          <div class="mb-2">
+            <label class="block text-gray-700">Adición:</label>
+            <input type="number" v-model.number="form.detalleTrabajo.adicion" class="w-full px-3 py-2 border rounded" />
+            <p v-if="v$.detalleTrabajo.adicion.$error" class="text-red-500 text-sm">
+              {{ v$.detalleTrabajo.adicion.$errors[0].$message }}
+            </p>
+          </div>
+
+          <!-- Base -->
+          <div class="mb-2">
+            <label class="block text-gray-700">Base:</label>
+            <input type="number" v-model.number="form.detalleTrabajo.base" class="w-full px-3 py-2 border rounded" />
+            <p v-if="v$.detalleTrabajo.base.$error" class="text-red-500 text-sm">
+              {{ v$.detalleTrabajo.base.$errors[0].$message }}
+            </p>
+          </div>
+
+          <!-- Esférico Derecho -->
+          <div class="mb-2">
+            <label class="block text-gray-700">Esférico Derecho:</label>
+            <input type="number" step="0.01" v-model.number="form.detalleTrabajo.esferico_derecho"
+              class="w-full px-3 py-2 border rounded" />
+            <p v-if="v$.detalleTrabajo.esferico_derecho.$error" class="text-red-500 text-sm">
+              {{ v$.detalleTrabajo.esferico_derecho.$errors[0].$message }}
+            </p>
+          </div>
+
+          <!-- Esférico Izquierdo -->
+          <div class="mb-2">
+            <label class="block text-gray-700">Esférico Izquierdo:</label>
+            <input type="number" step="0.01" v-model.number="form.detalleTrabajo.esferico_izquierdo"
+              class="w-full px-3 py-2 border rounded" />
+            <p v-if="v$.detalleTrabajo.esferico_izquierdo.$error" class="text-red-500 text-sm">
+              {{ v$.detalleTrabajo.esferico_izquierdo.$errors[0].$message }}
+            </p>
+          </div>
+
+          <!-- Cilindro Derecho -->
+          <div class="mb-2">
+            <label class="block text-gray-700">Cilindro Derecho:</label>
+            <input type="number" step="0.01" v-model.number="form.detalleTrabajo.cilindro_derecho"
+              class="w-full px-3 py-2 border rounded" />
+            <p v-if="v$.detalleTrabajo.cilindro_derecho.$error" class="text-red-500 text-sm">
+              {{ v$.detalleTrabajo.cilindro_derecho.$errors[0].$message }}
+            </p>
+          </div>
+
+          <!-- Cilindro Izquierdo -->
+          <div class="mb-2">
+            <label class="block text-gray-700">Cilindro Izquierdo:</label>
+            <input type="number" step="0.01" v-model.number="form.detalleTrabajo.cilindro_izquierdo"
+              class="w-full px-3 py-2 border rounded" />
+            <p v-if="v$.detalleTrabajo.cilindro_izquierdo.$error" class="text-red-500 text-sm">
+              {{ v$.detalleTrabajo.cilindro_izquierdo.$errors[0].$message }}
+            </p>
+          </div>
+
+          <!-- Eje Derecho -->
+          <div class="mb-2">
+            <label class="block text-gray-700">Eje Derecho:</label>
+            <input type="number" v-model.number="form.detalleTrabajo.eje_derecho"
+              class="w-full px-3 py-2 border rounded" />
+            <p v-if="v$.detalleTrabajo.eje_derecho.$error" class="text-red-500 text-sm">
+              {{ v$.detalleTrabajo.eje_derecho.$errors[0].$message }}
+            </p>
+          </div>
+
+          <!-- Eje Izquierdo -->
+          <div class="mb-2">
+            <label class="block text-gray-700">Eje Izquierdo:</label>
+            <input type="number" v-model.number="form.detalleTrabajo.eje_izquierdo"
+              class="w-full px-3 py-2 border rounded" />
+            <p v-if="v$.detalleTrabajo.eje_izquierdo.$error" class="text-red-500 text-sm">
+              {{ v$.detalleTrabajo.eje_izquierdo.$errors[0].$message }}
+            </p>
+          </div>
+
+          <!-- ID Tratamiento -->
+          <div class="mb-2">
+            <label class="block text-gray-700">Tratamiento:</label>
+            <select v-model="form.detalleTrabajo.id_tratamiento" class="w-full px-3 py-2 border rounded">
+              <option value="" disabled>Seleccione un tratamiento (opcional)</option>
+              <option v-for="tratamiento in tratamientosOptions" :key="tratamiento.id_tratamiento"
+                :value="tratamiento.id_tratamiento">
+                {{ tratamiento.nombre }}
+              </option>
+            </select>
+            <p v-if="v$.detalleTrabajo.id_tratamiento.$error" class="text-red-500 text-sm">
+              {{ v$.detalleTrabajo.id_tratamiento.$errors[0].$message }}
+            </p>
+          </div>
+
+          <!-- ID Producto -->
+          <div class="mb-2">
+            <label class="block text-gray-700">Producto:</label>
+            <select v-model="form.detalleTrabajo.id_producto" class="w-full px-3 py-2 border rounded">
+              <option value="" disabled>Seleccione un producto</option>
+              <option v-for="producto in productosOptions" :key="producto.id_producto" :value="producto.id_producto">
+                {{ producto.nombre }}
+              </option>
+            </select>
+            <p v-if="v$.detalleTrabajo.id_producto.$error" class="text-red-500 text-sm">
+              {{ v$.detalleTrabajo.id_producto.$errors[0].$message }}
+            </p>
+          </div>
+
+          <!-- ID Color -->
+          <div class="mb-2">
+            <label class="block text-gray-700">Color:</label>
+            <select v-model="form.detalleTrabajo.id_color" class="w-full px-3 py-2 border rounded">
+              <option value="" disabled>Seleccione un color (opcional)</option>
+              <option v-for="color in coloresOptions" :key="color.id_color" :value="color.id_color">
+                {{ color.nombre }}
+              </option>
+            </select>
+            <p v-if="v$.detalleTrabajo.id_color.$error" class="text-red-500 text-sm">
+              {{ v$.detalleTrabajo.id_color.$errors[0].$message }}
+            </p>
+          </div>
+
+        </div>
+
+        <!-- Botones de Acción -->
+        <div class="flex justify-end space-x-4">
+          <button type="button" @click="closeModal"
+            class="px-4 py-2 bg-gray-300 text-gray-700 rounded hover:bg-gray-400">
             Cancelar
           </button>
-          <button
-            type="submit"
-            class="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 focus:outline-none"
-          >
-            Actualizar
+          <button type="submit" class="px-4 py-2 bg-orange-500 text-white rounded hover:bg-orange-600">
+            Guardar
           </button>
         </div>
+
       </form>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, watch } from 'vue';
-import type { Trabajo } from '../interfaces/TrabajosResponse.interface';
-import { updateTrabajo } from '../actions/trabajos.action';
+import { defineProps, defineEmits, reactive, ref, onMounted, computed, watch } from 'vue';
+import { updateTrabajo, findProducto, findTratamiento, findColor, findPersonal } from '../actions/trabajos-create.action';
 import { useToast } from 'vue-toastification';
+import { getValidationRules } from '../validators/CreateTrabajo.validator';
+import useVuelidate from '@vuelidate/core';
 
-const props = defineProps<{
-  trabajo: Trabajo | null;
-}>();
+const props = defineProps({
+  isOpen: {
+    type: Boolean,
+    required: true,
+  },
+  trabajo: {
+    type: Object,
+    require: true,
+  }
+});
 
-const emit = defineEmits<{
-  (e: 'close'): void;
-  (e: 'updated'): void;
-}>();
+const emit = defineEmits(['close', 'refreshList']);
+
+
+const form = reactive({
+  numero_trabajo: 0,
+  id_personal: '',
+  detalleTrabajo: {
+    distancia: false,
+    adicion: null,
+    base: null,
+    esferico_derecho: null,
+    esferico_izquierdo: null,
+    cilindro_derecho: null,
+    cilindro_izquierdo: null,
+    eje_derecho: null,
+    eje_izquierdo: null,
+    id_tratamiento: '',
+    id_producto: '',
+    id_color: '',
+  },
+});
+
+const rules = computed(() => getValidationRules());
+const v$ = useVuelidate(rules, form);
+
+const productosOptions = ref<{ id_producto: string; nombre: string }[]>([]);
+const tratamientosOptions = ref<{ id_tratamiento: string; nombre: string }[]>([]);
+const coloresOptions = ref<{ id_color: string; nombre: string }[]>([]);
+const personalOptions = ref<{ id_personal: string; nombres: string }[]>([]);
+
+const fetchOptions = async () => {
+  const [productosRes, tratamientosRes, coloresRes, personalRes] = await Promise.all([
+    findProducto(),
+    findTratamiento(),
+    findColor(),
+    findPersonal(),
+  ]);
+
+  if (productosRes.ok && productosRes.data) {
+    productosOptions.value = productosRes.data;
+  } else {
+    toast.error('Error al cargar los productos.');
+  }
+
+  if (tratamientosRes.ok && tratamientosRes.data) {
+    tratamientosOptions.value = tratamientosRes.data;
+  } else {
+    toast.error('Error al cargar los tratamientos.');
+  }
+
+  if (coloresRes.ok && coloresRes.data) {
+    coloresOptions.value = coloresRes.data;
+  } else {
+    toast.error('Error al cargar los colores.');
+  }
+
+  if (personalRes.ok && personalRes.data) {
+    personalOptions.value = personalRes.data;
+  } else {
+    toast.error('Error al cargar el personal.');
+  }
+};
+
+watch(
+  () => props.trabajo,
+  async (newTrabajo) => {
+    if (!newTrabajo) return;
+
+    await fetchOptions();
+
+    form.numero_trabajo = newTrabajo.numero_trabajo || 0;
+    form.id_personal = newTrabajo.personal?.id_personal || '';
+    form.detalleTrabajo.distancia = !!newTrabajo.detalleTrabajo?.distancia;
+    form.detalleTrabajo.adicion = newTrabajo.detalleTrabajo?.adicion ?? null;
+    form.detalleTrabajo.base = newTrabajo.detalleTrabajo?.base ?? null;
+    form.detalleTrabajo.esferico_derecho = newTrabajo.detalleTrabajo?.esferico_derecho ?? null;
+    form.detalleTrabajo.esferico_izquierdo = newTrabajo.detalleTrabajo?.esferico_izquierdo ?? null;
+    form.detalleTrabajo.cilindro_derecho = newTrabajo.detalleTrabajo?.cilindro_derecho ?? null;
+    form.detalleTrabajo.cilindro_izquierdo = newTrabajo.detalleTrabajo?.cilindro_izquierdo ?? null;
+    form.detalleTrabajo.eje_derecho = newTrabajo.detalleTrabajo?.eje_derecho ?? null;
+    form.detalleTrabajo.eje_izquierdo = newTrabajo.detalleTrabajo?.eje_izquierdo ?? null;
+
+    form.detalleTrabajo.id_tratamiento = newTrabajo.detalleTrabajo?.tratamiento?.id_tratamiento ?? '';
+    form.detalleTrabajo.id_producto = newTrabajo.detalleTrabajo?.producto?.id_producto ?? '';
+    form.detalleTrabajo.id_color = newTrabajo.detalleTrabajo?.color?.id_color ?? '';
+  },
+  { immediate: true }
+);
+
+onMounted(() => {
+  fetchOptions();
+});
+
+const closeModal = () => {
+  emit('close');
+};
 
 const toast = useToast();
 
-// Estado del formulario
-const form = ref({
-  fecha_salida: '',
-  estado: '',
-  activo: true,
-});
-
-// Inicializar el formulario cuando cambia el Trabajo seleccionado
-watch(() => props.trabajo, (newTrabajo) => {
-  if (newTrabajo) {
-    form.value.fecha_salida = newTrabajo.fecha_salida ? newTrabajo.fecha_salida.split('T')[0] : '';
-    form.value.estado = newTrabajo.estado;
-    form.value.activo = newTrabajo.activo;
-  }
-});
-
-// Función para enviar el formulario
 const submitForm = async () => {
-  if (!props.trabajo) return;
+  const isValid = await v$.value.$validate();
+  if (!isValid) {
+    toast.error('Corrige los errores antes de enviar el formulario.');
+    return;
+  }
 
   try {
-    const response = await updateTrabajo(props.trabajo.id_trabajo, form.value);
+    const payload = {
+      numero_trabajo: Number(form.numero_trabajo),
+      id_personal: form.id_personal,
+      detalleTrabajo: {
+        distancia: form.detalleTrabajo.distancia,
+        adicion: form.detalleTrabajo.adicion !== null ? Number(form.detalleTrabajo.adicion) : undefined,
+        base: form.detalleTrabajo.base !== null ? Number(form.detalleTrabajo.base) : undefined,
+        esferico_derecho: form.detalleTrabajo.esferico_derecho !== null ? Number(form.detalleTrabajo.esferico_derecho) : undefined,
+        esferico_izquierdo: form.detalleTrabajo.esferico_izquierdo !== null ? Number(form.detalleTrabajo.esferico_izquierdo) : undefined,
+        cilindro_derecho: form.detalleTrabajo.cilindro_derecho !== null ? Number(form.detalleTrabajo.cilindro_derecho) : undefined,
+        cilindro_izquierdo: form.detalleTrabajo.cilindro_izquierdo !== null ? Number(form.detalleTrabajo.cilindro_izquierdo) : undefined,
+        eje_derecho: form.detalleTrabajo.eje_derecho !== null ? Number(form.detalleTrabajo.eje_derecho) : undefined,
+        eje_izquierdo: form.detalleTrabajo.eje_izquierdo !== null ? Number(form.detalleTrabajo.eje_izquierdo) : undefined,
+        id_tratamiento: form.detalleTrabajo.id_tratamiento || undefined,
+        id_producto: form.detalleTrabajo.id_producto,
+        id_color: form.detalleTrabajo.id_color || undefined,
+      },
+    };
+
+    const response = await updateTrabajo(props.trabajo.id_trabajo, payload);
+
     if (response.ok) {
       toast.success('Trabajo actualizado exitosamente.');
-      emit('updated');
-      emit('close');
+      emit('refreshList');
+      closeModal();
     } else {
-      toast.error(response.message || 'Error al actualizar el trabajo.');
+      toast.error(response.message || 'Ocurrió un error al actualizar el trabajo.');
     }
-  } catch (error: any) {
-    toast.error(error.message || 'Error al actualizar el trabajo.');
+  } catch (error) {
+    console.error('Error al enviar el formulario:', error);
+    toast.error('Ocurrió un error al enviar el formulario.');
   }
 };
-</script>
 
-<style scoped>
-/* Estilos para el modal */
-</style>
+</script>

@@ -3,7 +3,7 @@
 <template>
   <div class="container mx-auto p-6 bg-white rounded-lg ">
     <!-- Título -->
-    <h1 class="text-3xl font-bold text-gray-800 mb-6 text-center">Listado de Trabajos Pendientes</h1>
+    <h1 class="text-3xl font-bold text-gray-800 mb-6 text-center">Listado de Trabajos Entregados</h1>
 
     <!-- Barra de Búsqueda -->
     <div class="flex flex-col md:flex-row items-center justify-between mb-4 space-y-4 md:space-y-0">
@@ -64,21 +64,6 @@
                 class="px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 focus:outline-none">
                 Detalle
               </button>
-              <button
-                @click="openUpdateModal(trabajo)"
-                class="px-4 py-2 bg-gray-700 text-white rounded-lg hover:bg-gray-600 focus:outline-none ml-2"
-              >
-                Actualizar
-              </button>
-              <button
-                @click="confirmDelete(trabajo)"
-                :class="[
-                  'px-4 py-2 text-white rounded-lg hover:opacity-80 focus:outline-none ml-2',
-                  trabajo.activo ? 'bg-gray-700' : 'bg-green-700'
-                ]"
-              >
-                {{ trabajo.activo ? 'Eliminar' : 'Restaurar' }}
-              </button>
             </td>
           </tr>
           <tr v-if="trabajos.length === 0">
@@ -108,9 +93,7 @@
     :isOpen="showUpdateModal"
     :trabajo="selectedTrabajo"
     @close="closeUpdateModal"
-    @updated="loadTrabajos"
-    @refreshList="loadTrabajos"
-     />
+    @updated="loadTrabajos" />
     <ConfirmDeleteModal v-if="isDeleteModalOpen" :trabajo="selectedTrabajo" @close="isDeleteModalOpen = false"
       @deleted="loadTrabajos" />
   </div>
@@ -118,7 +101,7 @@
 
 <script setup lang="ts">
 import { ref, onMounted, computed } from 'vue';
-import { getTrabajos, removeTrabajo } from '../actions/trabajos.action';
+import { getTrabajos, getTrabajosEntregados } from '../actions/trabajos.action';
 import type { Trabajo, FindAllTrabajoResponse } from '../interfaces/TrabajosResponse.interface';
 import TrabajoDetailModal from './DetalleTrabajos.vue';
 import TrabajoUpdateModal from './UpdateTrabajo.vue';
@@ -147,9 +130,9 @@ const formatDate = (date: string) => {
   return new Date(date).toLocaleDateString('es-ES', options);
 };
 
-const   loadTrabajos = async () => {
+const loadTrabajos = async () => {
   try {
-    const response: FindAllTrabajoResponse = await getTrabajos(
+    const response: FindAllTrabajoResponse = await getTrabajosEntregados(
       searchQuery.value,
       currentPage.value,
       limit.value,
@@ -205,16 +188,7 @@ const openUpdateModal = (trabajo) => {
 const closeUpdateModal = () => {
   showUpdateModal.value = false;
 };
-const confirmDelete = async () =>{
-  const response = await removeTrabajo(trabajos.value);
 
-  if (response.ok) {
-    toast.success('Trabajo eliminado correctamente.');
-    loadTrabajos();
-  } else {
-    toast.error(response.message);
-  }
-}
 onMounted(() => {
   loadTrabajos();
 });

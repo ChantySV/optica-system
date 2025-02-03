@@ -24,6 +24,14 @@ export class TrabajosController {
     return this.trabajosService.findAll( dto );
   }
 
+  @Get('entregados')
+  @Auth(ValidRoles.encargadoTrabajos)
+  findAllEntregados(
+    @Query() dto: FindAllTrabajoDto,
+  ) {
+    return this.trabajosService.findAllEntregados( dto );
+  }
+
   @Get('pendientes')
   @Auth(ValidRoles.encargadoVentas)
   async getPendientes() {

@@ -105,9 +105,7 @@ const props = defineProps({
   },
 });
 
-const emit = defineEmits(['close', 'refresh']);
-
-
+const emit = defineEmits(['close', 'refreshList']);
 
 const form = reactive({
   nombre: '',
@@ -161,7 +159,7 @@ const onSubmit = async () => {
   const response = await updateProductoAction(props.producto.id_producto, { ...form });
   if (response.ok) {
     toast.success('Producto actualizado exitosamente.');
-    emit('refresh');
+    emit('refreshList');
     closeModal();
   } else {
     toast.error('Error al actualizar producto.');

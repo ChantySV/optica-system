@@ -17,7 +17,8 @@
       <CreateProveedores
         :isOpen="showModal"
         @close="showModal = false"
-      />
+        @refreshList="refreshList"
+       />
     </div>
 
     <!-- Lista de Proveedores -->
@@ -32,5 +33,10 @@ import { ref } from 'vue';
 import CreateProveedores from '../components/CreateProveedores.vue';
 import ListaProveedores from '../components/ListaProveedores.vue';
 
+const proveedores = ref(0);
 const showModal = ref(false);
+
+const refreshList = () => {
+  proveedores.value++
+};
 </script>

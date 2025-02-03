@@ -76,7 +76,7 @@
 
     <!-- Modal para actualizar proveedor -->
     <UpdateProveedor v-if="showUpdateModal" :isOpen="showUpdateModal" :proveedor="selectedProveedor"
-      @close="closeUpdateModal" @refresh="loadProveedores" />
+      @close="closeUpdateModal" @refreshList="loadProveedores" />
   </div>
 </template>
 
@@ -85,6 +85,9 @@ import { ref, computed, onMounted } from 'vue';
 import { getProveedoresAction, deleteProveedorAction } from '../actions/proveedores.action';
 import UpdateProveedor from './UpdateProveedores.vue';
 import type { ProveedoresResponseInterface } from '../interfaces/proveedoresResponse.interface';
+import { useToast } from 'vue-toastification';
+
+const toast = useToast();
 
 const proveedores = ref<ProveedoresResponseInterface[]>([]);
 const loading = ref(true);
@@ -96,14 +99,11 @@ const currentPage = ref(1);
 const sortField = ref('nombre');
 const sortOrder = ref<'ASC' | 'DESC'>('ASC');
 
-// Estado del modal de actualización
 const showUpdateModal = ref(false);
 const selectedProveedor = ref<ProveedoresResponseInterface | null>(null);
 
-// Calcular si hay una siguiente página
 const hasNextPage = computed(() => totalItems.value > currentPage.value * itemsPerPage);
 
-// Cargar proveedores
 const loadProveedores = async () => {
   loading.value = true;
   error.value = null;
@@ -119,7 +119,6 @@ const loadProveedores = async () => {
   loading.value = false;
 };
 
-// Ordenar proveedores
 const sortBy = (field: string) => {
   if (sortField.value === field) {
     sortOrder.value = sortOrder.value === 'ASC' ? 'DESC' : 'ASC';
@@ -130,7 +129,6 @@ const sortBy = (field: string) => {
   loadProveedores();
 };
 
-// Manejar cambio a la página anterior
 const goToPreviousPage = () => {
   if (currentPage.value > 1) {
     currentPage.value--;
@@ -138,7 +136,6 @@ const goToPreviousPage = () => {
   }
 };
 
-// Manejar cambio a la página siguiente
 const goToNextPage = () => {
   if (hasNextPage.value) {
     currentPage.value++;
@@ -146,32 +143,28 @@ const goToNextPage = () => {
   }
 };
 
-// Abrir el modal de actualización
 const openUpdateModal = (proveedor: ProveedoresResponseInterface) => {
   selectedProveedor.value = proveedor;
   showUpdateModal.value = true;
 };
 
-// Cerrar el modal de actualización
 const closeUpdateModal = () => {
   showUpdateModal.value = false;
 };
 
-// Manejar eliminación de un proveedor
 const onDelete = async (id_proveedor: string) => {
   const confirmDelete = confirm('¿Estás seguro de eliminar este proveedor?');
   if (confirmDelete) {
     const response = await deleteProveedorAction(id_proveedor);
     if (response.ok) {
-      alert('Proveedor eliminado correctamente.');
+      toast.success('Proveedor eliminado correctamente.');
       loadProveedores();
     } else {
-      alert(response.message || 'Error al eliminar el proveedor.');
+      toast.error(response.message || 'Error al eliminar el proveedor.');
     }
   }
 };
 
-// Cargar proveedores al montar el componente
 onMounted(() => {
   loadProveedores();
 });

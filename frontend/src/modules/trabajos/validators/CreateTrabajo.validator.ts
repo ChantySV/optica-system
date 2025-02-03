@@ -1,98 +1,84 @@
-// src/modules/trabajos/validators/CreateTrabajo.validator.ts
-import { required, integer, minValue, maxValue, helpers, requiredIf, numeric } from '@vuelidate/validators';
+import { required, numeric, minValue, maxValue, helpers } from "@vuelidate/validators";
 
-export const createTrabajoValidator = {
-  fecha_salida: {
-    // Es opcional, pero si se proporciona, debe ser una fecha válida
-    required: helpers.withMessage('La fecha de salida debe ser una fecha válida.', (value: any) => {
-      if (!value) return true; // Es opcional
-      return !isNaN(Date.parse(value));
-    }),
-  },
+const optionalPositiveNumber = helpers.withMessage(
+  "Debe ser un número positivo con hasta 2 decimales.",
+  (value: number | null) => value === null || value > 0
+);
+
+const optionalNegativeNumber = helpers.withMessage(
+  "Debe ser un número negativo con hasta 2 decimales.",
+  (value: number | null) => value === null || value < 0
+);
+
+const optionalInt = helpers.withMessage(
+  "Debe ser un número entero.",
+  (value: number | null) => value === null  || Number.isInteger(value)
+);
+
+const uuid = helpers.withMessage(
+  "Debe ser un UUID válido.",
+  (value: string) => !value || /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/.test(value)
+);
+
+export const getValidationRules = () => ({
   numero_trabajo: {
-    required: helpers.withMessage('El número de trabajo es obligatorio.', required),
-    integer: helpers.withMessage('El número de trabajo debe ser un número entero.', integer),
-    minValue: helpers.withMessage('El número de trabajo debe ser mayor que 0.', minValue(1)),
+    required: helpers.withMessage("El número de trabajo es obligatorio.", required),
+    numeric: helpers.withMessage("Debe ser un número entero.", numeric),
   },
+
   id_personal: {
-    required: helpers.withMessage('El personal es obligatorio.', required),
-    // Puedes agregar una validación de patrón UUID si lo deseas
+    required: helpers.withMessage("El personal es obligatorio.", required),
+    uuid,
   },
+
   detalleTrabajo: {
-    distancia: {
-      // Es un booleano, no requiere validación específica
+    adicion: {
+      optionalInt,
     },
+
+    base: {
+      optionalInt,
+    },
+
     esferico_derecho: {
-      requiredIf: requiredIf((vm: any) => vm.detalleTrabajo.distancia),
-      numeric: helpers.withMessage('Debe ser un número.', numeric),
-      minValue: helpers.withMessage('Debe ser positivo.', minValue(0)),
+      optionalPositiveNumber,
     },
+
     esferico_izquierdo: {
-      requiredIf: requiredIf((vm: any) => vm.detalleTrabajo.distancia),
-      numeric: helpers.withMessage('Debe ser un número.', numeric),
-      minValue: helpers.withMessage('Debe ser positivo.', minValue(0)),
+      optionalPositiveNumber,
     },
+
     cilindro_derecho: {
-      numeric: helpers.withMessage('Debe ser un número.', numeric),
-      maxValue: helpers.withMessage('Debe ser negativo.', maxValue(0)),
+      optionalNegativeNumber,
     },
+
     cilindro_izquierdo: {
-      numeric: helpers.withMessage('Debe ser un número.', numeric),
-      maxValue: helpers.withMessage('Debe ser negativo.', maxValue(0)),
+      optionalNegativeNumber,
     },
+
     eje_derecho: {
-      integer: helpers.withMessage('Debe ser un número entero.', integer),
+      optionalInt,
+      minValue: helpers.withMessage("El eje debe estar entre 0 y 180.", minValue(0)),
+      maxValue: helpers.withMessage("El eje debe estar entre 0 y 180.", maxValue(180)),
     },
+
     eje_izquierdo: {
-      integer: helpers.withMessage('Debe ser un número entero.', integer),
+      optionalInt,
+      minValue: helpers.withMessage("El eje debe estar entre 0 y 180.", minValue(0)),
+      maxValue: helpers.withMessage("El eje debe estar entre 0 y 180.", maxValue(180)),
     },
-    prisma_izquierdo: {
-      numeric: helpers.withMessage('Debe ser un número.', numeric),
-      minValue: helpers.withMessage('Debe ser positivo.', minValue(0)),
-    },
-    prisma_derecho: {
-      numeric: helpers.withMessage('Debe ser un número.', numeric),
-      minValue: helpers.withMessage('Debe ser positivo.', minValue(0)),
-    },
-    base_izquierdo: {
-      integer: helpers.withMessage('Debe ser un número entero.', integer),
-    },
-    base_derecho: {
-      integer: helpers.withMessage('Debe ser un número entero.', integer),
-    },
-    adicion_izquierdo: {
-      integer: helpers.withMessage('Debe ser un número entero.', integer),
-      minValue: helpers.withMessage('Debe ser positivo.', minValue(1)),
-    },
-    adicion_derecho: {
-      integer: helpers.withMessage('Debe ser un número entero.', integer),
-      minValue: helpers.withMessage('Debe ser positivo.', minValue(1)),
-    },
-    altura_izquierdo: {
-      integer: helpers.withMessage('Debe ser un número entero.', integer),
-      minValue: helpers.withMessage('Debe ser positivo.', minValue(1)),
-    },
-    altura_derecho: {
-      integer: helpers.withMessage('Debe ser un número entero.', integer),
-      minValue: helpers.withMessage('Debe ser positivo.', minValue(1)),
-    },
-    dip_izquierdo: {
-      numeric: helpers.withMessage('Debe ser un número.', numeric),
-      minValue: helpers.withMessage('Debe ser positivo.', minValue(0)),
-    },
-    dip_derecho: {
-      numeric: helpers.withMessage('Debe ser un número.', numeric),
-      minValue: helpers.withMessage('Debe ser positivo.', minValue(0)),
-    },
+
     id_tratamiento: {
-      // Opcional, pero si se proporciona, puede agregar una validación de patrón UUID
+      uuid,
     },
+
     id_producto: {
-      required: helpers.withMessage('El producto es obligatorio.', required),
-      // Puedes agregar una validación de patrón UUID si lo deseas
+      required: helpers.withMessage("El producto es obligatorio.", required),
+      uuid,
     },
+
     id_color: {
-      // Opcional, pero si se proporciona, puede agregar una validación de patrón UUID
+      uuid,
     },
   },
-};
+});

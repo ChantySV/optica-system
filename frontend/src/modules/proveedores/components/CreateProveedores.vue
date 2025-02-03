@@ -73,7 +73,7 @@ const props = defineProps({
   isOpen: Boolean
 })
 
-const emit = defineEmits(['close'])
+const emit = defineEmits(['close', 'refreshList'])
 
 function closeModal() {
   emit('close')
@@ -99,6 +99,7 @@ async function onSubmit() {
     const response = await createProveedorAction(formData.value)
     if (response.ok) {
       toast.success('Proveedor creado exitosamente')
+      emit('refreshList')
       closeModal()
     } else {
       toast.error(response.message || 'Error al crear el proveedor')

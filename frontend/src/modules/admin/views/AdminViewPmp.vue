@@ -3,7 +3,7 @@
 <template>
   <div class="container mx-auto p-6 bg-gray-50 rounded-lg shadow-md space-y-8 mb-20">
     <!-- Título principal -->
-    <h1 class="text-3xl font-bold text-gray-800 text-center">PMP - Compras, Ventas y Neto</h1>
+    <h1 class="text-3xl font-bold text-gray-800 text-center">Compras, Ventas y Valor Neto</h1>
 
     <!-- Barra de búsqueda -->
     <div class="flex flex-col md:flex-row items-center justify-between space-y-4 md:space-y-0 md:space-x-4">

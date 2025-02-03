@@ -6,13 +6,10 @@
         <button @click="$emit('close')" class="text-gray-500 hover:text-gray-700 focus:outline-none">&times;</button>
       </div>
       <div class="space-y-4">
-        <div><strong>ID Trabajo:</strong> {{ trabajo.id_trabajo }}</div>
         <div><strong>Número de Trabajo:</strong> {{ trabajo.numero_trabajo }}</div>
         <div><strong>Fecha de Entrada:</strong> {{ formatDate(trabajo.fecha_entrada) }}</div>
-        <div><strong>Fecha de Salida:</strong> {{ trabajo.fecha_salida ? formatDate(trabajo.fecha_salida) : 'Pendiente' }}</div>
         <div><strong>Estado:</strong> {{ trabajo.estado }}</div>
-        <div><strong>Activo:</strong> {{ trabajo.activo ? 'Sí' : 'No' }}</div>
-        <div><strong>Personal:</strong> {{ trabajo.personal?.nombres || 'N/A' }}</div>
+        <div><strong>Personal Encargado:</strong> {{ trabajo.personal?.nombres || 'N/A' }}</div>
         <div><strong>Detalle de Trabajo:</strong>
           <ul class="list-disc list-inside">
             <li><strong>Producto:</strong> {{ trabajo.detalleTrabajo?.producto?.nombre || 'N/A' }}</li>
@@ -33,12 +30,11 @@
           <strong>Detalle de Venta:</strong>
           <ul class="list-disc list-inside">
             <li><strong>ID Detalle Venta:</strong> {{ trabajo.detalleVenta.id_detalleVenta }}</li>
-            <!-- Agrega más detalles según sea necesario -->
           </ul>
         </div>
       </div>
       <div class="flex justify-end mt-6">
-        <button @click="$emit('close')" class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 focus:outline-none">
+        <button @click="$emit('close')" class="px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 focus:outline-none">
           Cerrar
         </button>
       </div>

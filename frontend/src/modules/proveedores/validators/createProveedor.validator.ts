@@ -1,4 +1,4 @@
-import { required, helpers, maxLength } from "@vuelidate/validators";
+import { required, helpers, maxLength, url } from "@vuelidate/validators";
 
 const phoneNumber = helpers.withMessage(
   "El número de teléfono no es válido",
@@ -12,14 +12,12 @@ const onlyAlphabet = helpers.withMessage(
 
 const maxURLLength = helpers.withMessage(
   "El campo no puede superar los 30 caracteres.",
-  maxLength(30)
+  maxLength(50)
 );
 
 const validDomainOrURL = helpers.withMessage(
   "Debe ser una URL válida (ejemplo: example.com o https://example.com).",
-  (value: string) =>
-    !value ||
-    /^(https?:\/\/)?([a-zA-Z0-9-]+\.)+[a-zA-Z]{2,}$/.test(value)
+    url
 );
 
 export const validationRules = {

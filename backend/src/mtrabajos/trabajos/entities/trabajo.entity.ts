@@ -12,14 +12,11 @@ export class Trabajo {
   @ManyToOne(() => DetalleTrabajo, (detalleTrabajo) => detalleTrabajo.id_detalleTrabajo, { nullable: false })
   detalleTrabajo: DetalleTrabajo;
 
-  @Column('int', { nullable: false, unique: true })
+  @Column('int', { nullable: false, unique: false })
   numero_trabajo: number;
 
   @Column('date', { default: () => 'CURRENT_DATE' })
-  fecha_entrada: Date;
-
-  @Column('date', { nullable: true })
-  fecha_salida: Date;
+  fecha_entrada: Date;  
   
   @ManyToOne(() => Personal, (personal) => personal.trabajos, { nullable: false })
   @JoinColumn({ name: 'id_personal' })

@@ -43,7 +43,7 @@
               </span>
               <button
                 @click="seleccionarTrabajo(trabajo)"
-                class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+                class="px-4 py-2 bg-orange-500 text-white rounded hover:bg-orange-600"
               >
                 Agregar
               </button>
@@ -69,7 +69,7 @@
             </span>
             <button
               @click="quitarTrabajo(trabajo.id_trabajo)"
-              class="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
+              class="px-4 py-2 bg-gray-700 text-white rounded hover:bg-gray-600"
             >
               Quitar
             </button>
@@ -100,7 +100,7 @@
         <button @click="closeModal" class="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400">
           Cancelar
         </button>
-        <button @click="onSubmit" class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">
+        <button @click="onSubmit" class="px-4 py-2 bg-orange-500 text-white rounded hover:bg-orange-600">
           Crear Venta
         </button>
       </div>

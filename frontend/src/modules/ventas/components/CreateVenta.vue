@@ -136,22 +136,6 @@ const decimalNumber = helpers.withMessage(
   (value: number | null) => value === null || /^\d+(\.\d{1,2})?$/.test(String(value))
 );
 
-const rules = {
-
-    id_persona: {
-    required: helpers.withMessage("Debe Selecionar al Comprador", required)
-  },
-  trabajosSeleccionados: {
-    required: helpers.withMessage("Debe haber al menos un trabajo seleccionado.", required),
-  },
-  monto_total: {
-    required: helpers.withMessage("El monto total es obligatorio.", required),
-    decimalNumber,
-    minValue: helpers.withMessage("El monto total no puede ser negativo.", minValue(1)),
-  },
-};
-const v$ = useVuelidate(rules, formData);
-
 const toast = useToast();
 
 // Datos para la lista de trabajos pendientes

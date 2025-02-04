@@ -101,12 +101,13 @@ async function onSubmit() {
       toast.success('Proveedor creado exitosamente')
       emit('refreshList')
       closeModal()
-    } else {
-      toast.error(response.message || 'Error al crear el proveedor')
     }
-  } catch (err) {
-    console.error(err)
-    toast.error('Error al enviar el formulario')
+  } catch (error: any) {
+    if (error.response && error.response.status === 400) {
+      toast.error(error.response.data.message || 'El nombre de proveedor ya está en uso.');
+    } else {
+      toast.error('Error inesperado al crear el proveedor.');
+    }
   }
 }
 </script>

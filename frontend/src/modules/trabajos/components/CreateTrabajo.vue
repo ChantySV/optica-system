@@ -1,47 +1,47 @@
 <template>
   <div v-if="isOpen" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
-    <div class="bg-white rounded-lg w-11/12 md:w-3/4 lg:w-1/2 p-6 overflow-auto max-h-screen">
-      <h2 class="text-xl font-semibold mb-4">Agregar Nuevo Trabajo</h2>
+    <div class="bg-white rounded-lg w-3/4 xl:w-2/3 p-8 overflow-auto max-h-screen">
+      <h2 class="text-xl font-semibold mb-6">Agregar Nuevo Trabajo</h2>
 
       <form @submit.prevent="submitForm">
-
-        <!-- Número de Trabajo -->
-        <div class="mb-4">
-          <label class="block text-gray-700">Número de Trabajo:</label>
-          <input type="number" v-model.number="form.numero_trabajo" class="w-full px-3 py-2 border rounded" />
-          <p v-if="v$.numero_trabajo.$error" class="text-red-500 text-sm">
-            {{ v$.numero_trabajo.$errors[0].$message }}
-          </p>
-        </div>
-
-        <!-- ID Personal -->
-        <div class="mb-4">
-          <label class="block text-gray-700">Personal Encargada del Trabajo:</label>
-          <select v-model="form.id_personal" class="w-full px-3 py-2 border rounded">
-            <option value="" >Seleccione un personal</option>
-            <option v-for="personal in personalOptions" :key="personal.id_personal" :value="personal.id_personal">
-              {{ personal.nombres }}
-            </option>
-          </select>
-          <p v-if="v$.id_personal.$error" class="text-red-500 text-sm">
-            {{ v$.id_personal.$errors[0].$message }}
-          </p>
-        </div>
-
-        <!-- Detalle Trabajo -->
-        <div class="mb-4">
-          <h3 class="text-lg font-semibold">Detalle del Trabajo</h3>
-
-          <!-- Distancia -->
-          <div class="mb-2">
-            <label class="inline-flex items-center">
-              <input type="checkbox" v-model="form.detalleTrabajo.distancia" class="form-checkbox" />
-              <span class="ml-2">Distancia</span>
-            </label>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <!-- Número de Trabajo -->
+          <div>
+            <label class="block text-gray-700">Número de Trabajo:</label>
+            <input type="number" v-model.number="form.numero_trabajo" class="w-full px-3 py-2 border rounded" />
+            <p v-if="v$.numero_trabajo.$error" class="text-red-500 text-sm">
+              {{ v$.numero_trabajo.$errors[0].$message }}
+            </p>
           </div>
 
-          <!-- Adición -->
-          <div class="mb-2">
+          <!-- ID Personal -->
+          <div>
+            <label class="block text-gray-700">Personal Encargado:</label>
+            <select v-model="form.id_personal" class="w-full px-3 py-2 border rounded">
+              <option value="">Seleccione un personal</option>
+              <option v-for="personal in personalOptions" :key="personal.id_personal" :value="personal.id_personal">
+                {{ personal.nombres }}
+              </option>
+            </select>
+            <p v-if="v$.id_personal.$error" class="text-red-500 text-sm">
+              {{ v$.id_personal.$errors[0].$message }}
+            </p>
+          </div>
+        </div>
+
+        <h3 class="text-lg font-semibold mt-6 mb-4">Detalle del Trabajo</h3>
+
+        <!-- Distancia -->
+        <div class="mb-4">
+          <label class="inline-flex items-center">
+            <input type="checkbox" v-model="form.detalleTrabajo.distancia" class="form-checkbox" />
+            <span class="ml-2">Distancia</span>
+          </label>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <!-- Adición y Base -->
+          <div>
             <label class="block text-gray-700">Adición:</label>
             <input type="number" v-model.number="form.detalleTrabajo.adicion" class="w-full px-3 py-2 border rounded" />
             <p v-if="v$.detalleTrabajo.adicion.$error" class="text-red-500 text-sm">
@@ -49,17 +49,18 @@
             </p>
           </div>
 
-          <!-- Base -->
-          <div class="mb-2">
+          <div>
             <label class="block text-gray-700">Base:</label>
             <input type="number" v-model.number="form.detalleTrabajo.base" class="w-full px-3 py-2 border rounded" />
             <p v-if="v$.detalleTrabajo.base.$error" class="text-red-500 text-sm">
               {{ v$.detalleTrabajo.base.$errors[0].$message }}
             </p>
           </div>
+        </div>
 
-          <!-- Esférico Derecho -->
-          <div class="mb-2">
+        <!-- Esférico y Cilindro en dos columnas -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div>
             <label class="block text-gray-700">Esférico Derecho:</label>
             <input type="number" step="0.01" v-model.number="form.detalleTrabajo.esferico_derecho"
               class="w-full px-3 py-2 border rounded" />
@@ -68,8 +69,7 @@
             </p>
           </div>
 
-          <!-- Esférico Izquierdo -->
-          <div class="mb-2">
+          <div>
             <label class="block text-gray-700">Esférico Izquierdo:</label>
             <input type="number" step="0.01" v-model.number="form.detalleTrabajo.esferico_izquierdo"
               class="w-full px-3 py-2 border rounded" />
@@ -77,9 +77,10 @@
               {{ v$.detalleTrabajo.esferico_izquierdo.$errors[0].$message }}
             </p>
           </div>
+        </div>
 
-          <!-- Cilindro Derecho -->
-          <div class="mb-2">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div>
             <label class="block text-gray-700">Cilindro Derecho:</label>
             <input type="number" step="0.01" v-model.number="form.detalleTrabajo.cilindro_derecho"
               class="w-full px-3 py-2 border rounded" />
@@ -88,8 +89,7 @@
             </p>
           </div>
 
-          <!-- Cilindro Izquierdo -->
-          <div class="mb-2">
+          <div>
             <label class="block text-gray-700">Cilindro Izquierdo:</label>
             <input type="number" step="0.01" v-model.number="form.detalleTrabajo.cilindro_izquierdo"
               class="w-full px-3 py-2 border rounded" />
@@ -97,44 +97,11 @@
               {{ v$.detalleTrabajo.cilindro_izquierdo.$errors[0].$message }}
             </p>
           </div>
+        </div>
 
-          <!-- Eje Derecho -->
-          <div class="mb-2">
-            <label class="block text-gray-700">Eje Derecho:</label>
-            <input type="number" v-model.number="form.detalleTrabajo.eje_derecho"
-              class="w-full px-3 py-2 border rounded" />
-            <p v-if="v$.detalleTrabajo.eje_derecho.$error" class="text-red-500 text-sm">
-              {{ v$.detalleTrabajo.eje_derecho.$errors[0].$message }}
-            </p>
-          </div>
-
-          <!-- Eje Izquierdo -->
-          <div class="mb-2">
-            <label class="block text-gray-700">Eje Izquierdo:</label>
-            <input type="number" v-model.number="form.detalleTrabajo.eje_izquierdo"
-              class="w-full px-3 py-2 border rounded" />
-            <p v-if="v$.detalleTrabajo.eje_izquierdo.$error" class="text-red-500 text-sm">
-              {{ v$.detalleTrabajo.eje_izquierdo.$errors[0].$message }}
-            </p>
-          </div>
-
-          <!-- ID Tratamiento -->
-          <div class="mb-2">
-            <label class="block text-gray-700">Tratamiento:</label>
-            <select v-model="form.detalleTrabajo.id_tratamiento" class="w-full px-3 py-2 border rounded">
-              <option value="">Seleccione un tratamiento (opcional)</option>
-              <option v-for="tratamiento in tratamientosOptions" :key="tratamiento.id_tratamiento"
-                :value="tratamiento.id_tratamiento">
-                {{ tratamiento.nombre }}
-              </option>
-            </select>
-            <p v-if="v$.detalleTrabajo.id_tratamiento.$error" class="text-red-500 text-sm">
-              {{ v$.detalleTrabajo.id_tratamiento.$errors[0].$message }}
-            </p>
-          </div>
-
-          <!-- ID Producto -->
-          <div class="mb-2">
+        <!-- Producto, Color y Tratamiento en una sola fila -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-4">
+          <div>
             <label class="block text-gray-700">Producto:</label>
             <select v-model="form.detalleTrabajo.id_producto" class="w-full px-3 py-2 border rounded">
               <option value="" disabled>Seleccione un producto</option>
@@ -147,8 +114,7 @@
             </p>
           </div>
 
-          <!-- ID Color -->
-          <div class="mb-2">
+          <div>
             <label class="block text-gray-700">Color:</label>
             <select v-model="form.detalleTrabajo.id_color" class="w-full px-3 py-2 border rounded">
               <option value="" disabled>Seleccione un color (opcional)</option>
@@ -161,10 +127,20 @@
             </p>
           </div>
 
+          <div>
+            <label class="block text-gray-700">Tratamiento:</label>
+            <select v-model="form.detalleTrabajo.id_tratamiento" class="w-full px-3 py-2 border rounded">
+              <option value="">Seleccione un tratamiento (opcional)</option>
+              <option v-for="tratamiento in tratamientosOptions" :key="tratamiento.id_tratamiento"
+                :value="tratamiento.id_tratamiento">
+                {{ tratamiento.nombre }}
+              </option>
+            </select>
+          </div>
         </div>
 
         <!-- Botones de Acción -->
-        <div class="flex justify-end space-x-4">
+        <div class="flex justify-end space-x-4 mt-6">
           <button type="button" @click="closeModal"
             class="px-4 py-2 bg-gray-300 text-gray-700 rounded hover:bg-gray-400">
             Cancelar
@@ -173,7 +149,6 @@
             Guardar
           </button>
         </div>
-
       </form>
     </div>
   </div>

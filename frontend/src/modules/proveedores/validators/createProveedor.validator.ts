@@ -11,8 +11,8 @@ const onlyAlphabet = helpers.withMessage(
 );
 
 const maxURLLength = helpers.withMessage(
-  "El campo no puede superar los 30 caracteres.",
-  maxLength(50)
+  "El campo no puede superar los 60 caracteres.",
+  maxLength(70)
 );
 
 const validDomainOrURL = helpers.withMessage(

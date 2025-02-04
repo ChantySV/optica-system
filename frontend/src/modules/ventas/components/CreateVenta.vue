@@ -25,13 +25,14 @@
           </li>
         </ul>
         <p v-if="formData.id_persona" class="mt-2 text-gray-700">Comprador: {{ formData.nombre_persona }}</p>
+        <p v-if="v$.id_persona.$error" class="text-red-500 text-sm">{{ v$.id_persona.$errors[0].$message }}</p>
       </div>
 
-      <!-- Lista de trabajos pendientes -->
+      <!-- Lista de trabajos pendientes con scroll -->
       <div>
         <h3 class="text-lg font-semibold text-gray-700 mb-2">Trabajos Pendientes</h3>
         <div v-if="loading" class="text-gray-500">Cargando trabajos...</div>
-        <div v-else>
+        <div v-else class="max-h-56 overflow-y-auto border rounded-lg p-2">
           <ul class="space-y-2">
             <li
               v-for="trabajo in trabajosPendientes"
@@ -58,12 +59,14 @@
         <div v-if="formData.trabajosSeleccionados.length === 0" class="text-gray-500">
           No has seleccionado ningún trabajo.
         </div>
+
         <ul v-else class="space-y-2">
           <li
             v-for="trabajo in formData.trabajosSeleccionados"
             :key="trabajo.id_trabajo"
             class="flex justify-between items-center border-b pb-2"
           >
+          <p v-if="v$.trabajosSeleccionados.$error" class="text-red-500 text-sm">{{ v$.trabajosSeleccionados.$errors[0].$message }}</p>
             <span class="text-gray-700">
               <strong>{{ trabajo.numero_trabajo }}</strong> - Precio sugerido: {{ trabajo.precio_sugerido }}
             </span>
@@ -108,10 +111,11 @@
   </div>
 </template>
 
+
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue';
 import useVuelidate from '@vuelidate/core';
-import { required, numeric, minValue } from '@vuelidate/validators';
+import { required, minValue, helpers } from '@vuelidate/validators';
 import { createVenta, findPendientes, findPrecioVenta, searchPersonaVenta } from '../actions/venta.action';
 import { useToast } from 'vue-toastification';
 
@@ -126,9 +130,25 @@ const formData = ref({
   trabajosSeleccionados: [] as { id_trabajo: string; numero_trabajo: number; precio_sugerido: number }[],
 });
 
-// Validaciones para el formulario
+
+const decimalNumber = helpers.withMessage(
+  "Debe ser un número válido con hasta 2 decimales.",
+  (value: number | null) => value === null || /^\d+(\.\d{1,2})?$/.test(String(value))
+);
+
 const rules = {
-  monto_total: { required, numeric, minValue: minValue(1) },
+
+    id_persona: {
+    required: helpers.withMessage("Debe Selecionar al Comprador", required)
+  },
+  trabajosSeleccionados: {
+    required: helpers.withMessage("Debe haber al menos un trabajo seleccionado.", required),
+  },
+  monto_total: {
+    required: helpers.withMessage("El monto total es obligatorio.", required),
+    decimalNumber,
+    minValue: helpers.withMessage("El monto total no puede ser negativo.", minValue(1)),
+  },
 };
 const v$ = useVuelidate(rules, formData);
 
@@ -138,17 +158,14 @@ const toast = useToast();
 const trabajosPendientes = ref([]);
 const loading = ref(false);
 
-// Barra de búsqueda de personal
 const busquedaPersonal = ref('');
 const resultadosBusqueda = ref([]);
 const buscandoPersonal = ref(false);
 
-// Precio sugerido total (calculado dinámicamente)
 const precioSugeridoTotal = computed(() =>
   formData.value.trabajosSeleccionados.reduce((total, trabajo) => total + trabajo.precio_sugerido, 0)
 );
 
-// Cargar trabajos pendientes
 const loadTrabajosPendientes = async () => {
   try {
     loading.value = true;
@@ -166,7 +183,6 @@ const loadTrabajosPendientes = async () => {
   }
 };
 
-// Seleccionar un trabajo y calcular su precio sugerido
 const seleccionarTrabajo = async (trabajo: any) => {
   try {
     if (!formData.value.trabajosSeleccionados.some(t => t.id_trabajo === trabajo.id_trabajo)) {
@@ -185,14 +201,12 @@ const seleccionarTrabajo = async (trabajo: any) => {
   }
 };
 
-// Quitar un trabajo seleccionado
 const quitarTrabajo = (id_trabajo: string) => {
   formData.value.trabajosSeleccionados = formData.value.trabajosSeleccionados.filter(
     trabajo => trabajo.id_trabajo !== id_trabajo
   );
 };
 
-// Buscar personal
 const buscarPersonal = async () => {
   if (!busquedaPersonal.value.trim()) {
     resultadosBusqueda.value = [];
@@ -215,7 +229,6 @@ const buscarPersonal = async () => {
   }
 };
 
-// Seleccionar personal
 const seleccionarPersona = (persona: any) => {
   formData.value.id_persona = persona.id_personal;
   formData.value.nombre_persona = persona.nombres;
@@ -223,12 +236,10 @@ const seleccionarPersona = (persona: any) => {
   busquedaPersonal.value = '';
 };
 
-// Cerrar el modal
 const closeModal = () => {
   emit('close');
 };
 
-// Enviar el formulario
 const onSubmit = async () => {
   const isValid = await v$.value.$validate();
   if (!isValid) {
@@ -258,7 +269,6 @@ const onSubmit = async () => {
   }
 };
 
-// Cargar trabajos al montar
 onMounted(() => {
   loadTrabajosPendientes();
 });

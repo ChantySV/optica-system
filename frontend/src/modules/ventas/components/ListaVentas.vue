@@ -53,18 +53,20 @@
             <td class="px-6 py-3 text-gray-700 font-semibold">${{ venta.monto_total }}</td>
             <td class="px-6 py-3 text-gray-700">{{ venta.usuario }}</td>
             <td class="px-6 py-3 text-gray-700">{{ venta.personal }}</td>
-            <td class="px-6 py-3 text-center">
+            <td class="px-6 py-3 text-center space-x-2">
               <button @click="openDetalleModal(venta.id_venta)"
                 class="px-4 py-2 bg-orange-500 text-white font-medium rounded-lg hover:bg-orange-600 focus:outline-none focus:ring-2 ">
                 Ver Detalle
               </button>
-            </td>
-            <!-- <td class="px-6 py-3 text-center">
               <button @click="openUpdateModal(venta)"
                 class="px-4 py-2 bg-gray-800 text-white font-medium rounded-lg hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500">
                 Actualizar
               </button>
-            </td> -->
+              <!-- <button @click="openUpdateModal(venta)"
+                class="px-4 py-2 bg-gray-800 text-white font-medium rounded-lg hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500">
+                Eliminar
+              </button> -->
+            </td>
           </tr>
         </tbody>
       </table>
@@ -151,7 +153,7 @@ const onSearch = async () => {
   loading.value = true;
 
   try {
-    const offset = (currentPage.value - 1) * itemsPerPage; // Calcular el offset
+    const offset = (currentPage.value - 1) * itemsPerPage;
     const response = await searchVentas(searchQuery.value, itemsPerPage, offset);
 
     if (response.ok && response.data) {

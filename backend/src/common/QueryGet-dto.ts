@@ -1,6 +1,11 @@
 import { IsOptional, IsString, IsEnum } from "class-validator";
 
 export class QueryGetDto {
+
+    @IsOptional()
+    @IsString()
+    search?: string;
+
     @IsOptional()
     @IsString()
     sortBy?: string;

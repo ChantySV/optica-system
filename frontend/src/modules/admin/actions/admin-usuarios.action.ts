@@ -138,7 +138,7 @@ export const findAllJuridicosAdmin = async () => {
     if (response.data?.ok && Array.isArray(response.data.data)) {
       return {
         ok: true,
-        data: response.data.data, // Asegura que sea un array
+        data: response.data.data,
       };
     } else {
       return {

@@ -2,7 +2,16 @@
   <div class="container mx-auto mt-8 bg-white p-6 rounded-lg">
     <!-- Título -->
     <h1 class="text-3xl font-semibold text-gray-800 mb-6 text-center">Proveedores</h1>
-
+    <div class="flex flex-col md:flex-row items-center justify-between mb-4 space-y-4 md:space-y-0">
+  <div class="flex items-center space-x-2">
+    <input type="text" v-model="searchQuery" placeholder="Buscar por Nombre"
+      class="border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-orange-300" />
+    <button @click="loadProveedores"
+      class="px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-500">
+      Buscar
+    </button>
+  </div>
+</div>
     <!-- Mensajes de carga y error -->
     <div v-if="loading" class="text-center text-gray-500">Cargando proveedores...</div>
     <div v-else-if="error" class="text-center text-red-500">{{ error }}</div>
@@ -95,6 +104,7 @@ const error = ref<string | null>(null);
 const totalItems = ref(0);
 const itemsPerPage = 10;
 const currentPage = ref(1);
+const searchQuery = ref('');
 
 const sortField = ref('nombre');
 const sortOrder = ref<'ASC' | 'DESC'>('ASC');
@@ -110,7 +120,7 @@ const loadProveedores = async () => {
 
   const offset = (currentPage.value - 1) * itemsPerPage;
 
-  const response = await getProveedoresAction(itemsPerPage, offset, sortField.value, sortOrder.value);
+  const response = await getProveedoresAction(itemsPerPage, offset, sortField.value, sortOrder.value, searchQuery.value);
   if (response.ok && response.data) {
     proveedores.value = response.data;
     totalItems.value = response.total || 0;

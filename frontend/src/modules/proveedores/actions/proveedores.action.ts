@@ -7,7 +7,8 @@ export const getProveedoresAction = async (
   limit: number,
   offset: number,
   sortBy: string = 'nombre',
-  order: 'ASC' | 'DESC' = 'ASC'
+  order: 'ASC' | 'DESC' = 'ASC',
+  search: string = ''
 ): Promise<{
   ok: boolean;
   data?: ProveedoresResponseInterface[];
@@ -15,7 +16,7 @@ export const getProveedoresAction = async (
 }> => {
   try {
     const { data } = await backendApi.get('/proveedores', {
-      params: { limit, offset, sortBy, order },
+      params: { limit, offset, sortBy, order, search },
     });
 
     return {
@@ -68,12 +69,15 @@ export const searchProveedoresAction = async (
 // Crear un proveedor
 export const createProveedorAction = async (
   proveedor: Omit<ProveedoresResponseInterface, 'id_proveedor' | 'activo'>
-): Promise<{ ok: boolean; message?: string }> => {
+) => {
   try {
-    await backendApi.post('/proveedores', proveedor);
-    return { ok: true };
-  } catch (error) {
-    return handleApiError(error, 'No se pudo crear el proveedor.');
+    const response =  await backendApi.post('/proveedores', proveedor);
+    return { ok: true, data: response.data };
+  } catch (error: any) {
+    if (error.response && error.response.status === 400) {
+      return { ok: false, message: error.response.data.message };
+    }
+    return { ok: false, message: 'Error inesperado al crear el proveedor.' };
   }
 };
 

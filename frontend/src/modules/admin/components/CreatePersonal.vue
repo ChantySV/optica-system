@@ -1,5 +1,3 @@
-<!-- src/components/CreatePersonaModal.vue -->
-
 <template>
   <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
     <div class="bg-white p-6 rounded-lg shadow-lg w-full max-w-lg">
@@ -9,64 +7,101 @@
         <!-- Nombres -->
         <div class="mb-4">
           <label class="block text-gray-700 font-medium mb-2" for="nombres">Nombres</label>
-          <input id="nombres" v-model="form.nombres" type="text"
+          <input
+            id="nombres"
+            v-model="form.nombres"
+            type="text"
             class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-orange-500 focus:outline-none"
-            required @input="validateLetters($event, 'nombres')" placeholder="Ingrese el Nombre" />
+            placeholder="Ingrese el Nombre"
+          />
+          <p v-if="v$.nombres.$error" class="text-red-500 text-sm">
+            {{ v$.nombres.$errors[0].$message }}
+          </p>
         </div>
 
         <!-- Apellido Paterno -->
         <div class="mb-4">
           <label class="block text-gray-700 font-medium mb-2" for="apellido_paterno">Apellido Paterno</label>
-          <input id="apellido_paterno" v-model="form.apellido_paterno" type="text"
+          <input
+            id="apellido_paterno"
+            v-model="form.apellido_paterno"
+            type="text"
             class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-orange-500 focus:outline-none"
-            required @input="validateLetters($event, 'apellido_paterno')" placeholder="Ingrese el Apellido Paterno" />
+            placeholder="Ingrese el Apellido Paterno"
+          />
+          <p v-if="v$.apellido_paterno.$error" class="text-red-500 text-sm">
+            {{ v$.apellido_paterno.$errors[0].$message }}
+          </p>
         </div>
 
         <!-- Apellido Materno -->
         <div class="mb-4">
           <label class="block text-gray-700 font-medium mb-2" for="apellido_materno">Apellido Materno</label>
-          <input id="apellido_materno" v-model="form.apellido_materno" type="text"
+          <input
+            id="apellido_materno"
+            v-model="form.apellido_materno"
+            type="text"
             class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-orange-500 focus:outline-none"
-            @input="validateLetters($event, 'apellido_materno')" placeholder="Ingrese el Apellido Materno (opcional)" />
+            placeholder="Ingrese el Apellido Materno (opcional)"
+          />
+          <p v-if="v$.apellido_materno.$error" class="text-red-500 text-sm">
+            {{ v$.apellido_materno.$errors[0].$message }}
+          </p>
         </div>
 
         <!-- Email -->
         <div class="mb-4">
           <label class="block text-gray-700 font-medium mb-2" for="email">Email</label>
-          <input id="email" v-model="form.email" type="email"
+          <input
+            id="email"
+            v-model="form.email"
+            type="email"
             class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-orange-500 focus:outline-none"
-            placeholder="Ingrese un email válido (Opcional)" />
+            placeholder="Ingrese un email válido (Opcional)"
+          />
+          <p v-if="v$.email.$error" class="text-red-500 text-sm">
+            {{ v$.email.$errors[0].$message }}
+          </p>
         </div>
 
         <!-- Teléfono -->
         <div class="mb-4">
           <label class="block text-gray-700 font-medium mb-2" for="telefono">Teléfono</label>
-          <input id="telefono" v-model.number="form.telefono" type="text"
+          <input
+            id="telefono"
+            v-model.number="form.telefono"
+            type="text"
             class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-orange-500 focus:outline-none"
-            @input="validateNumbers($event, 'telefono')" placeholder="Ingrese el numero de telefono (opcional)" />
+            placeholder="Ingrese el número de teléfono (opcional)"
+          />
+          <p v-if="v$.telefono.$error" class="text-red-500 text-sm">
+            {{ v$.telefono.$errors[0].$message }}
+          </p>
         </div>
 
         <!-- Tipo de Persona -->
         <div class="mb-4">
           <label class="block text-gray-700 font-medium mb-2" for="tipo_persona">Tipo de Persona</label>
-          <select id="tipo_persona" v-model="form.tipo_persona"
+          <select
+            id="tipo_persona"
+            v-model="form.tipo_persona"
             class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-orange-500 focus:outline-none"
-            required>
+          >
             <option value="">Seleccione una opción</option>
             <option value="juridica">Jurídica</option>
             <option value="natural">Natural</option>
-            <!-- Añade más opciones según sea necesario -->
           </select>
+          <p v-if="v$.tipo_persona.$error" class="text-red-500 text-sm">
+            {{ v$.tipo_persona.$errors[0].$message }}
+          </p>
         </div>
 
         <!-- Botones -->
         <div class="flex justify-end gap-4">
-          <button type="button" @click="$emit('close')"
-            class="px-4 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-400">
+          <button type="button" @click="$emit('close')" class="px-4 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400">
             Cancelar
           </button>
-          <button type="submit"
-            class="px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 ">
+          <button type="submit" class="px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600">
             Crear
           </button>
         </div>
@@ -76,105 +111,59 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
-import { useToast } from 'vue-toastification';
-import { createPersona } from '../actions/admin-personal.action'; // Asegúrate de tener esta acción definida
+import { computed, reactive } from "vue";
+import { useToast } from "vue-toastification";
+import { createPersona } from "../actions/admin-personal.action";
+import { getValidationRules } from "../validators/CreatePersaonl.validator";
+import useVuelidate from "@vuelidate/core";
 
-// Emits
 const emit = defineEmits<{
-  (e: 'close'): void;
-  (e: 'created'): void;
+  (e: "close"): void;
+  (e: "created"): void;
 }>();
 
-// Toast
 const toast = useToast();
 
-// Formulario
-const form = ref({
-  nombres: '',
-  apellido_paterno: '',
-  apellido_materno: '',
-  email: '',
+const form = reactive({
+  nombres: "",
+  apellido_paterno: "",
+  apellido_materno: "",
+  email: "",
   telefono: null as number | null,
-  tipo_persona: '',
+  tipo_persona: "",
 });
 
-// Función para validar que solo se ingresen letras
-const validateLetters = (event: Event, field: string) => {
-  const input = event.target as HTMLInputElement;
-  // Permitir letras, espacios y acentos
-  const regex = /^[A-Za-záéíóúÁÉÍÓÚüÜñÑ\s]*$/;
-  if (!regex.test(input.value)) {
-    input.value = input.value.replace(/[^A-Za-záéíóúÁÉÍÓÚüÜñÑ\s]/g, '');
-    toast.error(`Error en ${field}: Solo se permiten letras.`);
-  }
-};
+// Aplicar las reglas de validación
+const rules = computed(() => getValidationRules(form));
+const v$ = useVuelidate(rules, form);
 
-// Función para validar que solo se ingresen números
-const validateNumbers = (event: Event, field: string) => {
-  const input = event.target as HTMLInputElement;
-  // Permitir solo dígitos
-  const regex = /^[0-9]*$/;
-  if (!regex.test(input.value)) {
-    input.value = input.value.replace(/[^0-9]/g, '');
-    toast.error(`Error en ${field}: Solo se permiten números.`);
-  }
-};
-
-// Función para enviar el formulario
 const submitCreate = async () => {
-  // Validar campos requeridos manualmente
-  if (
-    !form.value.nombres.trim() ||
-    !form.value.apellido_paterno.trim() ||
-    !form.value.tipo_persona.trim()
-  ) {
-    toast.error('Por favor, complete todos los campos requeridos.');
+  const isValid = await v$.value.$validate();
+  if (!isValid) {
+    toast.error("Corrige los errores antes de enviar el formulario.");
     return;
   }
 
-  // Validar que los campos de texto solo contengan letras
-  const letterFields = ['nombres', 'apellido_paterno', 'apellido_materno'];
-  for (const field of letterFields) {
-    if (form.value[field] && !/^[A-Za-záéíóúÁÉÍÓÚüÜñÑ\s]+$/.test(form.value[field])) {
-      toast.error(`Error en ${field}: Solo se permiten letras.`);
-      return;
-    }
-  }
-
-  // Validar que el teléfono, si se proporciona, solo contenga números
-  if (form.value.telefono && !/^[0-9]+$/.test(form.value.telefono.toString())) {
-    toast.error('Error en teléfono: Solo se permiten números.');
-    return;
-  }
-
-  // Validar formato de email, si se proporciona
-  if (form.value.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.value.email)) {
-    toast.error('Error en email: Formato de email inválido.');
-    return;
-  }
-
-  // Lógica para crear la persona
   try {
     const createPersonaResponse = await createPersona({
-      nombres: form.value.nombres.trim(),
-      apellido_paterno: form.value.apellido_paterno.trim(),
-      apellido_materno: form.value.apellido_materno?.trim() || null,
-      email: form.value.email?.trim() || null,
-      telefono: form.value.telefono,
-      tipo_persona: form.value.tipo_persona.trim(),
+      nombres: form.nombres.trim(),
+      apellido_paterno: form.apellido_paterno.trim(),
+      apellido_materno: form.apellido_materno?.trim() || null,
+      email: form.email?.trim() || null,
+      telefono: form.telefono,
+      tipo_persona: form.tipo_persona.trim(),
     });
 
     if (createPersonaResponse.ok && createPersonaResponse.data) {
-      toast.success('Persona creada con éxito.');
-      emit('created'); // Emite el evento 'created' al componente padre
-      emit('close'); // Cierra el modal
+      toast.success("Persona creada con éxito.");
+      emit("created");
+      emit("close");
     } else {
-      toast.error(createPersonaResponse.message || 'Error al crear la persona.');
+      toast.error(createPersonaResponse.message || "Error al crear la persona.");
     }
   } catch (error) {
     console.error(error);
-    toast.error('Ocurrió un error al crear la persona.');
+    toast.error("Ocurrió un error al crear la persona.");
   }
 };
 </script>

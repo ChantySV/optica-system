@@ -1,46 +1,61 @@
 <template>
   <div v-if="trabajo" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
-    <div class="bg-white rounded-lg w-11/12 md:w-3/4 lg:w-1/2 p-6 overflow-auto max-h-screen">
-      <div class="flex justify-between items-center mb-4">
-        <h2 class="text-xl font-semibold mb-4">Detalles del Trabajo</h2>
-        <button @click="$emit('close')" class="text-gray-500 hover:text-gray-700 focus:outline-none">&times;</button>
+    <div class="bg-white rounded-lg w-11/12 md:w-3/4 lg:w-1/2 p-6 max-h-screen overflow-auto shadow-lg">
+
+      <!-- Encabezado -->
+      <div class="flex justify-between items-center mb-6 border-b pb-3">
+        <h2 class="text-2xl font-semibold text-gray-800">Detalles del Trabajo</h2>
+        <button @click="$emit('close')" class="text-gray-500 hover:text-gray-700 text-2xl">&times;</button>
       </div>
-      <div class="space-y-4">
-        <div><strong>Número de Trabajo:</strong> {{ trabajo.numero_trabajo }}</div>
-        <div><strong>Fecha de Entrada:</strong> {{ formatDate(trabajo.fecha_entrada) }}</div>
-        <div><strong>Estado:</strong> {{ trabajo.estado }}</div>
-        <div><strong>Personal Encargado:</strong> {{ trabajo.personal?.nombres || 'N/A' }}</div>
-        <div><strong>Detalle de Trabajo:</strong>
-          <ul class="list-disc list-inside">
-            <li><strong>Producto:</strong> {{ trabajo.detalleTrabajo?.producto?.nombre || 'N/A' }}</li>
-            <li><strong>Color:</strong> {{ trabajo.detalleTrabajo?.color?.nombre || 'N/A' }}</li>
-            <li><strong>Tratamiento:</strong> {{ trabajo.detalleTrabajo?.tratamiento?.nombre || 'N/A' }}</li>
-            <li><strong>Distancia:</strong> {{ trabajo.detalleTrabajo?.distancia ? 'Sí' : 'No' }}</li>
-            <li><strong>Adición:</strong> {{ trabajo.detalleTrabajo?.adicion || 'N/A' }}</li>
-            <li><strong>Base:</strong> {{ trabajo.detalleTrabajo?.base || 'N/A' }}</li>
-            <li><strong>Esférico Derecho:</strong> {{ trabajo.detalleTrabajo?.esferico_derecho || 'N/A' }}</li>
-            <li><strong>Esférico Izquierdo:</strong> {{ trabajo.detalleTrabajo?.esferico_izquierdo || 'N/A' }}</li>
-            <li><strong>Cilindro Derecho:</strong> {{ trabajo.detalleTrabajo?.cilindro_derecho || 'N/A' }}</li>
-            <li><strong>Cilindro Izquierdo:</strong> {{ trabajo.detalleTrabajo?.cilindro_izquierdo || 'N/A' }}</li>
-            <li><strong>Eje Derecho:</strong> {{ trabajo.detalleTrabajo?.eje_derecho || 'N/A' }}</li>
-            <li><strong>Eje Izquierdo:</strong> {{ trabajo.detalleTrabajo?.eje_izquierdo || 'N/A' }}</li>
-          </ul>
+
+      <!-- Información Principal -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <p><strong>Número de Trabajo:</strong> {{ trabajo.numero_trabajo }}</p>
+          <p><strong>Fecha de Entrada:</strong> {{ formatDate(trabajo.fecha_entrada) }}</p>
+          <p><strong>Estado:</strong> {{ trabajo.estado }}</p>
+          <p><strong>Personal Encargado:</strong> {{ trabajo.personal?.nombres || 'N/A' }}</p>
         </div>
-        <div v-if="trabajo.detalleVenta">
-          <strong>Detalle de Venta:</strong>
-          <ul class="list-disc list-inside">
-            <li><strong>ID Detalle Venta:</strong> {{ trabajo.detalleVenta.id_detalleVenta }}</li>
-          </ul>
+        <div>
+          <p><strong>Producto:</strong> {{ trabajo.detalleTrabajo?.producto?.nombre || 'N/A' }}</p>
+          <p><strong>Color:</strong> {{ trabajo.detalleTrabajo?.color?.nombre || 'N/A' }}</p>
+          <p><strong>Tratamiento:</strong> {{ trabajo.detalleTrabajo?.tratamiento?.nombre || 'N/A' }}</p>
+          <p><strong>Distancia:</strong> {{ trabajo.detalleTrabajo?.distancia ? 'Sí' : 'No' }}</p>
         </div>
       </div>
+
+      <!-- Detalles Técnicos -->
+      <div class="mt-4 bg-gray-100 p-4 rounded-lg">
+        <h3 class="text-lg font-semibold text-gray-700 mb-2">Detalles Técnicos</h3>
+        <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
+          <p><strong>Adición:</strong> {{ trabajo.detalleTrabajo?.adicion || 'N/A' }}</p>
+          <p><strong>Base:</strong> {{ trabajo.detalleTrabajo?.base || 'N/A' }}</p>
+          <p><strong>Esférico Derecho:</strong> {{ trabajo.detalleTrabajo?.esferico_derecho || 'N/A' }}</p>
+          <p><strong>Esférico Izquierdo:</strong> {{ trabajo.detalleTrabajo?.esferico_izquierdo || 'N/A' }}</p>
+          <p><strong>Cilindro Derecho:</strong> {{ trabajo.detalleTrabajo?.cilindro_derecho || 'N/A' }}</p>
+          <p><strong>Cilindro Izquierdo:</strong> {{ trabajo.detalleTrabajo?.cilindro_izquierdo || 'N/A' }}</p>
+          <p><strong>Eje Derecho:</strong> {{ trabajo.detalleTrabajo?.eje_derecho || 'N/A' }}</p>
+          <p><strong>Eje Izquierdo:</strong> {{ trabajo.detalleTrabajo?.eje_izquierdo || 'N/A' }}</p>
+        </div>
+      </div>
+
+      <!-- Detalle de Venta (si existe) -->
+      <div v-if="trabajo.detalleVenta" class="mt-4 bg-gray-50 p-4 rounded-lg">
+        <h3 class="text-lg font-semibold text-gray-700 mb-2">Detalle de Venta</h3>
+        <p><strong>ID Detalle Venta:</strong> {{ trabajo.detalleVenta.id_detalleVenta }}</p>
+      </div>
+
+      <!-- Botón de Cierre -->
       <div class="flex justify-end mt-6">
-        <button @click="$emit('close')" class="px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 focus:outline-none">
+        <button @click="$emit('close')" class="px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600">
           Cerrar
         </button>
       </div>
+
     </div>
   </div>
 </template>
+
 
 <script setup lang="ts">
 import type { Trabajo } from '../interfaces/TrabajosResponse.interface';

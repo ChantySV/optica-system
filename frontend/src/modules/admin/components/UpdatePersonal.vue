@@ -1,5 +1,3 @@
-<!-- src/components/UpdatePersonaModal.vue -->
-
 <template>
   <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
     <div class="bg-white p-6 rounded-lg shadow-lg w-full max-w-lg">
@@ -14,10 +12,11 @@
             v-model="form.nombres"
             type="text"
             class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-orange-500 focus:outline-none"
-            required
-            @input="validateLetters($event, 'nombres')"
             placeholder="Ingrese solo letras"
           />
+          <p v-if="v$.nombres.$error" class="text-red-500 text-sm">
+            {{ v$.nombres.$errors[0].$message }}
+          </p>
         </div>
 
         <!-- Apellido Paterno -->
@@ -28,10 +27,11 @@
             v-model="form.apellido_paterno"
             type="text"
             class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-orange-500 focus:outline-none"
-            required
-            @input="validateLetters($event, 'apellido_paterno')"
             placeholder="Ingrese solo letras"
           />
+          <p v-if="v$.apellido_paterno.$error" class="text-red-500 text-sm">
+            {{ v$.apellido_paterno.$errors[0].$message }}
+          </p>
         </div>
 
         <!-- Apellido Materno -->
@@ -42,9 +42,11 @@
             v-model="form.apellido_materno"
             type="text"
             class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-orange-500 focus:outline-none"
-            @input="validateLetters($event, 'apellido_materno')"
             placeholder="Ingrese solo letras (opcional)"
           />
+          <p v-if="v$.apellido_materno.$error" class="text-red-500 text-sm">
+            {{ v$.apellido_materno.$errors[0].$message }}
+          </p>
         </div>
 
         <!-- Email -->
@@ -57,6 +59,9 @@
             class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-orange-500 focus:outline-none"
             placeholder="Ingrese un email válido"
           />
+          <p v-if="v$.email.$error" class="text-red-500 text-sm">
+            {{ v$.email.$errors[0].$message }}
+          </p>
         </div>
 
         <!-- Teléfono -->
@@ -67,9 +72,11 @@
             v-model.number="form.telefono"
             type="text"
             class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-orange-500 focus:outline-none"
-            @input="validateNumbers($event, 'telefono')"
             placeholder="Ingrese solo números"
           />
+          <p v-if="v$.telefono.$error" class="text-red-500 text-sm">
+            {{ v$.telefono.$errors[0].$message }}
+          </p>
         </div>
 
         <!-- Tipo de Persona -->
@@ -79,28 +86,22 @@
             id="tipo_persona"
             v-model="form.tipo_persona"
             class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-orange-500 focus:outline-none"
-            required
           >
             <option value="">Seleccione una opción</option>
             <option value="juridica">Jurídica</option>
             <option value="natural">Natural</option>
-            <!-- Añade más opciones según sea necesario -->
           </select>
+          <p v-if="v$.tipo_persona.$error" class="text-red-500 text-sm">
+            {{ v$.tipo_persona.$errors[0].$message }}
+          </p>
         </div>
 
         <!-- Botones -->
         <div class="flex justify-end gap-4">
-          <button
-            type="button"
-            @click="$emit('close')"
-            class="px-4 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 "
-          >
+          <button type="button" @click="$emit('close')" class="px-4 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400">
             Cancelar
           </button>
-          <button
-            type="submit"
-            class="px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600"
-          >
+          <button type="submit" class="px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600">
             Actualizar
           </button>
         </div>
@@ -110,117 +111,79 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch } from 'vue';
-import { useToast } from 'vue-toastification';
-import type { personalInteface } from '../interfaces/personalResponse.interface';
-import { updatePersona } from '../actions/admin-personal.action';
+import { computed, reactive, watch } from "vue";
+import { useToast } from "vue-toastification";
+import { updatePersona } from "../actions/admin-personal.action";
+import { getValidationRules } from "../validators/CreatePersaonl.validator";
+import useVuelidate from "@vuelidate/core";
 
 // Props
 const props = defineProps<{
-  persona: personalInteface | null;
+  persona: any | null;
 }>();
 
-// Emits
 const emit = defineEmits<{
-  (e: 'close'): void;
-  (e: 'updated'): void;
+  (e: "close"): void;
+  (e: "updated"): void;
 }>();
 
-// Toast
 const toast = useToast();
 
-// Formulario
-const form = ref({
-  nombres: props.persona?.nombres || '',
-  apellido_paterno: props.persona?.apellido_paterno || '',
-  apellido_materno: props.persona?.apellido_materno || '',
-  email: props.persona?.email || null,
-  telefono: props.persona?.telefono || '',
-  tipo_persona: props.persona?.tipo_persona || '',
+// Formulario reactivo
+const form = reactive({
+  nombres: props.persona?.nombres || "",
+  apellido_paterno: props.persona?.apellido_paterno || "",
+  apellido_materno: props.persona?.apellido_materno || "",
+  email: props.persona?.email || "",
+  telefono: props.persona?.telefono || "",
+  tipo_persona: props.persona?.tipo_persona || "",
 });
 
-// Re-inicializar el formulario cuando cambia la prop 'persona'
-watch(() => props.persona, (newPersona) => {
-  if (newPersona) {
-    form.value.nombres = newPersona.nombres || '';
-    form.value.apellido_paterno = newPersona.apellido_paterno || '';
-    form.value.apellido_materno = newPersona.apellido_materno || '';
-    form.value.email = newPersona.email || '';
-    form.value.telefono = newPersona.telefono || '';
-    form.value.tipo_persona = newPersona.tipo_persona || '';
-  }
-});
+// Aplicar reglas de validación con Vuelidate
+const rules = computed(() => getValidationRules(form));
+const v$ = useVuelidate(rules, form);
 
-// Función para validar que solo se ingresen letras
-const validateLetters = (event: Event, field: string) => {
-  const input = event.target as HTMLInputElement;
-  // Permitir letras, espacios y acentos
-  const regex = /^[A-Za-záéíóúÁÉÍÓÚüÜñÑ\s]*$/;
-  if (!regex.test(input.value)) {
-    input.value = input.value.replace(/[^A-Za-záéíóúÁÉÍÓÚüÜñÑ\s]/g, '');
-    toast.error(`Error en ${field}: Solo se permiten letras.`);
-  }
-};
-
-// Función para validar que solo se ingresen números
-const validateNumbers = (event: Event, field: string) => {
-  const input = event.target as HTMLInputElement;
-  // Permitir solo dígitos
-  const regex = /^[0-9]*$/;
-  if (!regex.test(input.value)) {
-    input.value = input.value.replace(/[^0-9]/g, '');
-    toast.error(`Error en ${field}: Solo se permiten números.`);
-  }
-};
-
-// Función para enviar el formulario
-const submitUpdate = async () => {
-  // Validar campos requeridos manualmente
-  if (
-    !form.value.nombres.trim() ||
-    !form.value.apellido_paterno.trim() ||
-    !form.value.tipo_persona.trim()
-  ) {
-    toast.error('Por favor, complete todos los campos requeridos.');
-    return;
-  }
-
-  const letterFields = ['nombres', 'apellido_paterno', 'apellido_materno'];
-  for (const field of letterFields) {
-    if (form.value[field] && !/^[A-Za-záéíóúÁÉÍÓÚüÜñÑ\s]+$/.test(form.value[field])) {
-      toast.error(`Error en ${field}: Solo se permiten letras.`);
-      return;
+// Re-inicializar formulario cuando cambia la prop 'persona'
+watch(
+  () => props.persona,
+  (newPersona) => {
+    if (newPersona) {
+      form.nombres = newPersona.nombres || "";
+      form.apellido_paterno = newPersona.apellido_paterno || "";
+      form.apellido_materno = newPersona.apellido_materno || "";
+      form.email = newPersona.email || "";
+      form.telefono = newPersona.telefono || "";
+      form.tipo_persona = newPersona.tipo_persona || "";
     }
   }
+);
 
-  if (form.value.telefono && !/^[0-9]+$/.test(form.value.telefono)) {
-    toast.error('Error en teléfono: Solo se permiten números.');
-    return;
-  }
-
-  if (form.value.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.value.email)) {
-    toast.error('Error en email: Formato de email inválido.');
+// Enviar el formulario
+const submitUpdate = async () => {
+  const isValid = await v$.value.$validate();
+  if (!isValid) {
+    toast.error("Corrige los errores antes de enviar el formulario.");
     return;
   }
 
   try {
     if (!props.persona) {
-      toast.error('No se proporcionó la persona a actualizar.');
+      toast.error("No se proporcionó la persona a actualizar.");
       return;
     }
 
-    const updatedPersonaResponse = await updatePersona(props.persona.id_personal, form.value);
+    const updatedPersonaResponse = await updatePersona(props.persona.id_personal, form);
 
     if (updatedPersonaResponse.ok && updatedPersonaResponse.data) {
-      toast.success('Persona actualizada con éxito.');
-      emit('updated');
-      emit('close');
+      toast.success("Persona actualizada con éxito.");
+      emit("updated");
+      emit("close");
     } else {
-      toast.error(updatedPersonaResponse.message || 'Error al actualizar la persona.');
+      toast.error(updatedPersonaResponse.message || "Error al actualizar la persona.");
     }
   } catch (error) {
     console.error(error);
-    toast.error('Ocurrió un error al actualizar la persona.');
+    toast.error("Ocurrió un error al actualizar la persona.");
   }
 };
 </script>

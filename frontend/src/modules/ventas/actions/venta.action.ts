@@ -144,11 +144,7 @@ export const createVenta = async (createVentaDto: any) => {
 };
 
 // Actualizar una venta
-export const updateVenta = async (id_venta: string, updateVentaDto: any): Promise<{
-  ok: boolean;
-  data?: any; // Define una interfaz si sabes la estructura exacta
-  message?: string;
-}> => {
+export const updateVenta = async (id_venta: string, updateVentaDto: any)  => {
   try {
     const { data } = await backendApi.patch(`/ventas/${id_venta}`, updateVentaDto);
     return {

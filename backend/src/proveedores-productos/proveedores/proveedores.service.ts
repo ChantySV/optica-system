@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from "@nestjs/common";
+import { BadRequestException, Injectable, NotFoundException } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Like, Repository } from "typeorm";
 import { CreateProveedoreDto } from "./dto/create-proveedore.dto";
@@ -27,14 +27,27 @@ export class ProveedoresService {
     try {
       if (createProveedoreDto.direccion_web) {
         createProveedoreDto.direccion_web = this.cleanUrl(createProveedoreDto.direccion_web);
-      }  
+      }
+  
+      const existingProveedor = await this.proveedorRepository.findOne({
+        where: { nombre: createProveedoreDto.nombre, activo: true },
+      });
+  
+      if (existingProveedor) {
+        throw new BadRequestException(`El nombre de proveedor '${createProveedoreDto.nombre}' ya está en uso.`);
+      }
+  
       const proveedor = this.proveedorRepository.create(createProveedoreDto);
-      const savedProveedor = await this.proveedorRepository.save(proveedor);  
+      const savedProveedor = await this.proveedorRepository.save(proveedor);
+  
       return this.mapToDto(savedProveedor);
     } catch (error) {
       this.errorHandleService.errorHandle(error);
+      throw error;
     }
   }
+  
+  
 
   
   async findProveedor() {    
@@ -53,19 +66,27 @@ export class ProveedoresService {
 
   async findAll(paginationDto: PaginationDto, queryGetDto: QueryGetDto) {
     const { limit, offset } = paginationDto;
-    const { order = 'ASC', sortBy = 'nombre' } = queryGetDto;
+    const { order = 'ASC', sortBy = 'nombre', search } = queryGetDto;
+    
     try {
-      const [proveedores, total] = await this.proveedorRepository.findAndCount({
-        where: { activo: true },
-        take: limit,
-        skip: offset,
-        order: { [sortBy]: order }
-      });
+      const query = this.proveedorRepository.createQueryBuilder('proveedor')
+        .where('proveedor.activo = :activo', { activo: true });
+  
+      if (search) {
+        query.andWhere('LOWER(proveedor.nombre) LIKE LOWER(:search)', { search: `%${search}%` });
+      }
+  
+      query.orderBy(`proveedor.${sortBy}`, order as 'ASC' | 'DESC')
+        .skip(offset)
+        .take(limit);
+  
+      const [proveedores, total] = await query.getManyAndCount();
       return { proveedores, total };
     } catch (error) {
       this.errorHandleService.errorHandle(error);
     }
   }
+  
 
   async searchProveedores(search: string, paginationDto: PaginationDto) {
     const { limit, offset } = paginationDto;

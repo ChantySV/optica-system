@@ -9,6 +9,7 @@ export class RolesController {
   constructor(private readonly rolesService: RolesService) {}
 
   @Post()
+  @Auth(ValidRoles.admin)
   create(@Body() createRoleDto: CreateRoleDto) {
     return this.rolesService.create(createRoleDto);
   }

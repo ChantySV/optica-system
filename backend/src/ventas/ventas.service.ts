@@ -1,6 +1,6 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Like, Repository, SelectQueryBuilder } from 'typeorm';
+import { In, Like, Repository, SelectQueryBuilder } from 'typeorm';
 import { Venta } from './entities/venta.entity';
 import { DetalleVenta } from './entities/detalle-venta.entity';
 import { CreateVentaDto } from './dto/create-venta.dto';
@@ -61,10 +61,8 @@ export class VentasService {
   
         trabajos.push(trabajo);
   
-        // Cambiar el estado del trabajo a 'entregado'
         trabajo.estado = 'entregado';
   
-        // Guardar el trabajo actualizado en la base de datos
         await this.trabajoRepository.save(trabajo);
       }
   
@@ -225,43 +223,81 @@ export class VentasService {
     }
   }
 
-  // Actualizar una venta con sus detalles
   async update(id: string, updateVentaDto: UpdateVentaDto): Promise<Venta> {
     try {
       const { id_persona, detalleVentas, ...ventaData } = updateVentaDto;
-
+  
       // Verificar si la venta existe
       const venta = await this.ventaRepository.findOne({ where: { id_venta: id } });
       if (!venta) {
         throw new NotFoundException(`Venta con ID "${id}" no encontrada`);
       }
-
-      // Verificar si el personal existe
+  
+      // 1. Obtener los detalles actuales de la venta (cargando la relación 'trabajo')
+      const detallesPrevios = await this.detalleVentaRepository.find({
+        where: { venta: { id_venta: id } },
+        relations: ['trabajo'],
+      });
+      const trabajosPrevios = detallesPrevios.map(detalle => detalle.trabajo.id_trabajo);
+  
+      // Extraer los IDs de los nuevos detalles enviados en el update (si hay)
+      const trabajosNuevos = detalleVentas && detalleVentas.length > 0
+        ? detalleVentas.map(detalle => detalle.id_trabajo)
+        : [];
+  
+      // Identificar los trabajos removidos (los que estaban antes y ya no se envían)
+      const trabajosRemovidos = trabajosPrevios.filter(
+        idTrabajo => !trabajosNuevos.includes(idTrabajo),
+      );
+  
+      // Actualizar el estado de los trabajos removidos a 'pendiente'
+      if (trabajosRemovidos.length > 0) {
+        await this.trabajoRepository.update(
+          { id_trabajo: In(trabajosRemovidos) },
+          { estado: 'pendiente' },
+        );
+      }
+  
+      // 2. Actualizar el personal, si se envía
       if (id_persona) {
-        const personal = await this.personalRepository.findOne({ where: { id_personal: id_persona } });
+        const personal = await this.personalRepository.findOne({
+          where: { id_personal: id_persona },
+        });
         if (!personal) {
           throw new NotFoundException(`Personal con ID "${id_persona}" no encontrado`);
         }
         venta.personal = personal;
       }
-
-      // Actualizar la venta
+  
+      // 3. Actualizar la información principal de la venta
       Object.assign(venta, ventaData);
       const updatedVenta = await this.ventaRepository.save(venta);
-
-      // Actualizar detalles (borrar y volver a insertar para simplificar)
-      if (detalleVentas && detalleVentas.length > 0) {
+  
+      // 4. Actualizar los detalles de la venta:
+      //    Se eliminan los detalles actuales y se reinserta el nuevo arreglo (si se envía)
+      if (detalleVentas) {
         await this.detalleVentaRepository.delete({ venta: { id_venta: id } });
-
-        const nuevosDetalles = detalleVentas.map((detalle) =>
-          this.detalleVentaRepository.create({
-            ...detalle,
-            venta: updatedVenta,
-          }),
-        );
-        await this.detalleVentaRepository.save(nuevosDetalles);
+  
+        if (detalleVentas.length > 0) {
+          // Para cada detalle, obtenemos la entidad Trabajo asociada
+          const nuevosDetalles = await Promise.all(
+            detalleVentas.map(async detalle => {
+              const trabajoEntity = await this.trabajoRepository.findOne({
+                where: { id_trabajo: detalle.id_trabajo },
+              });
+              if (!trabajoEntity) {
+                throw new NotFoundException(`Trabajo con ID "${detalle.id_trabajo}" no encontrado`);
+              }
+              return this.detalleVentaRepository.create({
+                trabajo: trabajoEntity, // Se asigna la entidad completa
+                venta: updatedVenta,
+              });
+            }),
+          );
+          await this.detalleVentaRepository.save(nuevosDetalles);
+        }
       }
-
+  
       return updatedVenta;
     } catch (error) {
       this.errorHandleService.errorHandle(error);

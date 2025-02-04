@@ -130,8 +130,6 @@ export class TrabajosService {
     }
   }
   
-
-
   async findAll(dto: FindAllTrabajoDto) {
     const { page, limit, search, sortField, sortOrder } = dto;
 

@@ -107,26 +107,22 @@ const emit = defineEmits<{
   (e: 'page-change', newPage: number): void;
 }>();
 
-// Calcula el número total de páginas
 const totalPages = computed(() => {
-  return Math.ceil(props.totalItems / 10); // Asumiendo itemsPerPageCompra = 10
+  return Math.ceil(props.totalItems / 10);
 });
 
-// Función para cambiar de página
 const changePage = (newPage: number) => {
   if (newPage >= 1 && newPage <= totalPages.value) {
     emit('page-change', newPage);
   }
 };
 
-// Función para formatear valores monetarios
 const formatCurrency = (value: number) => {
   return new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP' }).format(value);
 };
 </script>
 
 <style scoped>
-/* Estilos responsivos adicionales si es necesario */
 @media (max-width: 768px) {
   table {
     font-size: 0.875rem;

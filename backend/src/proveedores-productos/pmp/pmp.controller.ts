@@ -1,4 +1,11 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, BadRequestException, Query } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Query,
+  BadRequestException,
+} from '@nestjs/common';
 import { PmpService } from './pmp.service';
 import { CreatePmpDto } from './dto/create-pmp.dto';
 import { Auth } from 'src/auth/usuarios/decorators/get-usuario.decorator';
@@ -8,49 +15,37 @@ import { ValidRoles } from 'src/auth/usuarios/interfaces/valid-roles.interface';
 export class PmpController {
   constructor(private readonly pmpService: PmpService) {}
 
-@Post()
+  @Post()
   async createPmp(@Body() createPmpDto: CreatePmpDto) {
     return await this.pmpService.createPmp(
       createPmpDto.id_producto,
-      createPmpDto.cantidad,      
-      createPmpDto.concepto
+      createPmpDto.cantidad,
+      createPmpDto.concepto,
     );
   }
-  
-  @Get('compra')
-  @Auth(ValidRoles.admin)
-  async getPmpCompraData(
-    @Query('search') search: string,
-    @Query('page') page: string,
-    @Query('limit') limit: string,
-  ) {
-    const pageNumber = parseInt(page) || 1;
-    const limitNumber = parseInt(limit) || 10;
-    return await  this.pmpService.getPmpCompraData(search, pageNumber, limitNumber);
-  }
-  
-  @Get('venta')
-  @Auth(ValidRoles.admin)
-  async getPmpVentaData(
-    @Query('search') search: string,
-    @Query('page') page: string,
-    @Query('limit') limit: string,
-  ) {
-    const pageNumber = parseInt(page) || 1;
-    const limitNumber = parseInt(limit) || 10;
-    return await  this.pmpService.getPmpVentaData(search, pageNumber, limitNumber);;
-  }
 
-  @Get('neto')
+  @Get('pmpData')
   @Auth(ValidRoles.admin)
-  async getPmpNetoData(
+  async getPmpData(
+    @Query('tipo') tipo: string,     
     @Query('search') search: string,
     @Query('page') page: string,
     @Query('limit') limit: string,
   ) {
     const pageNumber = parseInt(page) || 1;
     const limitNumber = parseInt(limit) || 10;
-    return await  this.pmpService.getPmpNetoData(search, pageNumber, limitNumber);;
+
+    switch (tipo) {
+      case 'compra':
+        return await this.pmpService.getPmpData(tipo, search, pageNumber, limitNumber);
+      case 'venta':
+        return await this.pmpService.getPmpData(tipo, search, pageNumber, limitNumber);
+      case 'neto':
+        return await this.pmpService.getPmpData(tipo, search, pageNumber, limitNumber);
+      default:
+        throw new BadRequestException(
+          "El tipo de PMP debe ser 'compra', 'venta' o 'neto'.",
+        );
+    }
   }
-  
 }

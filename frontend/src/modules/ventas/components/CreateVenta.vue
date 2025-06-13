@@ -241,13 +241,7 @@ const closeModal = () => {
 };
 
 const onSubmit = async () => {
-  const isValid = await v$.value.$validate();
-  if (!isValid) {
-    toast.error('Por favor revisa los campos marcados en rojo.');
-    return;
-  }
-
-  try {
+    try {
     const response = await createVenta({
       monto_total: formData.value.monto_total,
       id_persona: formData.value.id_persona,

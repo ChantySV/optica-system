@@ -1,62 +1,80 @@
-import { BadRequestException, Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
-import { CreatePmpDto } from './dto/create-pmp.dto';
-import { UpdatePmpDto } from './dto/update-pmp.dto';
+import {
+  BadRequestException,
+  Injectable,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { ConceptoEnum, Pmp } from './entities/pmp.entity';
 import { Repository } from 'typeorm';
-import { ErrorHandleService } from 'src/common/services/error-handle/error-handle.service';
+import { ConceptoEnum, Pmp } from './entities/pmp.entity';
 import { Producto } from '../productos/entities/producto.entity';
 
 @Injectable()
 export class PmpService {
-
   constructor(
     @InjectRepository(Pmp)
     private readonly pmpRepository: Repository<Pmp>,
 
     @InjectRepository(Producto)
     private readonly productoRepository: Repository<Producto>,
-
-    private readonly errorHandleService: ErrorHandleService,
-
-  ) { }
+  ) {}
 
   async createPmp(id_producto: string, cantidad: number, concepto: ConceptoEnum): Promise<Pmp> {
-    try {
-      // Verificar si el producto existe
-      const producto = await this.productoRepository.findOne({ where: { id_producto } });
+    const producto = await this.productoRepository.findOne({ where: { id_producto } });
+    if (!producto) {
+      throw new BadRequestException('El producto no existe.');
+    }
 
-      if (!producto) {
-        throw new BadRequestException('El producto no existe.');
-      }
+    const precio_unitario =
+      concepto === ConceptoEnum.VENTA
+        ? producto.precio_venta
+        : producto.precio_compra;
 
-      let precio = producto.precio_compra;  
-      if (concepto === ConceptoEnum.VENTA) {          
-        precio = producto.precio_venta
-      }
-      
-      const nuevoPmp = this.pmpRepository.create({
-        producto,
-        cantidad,
-        concepto,
-        precio,
-      });
+    const valor_total = precio_unitario * cantidad;
 
-      return await this.pmpRepository.save(nuevoPmp);
-    } catch (error) {
-      console.error('Error al crear el PMP:', error);
-      throw new BadRequestException('No se pudo crear el registro PMP.');
+    const nuevoPmp = this.pmpRepository.create({
+      producto,
+      cantidad,
+      concepto,
+      precio_unitario,
+      valor_total,
+    });
+
+    return await this.pmpRepository.save(nuevoPmp);
+  }
+
+  async getPmpData(
+    tipo: 'compra' | 'venta' | 'neto',
+    searchQuery: string,
+    page: number,
+    limit: number,
+  ) {
+    switch (tipo) {
+      case 'compra':
+        return this.getCompraOVentaData(ConceptoEnum.COMPRA, searchQuery, page, limit);
+      case 'venta':
+        return this.getCompraOVentaData(ConceptoEnum.VENTA, searchQuery, page, limit);
+      case 'neto':
+        return this.getNetoData(searchQuery, page, limit);
+      default:
+        throw new BadRequestException('Tipo de PMP inválido. Debe ser compra, venta o neto.');
     }
   }
 
-  async getPmpCompraData(searchQuery: string, page: number, limit: number) {
+  private async getCompraOVentaData(
+    concepto: ConceptoEnum,
+    searchQuery: string,
+    page: number,
+    limit: number,
+  ) {
     try {
-      const query = this.pmpRepository.createQueryBuilder('pmp')
+      const query = this.pmpRepository
+        .createQueryBuilder('pmp')
         .leftJoinAndSelect('pmp.producto', 'producto')
-        .where('pmp.concepto = :concepto', { concepto: 'compra' });
+        .where('pmp.concepto = :concepto', { concepto });
 
       if (searchQuery) {
-        query.andWhere('producto.nombre ILIKE :search', { search: `%${searchQuery}%` });
+        query.andWhere('producto.nombre ILIKE :search', {
+          search: `%${searchQuery}%`,
+        });
       }
 
       query.orderBy('pmp.fecha', 'ASC')
@@ -69,79 +87,55 @@ export class PmpService {
 
       return { ok: true, data: formattedData, total };
     } catch (error) {
-      console.error('Error obteniendo PMP Compra:', error);
-      return { ok: false, message: 'No se pudo obtener la información de PMP Compra.' };
+      console.error('Error obteniendo PMP:', error);
+      return { ok: false, message: 'No se pudo obtener la información.' };
     }
   }
 
-  // Método para obtener datos PMP con concepto 'venta'
-  async getPmpVentaData(searchQuery: string, page: number, limit: number) {
-    try {
-      const query = this.pmpRepository.createQueryBuilder('pmp')
-        .leftJoinAndSelect('pmp.producto', 'producto')
-        .where('pmp.concepto = :concepto', { concepto: 'venta' });
-
-      if (searchQuery) {
-        query.andWhere('producto.nombre ILIKE :search', { search: `%${searchQuery}%` });
-      }
-
-      query.orderBy('pmp.fecha', 'ASC')
-        .skip((page - 1) * limit)
-        .take(limit);
-
-      const [data, total] = await query.getManyAndCount();
-
-      const formattedData = this.formatPmpDataByProduct(data);
-
-      return { ok: true, data: formattedData, total };
-    } catch (error) {
-      console.error('Error obteniendo PMP Venta:', error);
-      return { ok: false, message: 'No se pudo obtener la información de PMP Venta.' };
-    }
-  }
-  
- // Método para obtener datos Neto PMP con paginación
- async getPmpNetoData(
+private async getNetoData(
   searchQuery: string,
   page: number,
-  limit: number
-){
+  limit: number,
+) {
   try {
+    const dateFormat = "TO_CHAR(pmp.fecha, 'Month YYYY')";
+
     const query = this.pmpRepository.createQueryBuilder('pmp')
       .leftJoin('pmp.producto', 'producto');
 
     if (searchQuery) {
-      query.where('producto.nombre ILIKE :search', { search: `%${searchQuery}%` });
+      query.where('producto.nombre ILIKE :search', {
+        search: `%${searchQuery}%`,
+      });
     }
 
-    // Consulta para obtener los datos agregados
     const results = await query
-      .select("TO_CHAR(pmp.fecha, 'Month YYYY')", 'mesAno')
+      .select(`${dateFormat}`, 'mesAno')
       .addSelect(`SUM(CASE WHEN pmp.concepto = 'compra' THEN pmp.cantidad ELSE 0 END)`, 'compras')
       .addSelect(`SUM(CASE WHEN pmp.concepto = 'venta' THEN pmp.cantidad ELSE 0 END)`, 'ventas')
-      .addSelect(`SUM(CASE WHEN pmp.concepto = 'compra' THEN (pmp.precio * pmp.cantidad) ELSE 0 END)`, 'comprasTotales')
-      .addSelect(`SUM(CASE WHEN pmp.concepto = 'venta' THEN (pmp.precio * pmp.cantidad) ELSE 0 END)`, 'ventasTotales')
-      .groupBy('"mesAno"') // Asegúrate de usar comillas dobles para el alias
+      .addSelect(`SUM(CASE WHEN pmp.concepto = 'compra' THEN pmp.valor_total ELSE 0 END)`, 'comprasTotales')
+      .addSelect(`SUM(CASE WHEN pmp.concepto = 'venta' THEN pmp.valor_total ELSE 0 END)`, 'ventasTotales')
+      .groupBy(`${dateFormat}`)
       .orderBy('MIN(pmp.fecha)', 'ASC')
       .skip((page - 1) * limit)
       .take(limit)
       .getRawMany();
 
-    // Consulta para obtener el total de registros agrupados
     const totalQuery = this.pmpRepository.createQueryBuilder('pmp')
       .leftJoin('pmp.producto', 'producto');
 
     if (searchQuery) {
-      totalQuery.where('producto.nombre ILIKE :search', { search: `%${searchQuery}%` });
+      totalQuery.where('producto.nombre ILIKE :search', {
+        search: `%${searchQuery}%`,
+      });
     }
 
     const total = await totalQuery
-      .select("TO_CHAR(pmp.fecha, 'Month YYYY')", 'mesAno')
-      .groupBy('"mesAno"') // Igual que arriba
+      .select(`${dateFormat}`, 'mesAno')
+      .groupBy(`${dateFormat}`)
       .getCount();
 
-    // Formatear los resultados
-    const formattedData = results.map(item => ({
+    const formattedData = results.map((item) => ({
       mesAno: item.mesAno.trim(),
       compras: parseInt(item.compras, 10),
       ventas: parseInt(item.ventas, 10),
@@ -156,7 +150,8 @@ export class PmpService {
     return { ok: false, message: 'No se pudo obtener la información de PMP Neto.' };
   }
 }
-  
+
+
   private formatPmpDataByProduct(pmpEntries: Pmp[]) {
     const groupedData: Record<string, Record<string, any[]>> = {};
 
@@ -177,8 +172,8 @@ export class PmpService {
         fecha: fecha.toLocaleDateString('es-ES'),
         concepto: entry.concepto,
         cantidad: entry.cantidad,
-        valor_unidad: entry.precio,
-        valor_total: entry.precio * entry.cantidad,
+        valor_unidad: entry.precio_unitario,
+        valor_total: entry.valor_total,
       });
     });
 
@@ -190,5 +185,4 @@ export class PmpService {
       })),
     }));
   }
-
 }

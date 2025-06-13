@@ -1,33 +1,35 @@
-// src/interfaces/pmp.interface.ts
-
-export interface EntradaPmp {
-  fecha: string; // Fecha específica del registro, formato: 'dd/mm/yyyy'
-  concepto: string;
-  cantidad: number;
-  valor_unidad: number;
-  valor_total: number;
+export interface PmpResponse {
+    ok:    boolean;
+    data:  Datum[];
+    total: number;
 }
 
-export interface MesAno {
-  fecha: string; // Formato: 'Mes Año' (e.g., 'Enero 2023')
-  entradas: EntradaPmp[];
+export interface Datum {
+    producto: string;
+    meses:    Mese[];
 }
 
-export interface PmpCompraData {
-  producto: string;
-  meses: MesAno[];
+export interface Mese {
+    fecha:    MeseFecha;
+    entradas: Entrada[];
 }
 
-export interface PmpVentaData {
-  producto: string;
-  meses: MesAno[];
+export interface Entrada {
+    fecha:        EntradaFecha;
+    concepto:     Concepto;
+    cantidad:     number;
+    valor_unidad: string;
+    valor_total:  string;
 }
 
-export interface NetoPmp {
-  mesAno: string;
-  compras: number;
-  ventas: number;
-  comprasTotales: number;
-  ventasTotales: number;
-  balanceNeto: number;
+export enum Concepto {
+    Compra = "compra",
+}
+
+export enum EntradaFecha {
+    The3152025 = "31/5/2025",
+}
+
+export enum MeseFecha {
+    MayoDe2025 = "Mayo de 2025",
 }

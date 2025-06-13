@@ -1,192 +1,82 @@
-<!-- src/components/PmpList.vue -->
-
 <template>
-  <div class="container mx-auto p-6 bg-gray-50 rounded-lg shadow-md space-y-8 mb-20">
-    <!-- Título principal -->
-    <h1 class="text-3xl font-bold text-gray-800 text-center">Compras, Ventas y Valor Neto</h1>
+  <div class="p-4 space-y-4">
+    <div class="flex justify-between items-center">
+      <select v-model="tipo" class="border px-3 py-1 rounded">
+        <option value="compra">Compras</option>
+        <option value="venta">Ventas</option>
+        <option value="neto">Neto</option>
+      </select>
 
-    <!-- Barra de búsqueda -->
-    <div class="flex flex-col md:flex-row items-center justify-between space-y-4 md:space-y-0 md:space-x-4">
       <input
-        type="text"
         v-model="searchQuery"
-        placeholder="Buscar por nombre de producto"
-        class="border border-gray-300 rounded-lg px-4 py-2 w-full md:w-1/2 focus:ring focus:ring-blue-300"
+        type="text"
+        placeholder="Buscar producto"
+        class="border px-3 py-1 rounded w-1/3"
       />
-      <button
-        @click="fetchData"
-        class="px-6 py-3 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-all"
-      >
-        Buscar
-      </button>
     </div>
 
-    <!-- Compras -->
-    <CompraPmpTable
-      :pmpData="pmpCompraData"
-      :loading="loadingCompra"
-      :error="errorCompra"
-      :currentPage="currentPageCompra"
-      :totalItems="totalCompra"
-      @page-change="handlePageChangeCompra"
+    <PmpTable
+      :tipo="tipo"
+      :searchQuery="searchQuery"
+      :pmpData="pmpData"
+      :loading="loading"
+      :error="error"
+      :page="currentPage"
+      :limit="itemsPerPage"
     />
 
-    <!-- Ventas -->
-    <VentaPmpTable
-      :pmpData="pmpVentaData"
-      :loading="loadingVenta"
-      :error="errorVenta"
-      :currentPage="currentPageVenta"
-      :totalItems="totalVenta"
-      @page-change="handlePageChangeVenta"
-    />
-
-    <!-- Neto PMP -->
-    <NetoPmpTable
-      :pmpData="pmpNetoData"
-      :loading="loadingNeto"
-      :error="errorNeto"
-      :currentPage="currentPageNeto"
-      :totalItems="totalNeto"
-      @page-change="handlePageChangeNeto"
-    />
+    <div v-if="totalPages > 1" class="flex justify-end space-x-2 mt-4">
+      <button
+        v-for="page in totalPages"
+        :key="page"
+        @click="currentPage = page"
+        :class="[
+          'px-3 py-1 border rounded',
+          currentPage === page ? 'bg-blue-500 text-white' : 'bg-white text-black'
+        ]"
+      >
+        {{ page }}
+      </button>
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
-import { getPmpCompraData, getPmpVentaData, getPmpNetoData } from '../actions/admin-pmp.action';
-import type { PmpCompraData, PmpVentaData, NetoPmp } from '../interfaces/pmpResponse.interface';
-import { useToast } from 'vue-toastification';
-import CompraPmpTable from '../components/pmp/ListaPmpCompra.vue';
-import VentaPmpTable from '../components/pmp/ListaPmpVenta.vue';
-import NetoPmpTable from '../components/pmp/ListaPmpTotal.vue';
+import { ref, watch, computed } from 'vue'
+import PmpTable from '../components/pmp/ListaPmp.vue'
+import { getPmp } from '../actions/admin-pmp.action'
+import type { PmpResponse } from '../interfaces/Pmp.type'
 
-const searchQuery = ref('');
+const tipo = ref<'compra' | 'venta' | 'neto'>('neto')
+const searchQuery = ref('')
+const currentPage = ref(1)
+const itemsPerPage = 10
 
-const pmpCompraData = ref<PmpCompraData[]>([]);
-const pmpVentaData = ref<PmpVentaData[]>([]);
-const pmpNetoData = ref<NetoPmp[]>([]);
-
-const loadingCompra = ref(false);
-const loadingVenta = ref(false);
-const loadingNeto = ref(false);
-const errorCompra = ref<string | null>(null);
-const errorVenta = ref<string | null>(null);
-const errorNeto = ref<string | null>(null);
-
-const currentPageCompra = ref(1);
-const totalCompra = ref(0);
-const itemsPerPageCompra = 10;
-
-const currentPageVenta = ref(1);
-const totalVenta = ref(0);
-const itemsPerPageVenta = 10;
-
-const currentPageNeto = ref(1);
-const totalNeto = ref(0);
-const itemsPerPageNeto = 10;
-
-const toast = useToast();
+const pmpData = ref<PmpResponse['data']>([])
+const totalItems = ref(0)
+const loading = ref(false)
+const error = ref<string | null>(null)
 
 const fetchData = async () => {
-  // Compras
-  loadingCompra.value = true;
-  errorCompra.value = null;
-
+  loading.value = true
+  error.value = null
   try {
-    const compraResponse = await getPmpCompraData(searchQuery.value, currentPageCompra.value, itemsPerPageCompra);
-    if (compraResponse.ok) {
-      pmpCompraData.value = compraResponse.data;
-      totalCompra.value = compraResponse.total;
+    const response = await getPmp(tipo.value, searchQuery.value, currentPage.value, itemsPerPage)
+    if (response.ok) {
+      pmpData.value = response.data
+      totalItems.value = response.total
     } else {
-      errorCompra.value = compraResponse.message || 'Error al cargar datos de compras.';
-      toast.error(errorCompra.value);
+      error.value = 'Error al obtener los datos.'
+      console.log(error);
     }
-  } catch (error) {
-    console.error(error);
-    errorCompra.value = 'Error al cargar datos de compras.';
-    toast.error(errorCompra.value);
+  } catch (e) {
+    error.value = 'Error de red.'
   } finally {
-    loadingCompra.value = false;
-  }
-
-  // Ventas
-  loadingVenta.value = true;
-  errorVenta.value = null;
-
-  try {
-    const ventaResponse = await getPmpVentaData(searchQuery.value, currentPageVenta.value, itemsPerPageVenta);
-    if (ventaResponse.ok) {
-      pmpVentaData.value = ventaResponse.data;
-      totalVenta.value = ventaResponse.total;
-    } else {
-      errorVenta.value = ventaResponse.message || 'Error al cargar datos de ventas.';
-      toast.error(errorVenta.value);
-    }
-  } catch (error) {
-    console.error(error);
-    errorVenta.value = 'Error al cargar datos de ventas.';
-    toast.error(errorVenta.value);
-  } finally {
-    loadingVenta.value = false;
-  }
-
-  // Neto PMP
-  loadingNeto.value = true;
-  errorNeto.value = null;
-
-  try {
-    const netoResponse = await getPmpNetoData(searchQuery.value, currentPageNeto.value, itemsPerPageNeto);
-    if (netoResponse.ok) {
-      pmpNetoData.value = netoResponse.data;
-      totalNeto.value = netoResponse.total;
-    } else {
-      errorNeto.value = netoResponse.message || 'Error al cargar datos netos de PMP.';
-      toast.error(errorNeto.value);
-    }
-  } catch (error) {
-    console.error(error);
-    errorNeto.value = 'Error al cargar datos netos de PMP.';
-    toast.error(errorNeto.value);
-  } finally {
-    loadingNeto.value = false;
-  }
-};
-
-// Manejo de cambios de página para Compras
-const handlePageChangeCompra = (newPage: number) => {
-  currentPageCompra.value = newPage;
-  fetchData();
-};
-
-// Manejo de cambios de página para Ventas
-const handlePageChangeVenta = (newPage: number) => {
-  currentPageVenta.value = newPage;
-  fetchData();
-};
-
-// Manejo de cambios de página para Neto PMP
-const handlePageChangeNeto = (newPage: number) => {
-  currentPageNeto.value = newPage;
-  fetchData();
-};
-
-// Cargar datos al montar el componente
-onMounted(() => {
-  fetchData();
-});
-</script>
-
-<style scoped>
-/* Estilos adicionales para mejorar la responsividad */
-@media (max-width: 768px) {
-  .container {
-    padding: 1rem;
-  }
-  button {
-    padding: 0.5rem 1rem;
-    font-size: 0.875rem;
+    loading.value = false
   }
 }
-</style>
+
+const totalPages = computed(() => Math.ceil(totalItems.value / itemsPerPage))
+
+watch([tipo, searchQuery, currentPage], fetchData, { immediate: true })
+</script>

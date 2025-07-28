@@ -172,7 +172,6 @@ export class PersonalService {
         where: [
           {
             activo: true,
-            // Se asegura de que la búsqueda no sea sensible a mayúsculas/minúsculas
             nombres: ILike(`%${search.toLowerCase()}%`),
           },
           {

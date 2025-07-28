@@ -89,7 +89,6 @@ export class UsuariosService {
       };
     } catch (error) {
       this.errorHandleService.errorHandle(error);
-      // Retornar una respuesta consistente en caso de error
       return {
         ok: false,
         data: null,
@@ -112,7 +111,6 @@ export class UsuariosService {
         .leftJoinAndSelect('usuario.role', 'role')
         .leftJoinAndSelect('usuario.personal', 'personal');
 
-      // Aplicar filtros
       if (filterUsuarioDto.nombre_usuario) {
         query.andWhere('usuario.nombre_usuario ILIKE :nombre_usuario', { nombre_usuario: `%${filterUsuarioDto.nombre_usuario}%` });
       }
@@ -191,7 +189,6 @@ export class UsuariosService {
 
   async update(id_usuario: string, updateUsuarioDto: UpdateUsuarioDto): Promise<{ ok: boolean; data: any }> {
     try {
-      // Verificar si el usuario existe
       const usuario = await this.usuarioRepository.findOne({
         where: { id_usuario },
         relations: ['role', 'personal'],
@@ -201,7 +198,6 @@ export class UsuariosService {
         throw new NotFoundException(`Usuario con ID "${id_usuario}" no encontrado`);
       }
 
-      // Verificar si el nombre de usuario ya está en uso por otro usuario
       if (updateUsuarioDto.nombre_usuario && updateUsuarioDto.nombre_usuario !== usuario.nombre_usuario) {
         const existingUsuario = await this.usuarioRepository.findOne({
           where: { nombre_usuario: updateUsuarioDto.nombre_usuario },
@@ -211,15 +207,12 @@ export class UsuariosService {
         }
       }
 
-      // Actualizar los campos
       usuario.nombre_usuario = updateUsuarioDto.nombre_usuario || usuario.nombre_usuario;
       usuario.role = updateUsuarioDto.id_rol ? { id_rol: updateUsuarioDto.id_rol } as any : usuario.role;
       usuario.personal = updateUsuarioDto.id_personal ? { id_personal: updateUsuarioDto.id_personal } as any : usuario.personal;      
 
-      // Guardar los cambios
       const updatedUsuario = await this.usuarioRepository.save(usuario);
 
-      // Mapea los datos para la respuesta, excluyendo el ID
       const data = {
         nombre_usuario: updatedUsuario.nombre_usuario,
         activo: updatedUsuario.activo,

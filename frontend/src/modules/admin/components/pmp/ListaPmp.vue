@@ -87,11 +87,92 @@ defineProps<{
 </script>
 
 <style scoped>
+/* Tablas */
 table {
   border-collapse: collapse;
+  width: 100%;
+  background-color: white;
+  border-radius: 0.5rem;
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
+
 th,
 td {
   border: 1px solid #ddd;
+  padding: 0.75rem 1rem;
+  text-align: left;
+  color: #374151; /* text-gray-700 */
+  font-size: 0.875rem; /* text-sm */
+}
+
+thead th {
+  background-color: #e5e7eb; /* bg-gray-200 */
+  text-transform: uppercase;
+  font-weight: 600;
+  color: #374151;
+}
+
+tbody tr:hover {
+  background-color: #f3f4f6; /* hover:bg-gray-100 */
+  transition: background-color 0.2s ease-in-out;
+}
+
+h2 {
+  font-size: 1.25rem; /* text-xl */
+  font-weight: 700;
+  color: #1f2937; /* text-gray-800 */
+}
+
+h3 {
+  font-weight: 600;
+  color: #4b5563; /* text-gray-700 */
+  margin-bottom: 0.5rem;
+}
+
+/* Cajas */
+.bg-gray-50 {
+  background-color: #f9fafb;
+}
+
+.border {
+  border: 1px solid #e5e7eb;
+}
+
+.rounded-xl {
+  border-radius: 0.75rem;
+}
+
+.shadow-sm {
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.p-4 {
+  padding: 1rem;
+}
+
+.mb-2 {
+  margin-bottom: 0.5rem;
+}
+
+/* Textos */
+.text-center {
+  text-align: center;
+}
+
+.text-gray-600 {
+  color: #4b5563;
+}
+
+.text-red-500 {
+  color: #ef4444;
+}
+
+.font-bold {
+  font-weight: 700;
+}
+
+.font-semibold {
+  font-weight: 600;
 }
 </style>

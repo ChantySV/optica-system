@@ -25,12 +25,12 @@ export const getValidationRules = () => ({
   },
 
   id_rol: {
-    required: helpers.withMessage("El ID del rol es obligatorio.", required),
+    required: helpers.withMessage("El rol es obligatorio.", required),
     uuid,
   },
 
   id_personal: {
-    required: helpers.withMessage("El ID del personal es obligatorio.", required),
+    required: helpers.withMessage("El personal es obligatorio.", required),
     uuid,
   },
 });

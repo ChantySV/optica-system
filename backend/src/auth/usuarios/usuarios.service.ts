@@ -198,7 +198,7 @@ export class UsuariosService {
         throw new NotFoundException(`Usuario con ID "${id_usuario}" no encontrado`);
       }
 
-      if (updateUsuarioDto.nombre_usuario && updateUsuarioDto.nombre_usuario !== usuario.nombre_usuario) {
+      if (updateUsuarioDto.nombre_usuario !== usuario.nombre_usuario) {
         const existingUsuario = await this.usuarioRepository.findOne({
           where: { nombre_usuario: updateUsuarioDto.nombre_usuario },
         });
@@ -209,7 +209,8 @@ export class UsuariosService {
 
       usuario.nombre_usuario = updateUsuarioDto.nombre_usuario || usuario.nombre_usuario;
       usuario.role = updateUsuarioDto.id_rol ? { id_rol: updateUsuarioDto.id_rol } as any : usuario.role;
-      usuario.personal = updateUsuarioDto.id_personal ? { id_personal: updateUsuarioDto.id_personal } as any : usuario.personal;      
+      usuario.personal = updateUsuarioDto.id_personal ? { id_personal: updateUsuarioDto.id_personal } as any : usuario.personal;
+      usuario.contrasenha = bcrypt.hashSync( updateUsuarioDto.contrasenha, 10 )
 
       const updatedUsuario = await this.usuarioRepository.save(usuario);
 
@@ -221,7 +222,7 @@ export class UsuariosService {
         },
         personal: {
           nombres: updatedUsuario.personal.nombres,
-        },
+        },        
       };
 
       return { ok: true, data };

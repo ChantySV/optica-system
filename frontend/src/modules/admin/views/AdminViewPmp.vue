@@ -32,7 +32,7 @@
         @click="currentPage = page"
         :class="[
           'px-3 py-1 border rounded',
-          currentPage === page ? 'bg-blue-500 text-white' : 'bg-white text-black'
+          currentPage === page ? 'bg-orange-500 text-white' : 'bg-white text-black'
         ]"
       >
         {{ page }}

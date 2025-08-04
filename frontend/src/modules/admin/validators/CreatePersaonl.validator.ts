@@ -1,4 +1,4 @@
-import { required, email, numeric, helpers } from "@vuelidate/validators";
+import { required, email, helpers } from "@vuelidate/validators";
 
 const onlyLetters = helpers.withMessage(
   "Solo se permiten letras.",

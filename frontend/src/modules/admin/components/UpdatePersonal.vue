@@ -1,7 +1,7 @@
 <template>
   <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
     <div class="bg-white p-6 rounded-lg shadow-lg w-full max-w-lg">
-      <h2 class="text-2xl font-semibold text-gray-800 mb-4">Actualizar Persona Jurídica</h2>
+      <h2 class="text-2xl font-semibold text-gray-800 mb-4">Actualizar Persona</h2>
 
       <form @submit.prevent="submitUpdate">
         <!-- Nombres -->
@@ -55,7 +55,7 @@
           <input
             id="email"
             v-model="form.email"
-            type="email"
+            type="text"
             class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-orange-500 focus:outline-none"
             placeholder="Ingrese un email válido"
           />

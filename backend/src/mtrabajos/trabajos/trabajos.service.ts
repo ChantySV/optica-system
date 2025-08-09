@@ -362,11 +362,14 @@ export class TrabajosService {
   }
   
 
-  async remove(id: string): Promise<Trabajo> {
+  async remove(id: string) {
     try {
-      const trabajo = await this.findOne(id);
+      const trabajo = await this.trabajoRepository.findOne({
+        where: { id_trabajo: id },
+        relations: ['detalleTrabajo', 'personal', 'detalleTrabajo.producto'],
+      });
       
-      if (!trabajo || !trabajo.detalleTrabajo || !trabajo.detalleTrabajo.producto) {
+      if (!trabajo) {
         throw new NotFoundException(`Trabajo o detalles no encontrados para ID "${id}"`);
       }
   
@@ -376,7 +379,11 @@ export class TrabajosService {
       await this.productoRepository.save(producto);
   
       trabajo.activo = false;
-      return await this.trabajoRepository.save(trabajo);
+      await this.trabajoRepository.save(trabajo);
+      return {
+        "ok": true,
+        "message": "Trabajo eliminado correctamente",
+      }
     } catch (error) {
       console.error('Error al eliminar el trabajo:', error);
       this.errorHandleService.errorHandle(error);

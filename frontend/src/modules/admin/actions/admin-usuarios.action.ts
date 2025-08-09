@@ -1,6 +1,37 @@
 import { backendApi } from "@/api/backendApi";
 import type { UsuariosResponse } from "../interfaces/usuariosResponse.interface";
 
+
+export const updateUsuario = async (
+  id_usuario: string,
+  payload: any,
+): Promise<{
+  ok: boolean;
+  data?: any;
+  message?: string;
+}> => {
+  try {
+    const response = await backendApi.patch(`/usuarios/${id_usuario}`, payload);
+
+    if (response.data?.ok) {
+      return {
+        ok: true,
+        data: response.data.data,
+      };
+    }
+
+    return {
+      ok: false,
+      message: response.data?.message || 'Ocurrió un error inesperado.',
+    };
+  } catch (error: any) {
+    return {
+      ok: false,
+      message: error.response?.data?.message || 'Error al actualizar el usuario.',
+    };
+  }
+};
+
 export const findAllUsuarios = async (
   page: number = 1,
   limit: number = 10,

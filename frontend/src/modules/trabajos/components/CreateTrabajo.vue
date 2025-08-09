@@ -99,12 +99,32 @@
           </div>
         </div>
 
+        <!-- Ejes en dos columnas -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div>
+            <label class="block text-gray-700">Eje Derecho:</label>
+            <input type="number" step="0.01" v-model.number="form.detalleTrabajo.eje_derecho"
+              class="w-full px-3 py-2 border rounded" />
+            <p v-if="v$.detalleTrabajo.eje_derecho.$error" class="text-red-500 text-sm">
+              {{ v$.detalleTrabajo.eje_derecho.$errors[0].$message }}
+            </p>
+          </div>
+           <div>
+            <label class="block text-gray-700">Eje Izquierdo:</label>
+            <input type="number" step="0.01" v-model.number="form.detalleTrabajo.eje_izquierdo"
+              class="w-full px-3 py-2 border rounded" />
+            <p v-if="v$.detalleTrabajo.eje_izquierdo.$error" class="text-red-500 text-sm">
+              {{ v$.detalleTrabajo.eje_izquierdo.$errors[0].$message }}
+            </p>
+          </div>
+        </div>
+
         <!-- Producto, Color y Tratamiento en una sola fila -->
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-4">
           <div>
             <label class="block text-gray-700">Producto:</label>
             <select v-model="form.detalleTrabajo.id_producto" class="w-full px-3 py-2 border rounded">
-              <option value="" disabled>Seleccione un producto</option>
+              <option value="">Seleccione un producto</option>
               <option v-for="producto in productosOptions" :key="producto.id_producto" :value="producto.id_producto">
                 {{ producto.nombre }}
               </option>
@@ -117,7 +137,7 @@
           <div>
             <label class="block text-gray-700">Color:</label>
             <select v-model="form.detalleTrabajo.id_color" class="w-full px-3 py-2 border rounded">
-              <option value="" disabled>Seleccione un color (opcional)</option>
+              <option value="">Seleccione un color (opcional)</option>
               <option v-for="color in coloresOptions" :key="color.id_color" :value="color.id_color">
                 {{ color.nombre }}
               </option>

@@ -99,6 +99,26 @@
           </div>
         </div>
 
+        <!-- Ejes en dos columnas -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div>
+            <label class="block text-gray-700">Eje Derecho:</label>
+            <input type="number" v-model.number="form.detalleTrabajo.eje_derecho"
+              class="w-full px-3 py-2 border rounded" />
+            <p v-if="v$.detalleTrabajo.eje_derecho.$error" class="text-red-500 text-sm">
+              {{ v$.detalleTrabajo.eje_derecho.$errors[0].$message }}
+            </p>
+          </div>
+           <div>
+            <label class="block text-gray-700">Eje Izquierdo:</label>
+            <input type="number" v-model.number="form.detalleTrabajo.eje_izquierdo"
+              class="w-full px-3 py-2 border rounded" />
+            <p v-if="v$.detalleTrabajo.eje_izquierdo.$error" class="text-red-500 text-sm">
+              {{ v$.detalleTrabajo.eje_izquierdo.$errors[0].$message }}
+            </p>
+          </div>
+        </div>
+
         <!-- Producto, Color y Tratamiento en una sola fila -->
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-4">
           <div>

@@ -117,7 +117,6 @@ export class TrabajosService {
       } else {
         throw new Error(`No hay suficiente stock para realizar el trabajo.`);
       }
-        await this.pmpService.createPmp(producto.id_producto, 2, ConceptoEnum.VENTA);
         return savedTrabajo;
     } catch (error) {
       // console.log(error);

@@ -69,7 +69,9 @@ export class PmpService {
       const query = this.pmpRepository
         .createQueryBuilder('pmp')
         .leftJoinAndSelect('pmp.producto', 'producto')
-        .where('pmp.concepto = :concepto', { concepto });
+        .where('pmp.concepto = :concepto', { concepto })
+        .andWhere('producto.activo = true');
+
 
       if (searchQuery) {
         query.andWhere('producto.nombre ILIKE :search', {
@@ -106,8 +108,12 @@ private async getNetoData(
     if (searchQuery) {
       query.where('producto.nombre ILIKE :search', {
         search: `%${searchQuery}%`,
-      });
+      })
+        .andWhere('producto.activo = true');
+    } else {
+      query.where('producto.activo = true');
     }
+
 
     const results = await query
       .select(`${dateFormat}`, 'mesAno')

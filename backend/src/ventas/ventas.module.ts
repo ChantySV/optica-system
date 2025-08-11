@@ -11,6 +11,8 @@ import { PersonalModule } from 'src/personal/personal.module';
 import { TrabajosModule } from 'src/mtrabajos/trabajos/trabajos.module';
 import { UsuariosModule } from 'src/auth/usuarios/usuarios.module';
 import { AuthModule } from 'src/auth/auth.module';
+import { Pmp } from 'src/proveedores-productos/pmp/entities/pmp.entity';
+import { PmpModule } from 'src/proveedores-productos/pmp/pmp.module';
 
 @Module({
   imports:[ 
@@ -18,7 +20,8 @@ import { AuthModule } from 'src/auth/auth.module';
     CommonModule,
     PersonalModule,    
     TrabajosModule,
-    AuthModule
+    AuthModule,
+    PmpModule,
   ],  
   controllers: [ VentasController ],
   providers: [ VentasService ],

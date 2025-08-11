@@ -12,6 +12,8 @@ import { Usuario } from 'src/auth/usuarios/entities/usuario.entity';
 import { PaginationDto } from 'src/common/pagination-dto';
 import { QueryGetDto } from 'src/common/QueryGet-dto';
 import { QueryVentaDto } from './dto/query-venta.dto';
+import { PmpService } from 'src/proveedores-productos/pmp/pmp.service';
+import { ConceptoEnum } from 'src/proveedores-productos/pmp/entities/pmp.entity';
 
 @Injectable()
 export class VentasService {
@@ -28,69 +30,78 @@ export class VentasService {
     @InjectRepository(Trabajo)
     private readonly trabajoRepository: Repository<Trabajo>,
 
+    private readonly pmpService: PmpService,
+    
     private readonly errorHandleService: ErrorHandleService,
   ) { }
 
-  async create(createVentaDto: CreateVentaDto, user: Usuario) {
-    try {
-      const { monto_total, id_persona, detalleVentas } = createVentaDto;
-  
-      const personal = await this.personalRepository.findOne({ where: { id_personal: id_persona } });
-      if (!personal) {
-        throw new NotFoundException(`El personal con ID "${id_persona}" no fue encontrado.`);
-      }
-  
-      if (!detalleVentas || detalleVentas.length === 0) {
-        throw new BadRequestException('Debe incluir al menos un detalle de venta.');
-      }
-  
-      const trabajos = [];
-  
-      for (const detalle of detalleVentas) {
-        const trabajo = await this.trabajoRepository.findOne({
-          where: { id_trabajo: detalle.id_trabajo },
-        });
-  
-        if (!trabajo) {
-          throw new NotFoundException(`El trabajo con ID "${detalle.id_trabajo}" no fue encontrado.`);
-        }
-  
-        if (trabajo.detalleVenta) {
-          throw new BadRequestException(`El trabajo con ID "${trabajo.id_trabajo}" ya está asociado a una venta.`);
-        }
-  
-        trabajos.push(trabajo);
-  
-        trabajo.estado = 'entregado';
-  
-        await this.trabajoRepository.save(trabajo);
-      }
-  
-      const venta = this.ventaRepository.create({
-        personal,
-        usuario: user,
-        monto_total: parseFloat(monto_total.toFixed(2)),
-      });
-  
-      const savedVenta = await this.ventaRepository.save(venta);
-  
-      for (const trabajo of trabajos) {
-        const nuevoDetalle = this.detalleVentaRepository.create({
-          trabajo,
-          venta: savedVenta,
-        });
-  
-        await this.detalleVentaRepository.save(nuevoDetalle);
-      }
-  
-      return savedVenta;
-    } catch (error) {
-      this.errorHandleService.errorHandle(error);
-      throw new BadRequestException('Hubo un error al crear la venta.');
-    }
-  }
+async create(createVentaDto: CreateVentaDto, user: Usuario) {
+  try {
+    const { monto_total, id_persona, detalleVentas } = createVentaDto;
 
-  // Obtener todas las ventas activas
+    const personal = await this.personalRepository.findOne({ where: { id_personal: id_persona } });
+    if (!personal) {
+      throw new NotFoundException(`El personal con ID "${id_persona}" no fue encontrado.`);
+    }
+
+    if (!detalleVentas || detalleVentas.length === 0) {
+      throw new BadRequestException('Debe incluir al menos un detalle de venta.');
+    }
+
+    const trabajos = [];
+
+    for (const detalle of detalleVentas) {
+      // Traemos trabajo con detalleTrabajo y producto para crear PMP después
+      const trabajo = await this.trabajoRepository.findOne({
+        where: { id_trabajo: detalle.id_trabajo },
+        relations: ['detalleTrabajo', 'detalleTrabajo.producto'],
+      });
+
+      if (!trabajo) {
+        throw new NotFoundException(`El trabajo con ID "${detalle.id_trabajo}" no fue encontrado.`);
+      }
+
+      if (trabajo.detalleVenta) {
+        throw new BadRequestException(`El trabajo con ID "${trabajo.id_trabajo}" ya está asociado a una venta.`);
+      }
+
+      trabajos.push(trabajo);
+
+      trabajo.estado = 'entregado';
+
+      await this.trabajoRepository.save(trabajo);
+    }
+
+    const venta = this.ventaRepository.create({
+      personal,
+      usuario: user,
+      monto_total: parseFloat(monto_total.toFixed(2)),
+    });
+
+    const savedVenta = await this.ventaRepository.save(venta);
+
+    for (const trabajo of trabajos) {
+      const nuevoDetalle = this.detalleVentaRepository.create({
+        trabajo,
+        venta: savedVenta,
+      });
+
+      await this.detalleVentaRepository.save(nuevoDetalle);
+
+      // Crear registro PMP con concepto VENTA
+      const producto = trabajo.detalleTrabajo.producto;
+      const cantidad = 1;
+
+      await this.pmpService.createPmp(producto.id_producto, cantidad, ConceptoEnum.VENTA);
+    }
+
+    return savedVenta;
+  } catch (error) {
+    this.errorHandleService.errorHandle(error);
+    throw new BadRequestException('Hubo un error al crear la venta.');
+  }
+}
+
   async findAll(paginationDto: PaginationDto, queryGetDto: QueryGetDto, queryVentaDto: QueryVentaDto) {
     const { limit, offset } = paginationDto
     const { order = 'ASC' } = queryGetDto;
@@ -240,17 +251,14 @@ export class VentasService {
       });
       const trabajosPrevios = detallesPrevios.map(detalle => detalle.trabajo.id_trabajo);
   
-      // Extraer los IDs de los nuevos detalles enviados en el update (si hay)
       const trabajosNuevos = detalleVentas && detalleVentas.length > 0
         ? detalleVentas.map(detalle => detalle.id_trabajo)
         : [];
   
-      // Identificar los trabajos removidos (los que estaban antes y ya no se envían)
       const trabajosRemovidos = trabajosPrevios.filter(
         idTrabajo => !trabajosNuevos.includes(idTrabajo),
       );
   
-      // Actualizar el estado de los trabajos removidos a 'pendiente'
       if (trabajosRemovidos.length > 0) {
         await this.trabajoRepository.update(
           { id_trabajo: In(trabajosRemovidos) },
@@ -258,7 +266,6 @@ export class VentasService {
         );
       }
   
-      // 2. Actualizar el personal, si se envía
       if (id_persona) {
         const personal = await this.personalRepository.findOne({
           where: { id_personal: id_persona },
@@ -269,17 +276,13 @@ export class VentasService {
         venta.personal = personal;
       }
   
-      // 3. Actualizar la información principal de la venta
       Object.assign(venta, ventaData);
       const updatedVenta = await this.ventaRepository.save(venta);
   
-      // 4. Actualizar los detalles de la venta:
-      //    Se eliminan los detalles actuales y se reinserta el nuevo arreglo (si se envía)
       if (detalleVentas) {
         await this.detalleVentaRepository.delete({ venta: { id_venta: id } });
   
         if (detalleVentas.length > 0) {
-          // Para cada detalle, obtenemos la entidad Trabajo asociada
           const nuevosDetalles = await Promise.all(
             detalleVentas.map(async detalle => {
               const trabajoEntity = await this.trabajoRepository.findOne({
@@ -289,7 +292,7 @@ export class VentasService {
                 throw new NotFoundException(`Trabajo con ID "${detalle.id_trabajo}" no encontrado`);
               }
               return this.detalleVentaRepository.create({
-                trabajo: trabajoEntity, // Se asigna la entidad completa
+                trabajo: trabajoEntity, 
                 venta: updatedVenta,
               });
             }),

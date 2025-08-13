@@ -1,19 +1,5 @@
 <template>
-  <div class="p-4 space-y-4">
-    <div class="flex justify-between items-center">
-      <select v-model="tipo" class="border px-3 py-1 rounded">
-        <option value="compra">Compras</option>
-        <option value="venta">Ventas</option>
-        <option value="neto">Neto</option>
-      </select>
-
-      <input
-        v-model="searchQuery"
-        type="text"
-        placeholder="Buscar producto"
-        class="border px-3 py-1 rounded w-1/3"
-      />
-    </div>
+  <div class="mb-20 p-4 space-y-4">
 
     <PmpTable
       :tipo="tipo"
@@ -25,19 +11,6 @@
       :limit="itemsPerPage"
     />
 
-    <div v-if="totalPages > 1" class="flex justify-end space-x-2 mt-4">
-      <button
-        v-for="page in totalPages"
-        :key="page"
-        @click="currentPage = page"
-        :class="[
-          'px-3 py-1 border rounded',
-          currentPage === page ? 'bg-orange-500 text-white' : 'bg-white text-black'
-        ]"
-      >
-        {{ page }}
-      </button>
-    </div>
   </div>
 </template>
 

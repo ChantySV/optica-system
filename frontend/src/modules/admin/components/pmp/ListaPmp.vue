@@ -1,89 +1,161 @@
 <template>
   <div class="p-4">
-    <div v-if="loading" class="text-center py-4 text-gray-600">Cargando datos...</div>
-    <div v-else-if="error" class="text-red-500 text-center py-4">{{ error }}</div>
-
-    <!-- COMPRA / VENTA -->
-    <div v-else-if="tipo === 'compra' || tipo === 'venta'" class="space-y-4">
-      <div
-        v-for="producto in pmpData"
-        :key="producto.producto"
-        class="border rounded-xl shadow-sm p-4"
-      >
-        <h2 class="text-xl font-bold mb-2">{{ producto.producto }}</h2>
-
-        <div
-          v-for="mes in producto.meses"
-          :key="mes.fecha"
-          class="bg-gray-50 p-3 rounded-lg mb-2"
-        >
-          <h3 class="font-semibold text-gray-700">{{ mes.fecha }}</h3>
-          <table class="w-full mt-2 text-sm text-left">
-            <thead>
-              <tr class="bg-gray-100 text-gray-700">
-                <th class="px-2 py-1">Fecha</th>
-                <th class="px-2 py-1">Concepto</th>
-                <th class="px-2 py-1">Cantidad</th>
-                <th class="px-2 py-1">Valor Unitario</th>
-                <th class="px-2 py-1">Valor Total</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr
-                v-for="entrada in mes.entradas"
-                :key="entrada.fecha + entrada.valor_total"
-                class="border-b"
-              >
-                <td class="px-2 py-1">{{ entrada.fecha }}</td>
-                <td class="px-2 py-1 capitalize">{{ entrada.concepto }}</td>
-                <td class="px-2 py-1">{{ entrada.cantidad }}</td>
-                <td class="px-2 py-1">{{ entrada.valor_unidad }}</td>
-                <td class="px-2 py-1">{{ entrada.valor_total }}</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
+    <!-- Buscador -->
+    <div class="mb-4 flex items-center gap-2">
+      <!-- <input
+        v-model="searchQuery"
+        @input="onSearch"
+        type="text"
+        placeholder="Buscar producto..."
+        class="border p-2 rounded w-full"
+      /> -->
+      <select v-model="tipo" @change="onSearch" class="border p-2 rounded">
+        <option value="compra">Compra</option>
+        <option value="venta">Venta</option>
+        <option value="neto">Neto</option>
+      </select>
     </div>
 
-    <!-- NETO -->
-    <div v-else class="overflow-x-auto">
-      <table class="w-full text-sm border text-left">
-        <thead>
-          <tr class="bg-gray-100 text-gray-700">
-            <th class="px-2 py-1">Mes</th>
-            <th class="px-2 py-1">Compras</th>
-            <th class="px-2 py-1">Ventas</th>
-            <th class="px-2 py-1">Total Compras</th>
-            <th class="px-2 py-1">Total Ventas</th>
-            <th class="px-2 py-1">Balance Neto</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-for="item in pmpData" :key="item.mesAno" class="border-b">
-            <td class="px-2 py-1">{{ item.mesAno }}</td>
-            <td class="px-2 py-1">{{ item.compras }}</td>
-            <td class="px-2 py-1">{{ item.ventas }}</td>
-            <td class="px-2 py-1">{{ item.comprasTotales }}</td>
-            <td class="px-2 py-1">{{ item.ventasTotales }}</td>
-            <td class="px-2 py-1 font-semibold">{{ item.balanceNeto }}</td>
-          </tr>
-        </tbody>
-      </table>
+    <!-- Loading -->
+    <div v-if="loading" class="text-center py-4 text-gray-600">Cargando datos...</div>
+    <!-- Error -->
+    <div v-else-if="error" class="text-red-500 text-center py-4">{{ error }}</div>
+
+    <!-- Datos PMP -->
+    <div v-else>
+      <!-- COMPRA / VENTA -->
+      <div v-if="tipo === 'compra' || tipo === 'venta'" class="space-y-4">
+        <div v-for="producto in pmpData" :key="producto.producto" class="border rounded-xl shadow-sm p-4">
+          <h2 class="text-xl font-bold mb-2">{{ producto.producto }}</h2>
+          <div v-for="mes in producto.meses" :key="mes.fecha" class="bg-gray-50 p-3 rounded-lg mb-2">
+            <h3 class="font-semibold text-gray-700">{{ mes.fecha }}</h3>
+            <table class="w-full mt-2 text-sm text-left">
+              <thead>
+                <tr class="bg-gray-100 text-gray-700">
+                  <th class="px-2 py-1">Fecha</th>
+                  <th class="px-2 py-1">Concepto</th>
+                  <th class="px-2 py-1">Cantidad</th>
+                  <th class="px-2 py-1">Valor Unitario</th>
+                  <th class="px-2 py-1">Valor Total</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="entrada in mes.entradas" :key="entrada.fecha + entrada.valor_total" class="border-b">
+                  <td class="px-2 py-1">{{ entrada.fecha }}</td>
+                  <td class="px-2 py-1 capitalize">{{ entrada.concepto }}</td>
+                  <td class="px-2 py-1">{{ entrada.cantidad }}</td>
+                  <td class="px-2 py-1">{{ entrada.valor_unidad }}</td>
+                  <td class="px-2 py-1">{{ entrada.valor_total }}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- NETO -->
+      <div v-else class="overflow-x-auto">
+        <table class="w-full text-sm border text-left">
+          <thead>
+            <tr class="bg-gray-100 text-gray-700">
+              <th class="px-2 py-1">Mes</th>
+              <th class="px-2 py-1">Compras</th>
+              <th class="px-2 py-1">Ventas</th>
+              <th class="px-2 py-1">Total Compras</th>
+              <th class="px-2 py-1">Total Ventas</th>
+              <th class="px-2 py-1">Balance Neto</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="item in pmpData" :key="item.mesAno" class="border-b">
+              <td class="px-2 py-1">{{ item.mesAno }}</td>
+              <td class="px-2 py-1">{{ item.compras }}</td>
+              <td class="px-2 py-1">{{ item.ventas }}</td>
+              <td class="px-2 py-1">{{ item.comprasTotales }}</td>
+              <td class="px-2 py-1">{{ item.ventasTotales }}</td>
+              <td class="px-2 py-1 font-semibold">{{ item.balanceNeto }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Paginación -->
+      <div class="mt-4 flex justify-center items-center gap-2">
+        <button
+          @click="previousPage"
+          :disabled="currentPage === 1"
+          class="px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-500 disabled:bg-gray-400 disabled:cursor-not-allowed"
+        >
+          Anterior
+        </button>
+        <span>Página {{ currentPage }} de {{ totalPages || 1 }}</span>
+        <button
+          @click="nextPage"
+          :disabled="currentPage === totalPages"
+          class="px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-500 disabled:bg-gray-400 disabled:cursor-not-allowed"
+        >
+          Siguiente
+        </button>
+      </div>
     </div>
   </div>
 </template>
 
 <script lang="ts" setup>
-defineProps<{
-  tipo: string
-  searchQuery: string
-  pmpData: any[]
-  loading: boolean
-  error: string | null
-  page: number
-  limit: number
-}>()
+import { ref } from 'vue';
+import { getPmp } from '../../actions/admin-pmp.action';
+
+const tipo = ref<'compra' | 'venta' | 'neto'>('compra');
+const searchQuery = ref('');
+const pmpData = ref<any[]>([]);
+const loading = ref(false);
+const error = ref<string | null>(null);
+
+const currentPage = ref(1);
+const itemsPerPage = ref(10);
+const totalPages = ref(1);
+
+const loadPmpData = async () => {
+  loading.value = true;
+  error.value = null;
+
+  try {
+    const response = await getPmp(tipo.value, searchQuery.value, currentPage.value, itemsPerPage.value);
+    if (response.ok) {
+      pmpData.value = response.data;
+      totalPages.value = response.totalPages;
+    } else {
+      error.value = 'No se pudieron cargar los datos';
+    }
+  } catch (err) {
+    console.error(err);
+    error.value = 'Error al cargar los datos';
+  } finally {
+    loading.value = false;
+  }
+};
+
+const previousPage = () => {
+  if (currentPage.value > 1) {
+    currentPage.value--;
+    loadPmpData();
+  }
+};
+
+const nextPage = () => {
+  if (currentPage.value < totalPages.value) {
+    currentPage.value++;
+    loadPmpData();
+  }
+};
+
+const onSearch = () => {
+  currentPage.value = 1;
+  loadPmpData();
+};
+
+// Cargar al inicio
+loadPmpData();
 </script>
 
 <style scoped>

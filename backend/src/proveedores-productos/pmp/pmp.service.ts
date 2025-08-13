@@ -137,10 +137,10 @@ private async getNetoData(
       });
     }
 
-    const total = await totalQuery
+    const totalGroups = (await totalQuery
       .select(`${dateFormat}`, 'mesAno')
       .groupBy(`${dateFormat}`)
-      .getCount();
+      .getRawMany()).length;
 
     const formattedData = results.map((item) => ({
       mesAno: item.mesAno.trim(),
@@ -151,7 +151,7 @@ private async getNetoData(
       balanceNeto: parseFloat(item.comprasTotales) - parseFloat(item.ventasTotales),
     }));
 
-    return { ok: true, data: formattedData, total };
+    return { ok: true, data: formattedData, totalGroups };
   } catch (error) {
     console.error('Error obteniendo PMP Neto:', error);
     return { ok: false, message: 'No se pudo obtener la información de PMP Neto.' };

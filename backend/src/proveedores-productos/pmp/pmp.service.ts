@@ -17,7 +17,7 @@ export class PmpService {
     private readonly productoRepository: Repository<Producto>,
   ) {}
 
-  async createPmp(id_producto: string, cantidad: number, concepto: ConceptoEnum): Promise<Pmp> {
+  async createPmp(id_producto: string, cantidad: number, concepto: ConceptoEnum, fecha?: string | Date, ): Promise<Pmp> {
     const producto = await this.productoRepository.findOne({ where: { id_producto } });
     if (!producto) {
       throw new BadRequestException('El producto no existe.');
@@ -36,6 +36,7 @@ export class PmpService {
       concepto,
       precio_unitario,
       valor_total,
+      fecha: fecha ? new Date(fecha) : undefined,
     });
 
     return await this.pmpRepository.save(nuevoPmp);

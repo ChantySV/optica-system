@@ -1,11 +1,11 @@
 import { Type } from 'class-transformer';
-import { IsUUID, IsArray,  ValidateNested, IsNumber, IsOptional, } from 'class-validator';
+import { IsUUID, IsArray,  ValidateNested, IsNumber, IsOptional, IsISO8601, } from 'class-validator';
 
 export class CreateVentaDto {  
 
   @IsUUID()
   @IsOptional()
-  id_persona: string;
+  id_persona?: string;
 
   @IsArray()
   @ValidateNested({ each: true })
@@ -14,6 +14,10 @@ export class CreateVentaDto {
 
   @IsNumber({ maxDecimalPlaces: 2 })
   monto_total: number;
+  
+  @IsISO8601()
+  @IsOptional()
+  fecha_venta?: string;
 }
 
 export class DetalleVentaDto {

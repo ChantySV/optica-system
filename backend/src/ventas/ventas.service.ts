@@ -39,22 +39,30 @@ async create(createVentaDto: CreateVentaDto, user: Usuario) {
   try {
     const { monto_total, id_persona, detalleVentas } = createVentaDto;
 
-    const personal = await this.personalRepository.findOne({ where: { id_personal: id_persona } });
+    // Verificar personal
+    const personal = await this.personalRepository.findOne({
+      where: { id_personal: id_persona },
+    });
     if (!personal) {
       throw new NotFoundException(`El personal con ID "${id_persona}" no fue encontrado.`);
     }
 
+    // Validar que haya detalles de venta
     if (!detalleVentas || detalleVentas.length === 0) {
       throw new BadRequestException('Debe incluir al menos un detalle de venta.');
     }
 
-    const trabajos = [];
+    const trabajos: Trabajo[] = [];
 
     for (const detalle of detalleVentas) {
-      // Traemos trabajo con detalleTrabajo y producto para crear PMP después
+      // Traer trabajo con detalleVenta, detalleTrabajo y producto
       const trabajo = await this.trabajoRepository.findOne({
         where: { id_trabajo: detalle.id_trabajo },
-        relations: ['detalleTrabajo', 'detalleTrabajo.producto'],
+        relations: [
+          'detalleVenta',
+          'detalleTrabajo',
+          'detalleTrabajo.producto',
+        ],
       });
 
       if (!trabajo) {
@@ -67,37 +75,43 @@ async create(createVentaDto: CreateVentaDto, user: Usuario) {
 
       trabajos.push(trabajo);
 
+      // Marcar como entregado
       trabajo.estado = 'entregado';
-
       await this.trabajoRepository.save(trabajo);
     }
 
+    // Crear venta
     const venta = this.ventaRepository.create({
       personal,
       usuario: user,
       monto_total: parseFloat(monto_total.toFixed(2)),
+      fecha_venta: createVentaDto.fecha_venta ? new Date(createVentaDto.fecha_venta) : undefined
     });
-
     const savedVenta = await this.ventaRepository.save(venta);
 
+    // Crear detalles y PMP
     for (const trabajo of trabajos) {
       const nuevoDetalle = this.detalleVentaRepository.create({
         trabajo,
         venta: savedVenta,
       });
-
       await this.detalleVentaRepository.save(nuevoDetalle);
 
-      // Crear registro PMP con concepto VENTA
       const producto = trabajo.detalleTrabajo.producto;
-      const cantidad = 1;
+      const cantidad = 1; // Aquí podrías cambiar si manejas múltiples cantidades por trabajo
 
-      await this.pmpService.createPmp(producto.id_producto, cantidad, ConceptoEnum.VENTA);
+      // Registrar en PMP
+      await this.pmpService.createPmp(
+        producto.id_producto,
+        cantidad,
+        ConceptoEnum.VENTA,
+        venta.fecha_venta
+      );
     }
 
     return {
       ok: true,
-      data: savedVenta
+      data: savedVenta,
     };
 
   } catch (error) {

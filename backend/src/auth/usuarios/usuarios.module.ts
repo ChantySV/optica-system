@@ -44,6 +44,7 @@ import { CommonModule } from 'src/common/common.module';
   controllers: [UsuariosController],
   providers: [UsuariosService, JwtStrategy ],
   exports: [
+    TypeOrmModule,
     UsuariosService,
     JwtStrategy,
     PassportModule,

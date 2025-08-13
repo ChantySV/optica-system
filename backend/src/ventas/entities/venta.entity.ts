@@ -1,4 +1,4 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn, OneToMany, } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn, OneToMany, BeforeInsert, } from 'typeorm';
 import { DetalleVenta } from 'src/ventas/entities/detalle-venta.entity';
 import { Personal } from 'src/personal/entities/personal.entity';
 import { Usuario } from 'src/auth/usuarios/entities/usuario.entity';
@@ -11,7 +11,7 @@ export class Venta {
   @Column('decimal', { precision: 10, scale: 2 })
   monto_total: number;
 
-  @Column('date', { default: () => 'CURRENT_DATE' })
+  @Column('date', { nullable: false })
   fecha_venta: Date;
 
   @ManyToOne(() => Personal, (personal) => personal.venta, { nullable: true })
@@ -27,4 +27,11 @@ export class Venta {
 
   @OneToMany(() => DetalleVenta, (detalleVenta) => detalleVenta.venta)
   detalleVentas: DetalleVenta[];
+
+  @BeforeInsert()
+  setDefaultFechaVenta() {
+    if (!this.fecha_venta) {
+      this.fecha_venta = new Date(); 
+    }
+  }
 }

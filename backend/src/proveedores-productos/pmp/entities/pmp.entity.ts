@@ -1,4 +1,4 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn, BeforeInsert } from 'typeorm';
 import { Producto } from '../../productos/entities/producto.entity';
 
 export enum ConceptoEnum {
@@ -11,7 +11,7 @@ export class Pmp {
   @PrimaryGeneratedColumn('uuid')
   id_pmp: string;
 
-  @Column('date', { default: () => 'CURRENT_DATE' })
+  @Column('date', { nullable: false })
   fecha: Date;
 
   @Column({ type: 'decimal', precision: 10, scale: 2 })
@@ -32,4 +32,11 @@ export class Pmp {
   @ManyToOne(() => Producto, (producto) => producto.pmp, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'id_producto' })
   producto: Producto;
+
+  @BeforeInsert()
+  setDefaultFechaVenta() {
+    if (!this.fecha) {
+      this.fecha = new Date();
+    }
+  }
 }

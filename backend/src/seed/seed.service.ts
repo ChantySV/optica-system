@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { DataSource } from 'typeorm';
+import { DataSource, Repository } from 'typeorm';
 
 import { ErrorHandleService } from 'src/common/services/error-handle/error-handle.service';
 import { ProductosService } from 'src/proveedores-productos/productos/productos.service';
@@ -18,13 +18,20 @@ import { seedRoles } from './data/rol-data';
 import { seedUsuarios } from './data/usuario-data';
 import { seedColores } from './data/color-data';
 import { seedTratamientos } from './data/tratamiento-data';
-import { seedTrabajos } from './data/trabajos-data';
+import { seedTrabajo } from './data/trabajos-data';
+import { VentasService } from 'src/ventas/ventas.service';
+import { seedVenta } from './data/venta-data';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Usuario } from 'src/auth/usuarios/entities/usuario.entity';
 
 @Injectable()
 export class SeedService {
 
   constructor(    
     
+  @InjectRepository(Usuario)
+    private readonly usuarioRepository: Repository<Usuario>,
+
     private readonly rolesService: RolesService,
     private readonly proveedoresService: ProveedoresService,
     private readonly productosService: ProductosService,
@@ -33,6 +40,7 @@ export class SeedService {
     private readonly colorService: ColoresService,    
     private readonly tramamientoService: TratamientosService,    
     private readonly trabajoService: TrabajosService,    
+    private readonly ventaService: VentasService,    
 
     private readonly dataSource: DataSource,
     private readonly errorHandleService: ErrorHandleService
@@ -67,7 +75,8 @@ export class SeedService {
       await this.seedUsuarios();
       await this.seedColor()
       await this.seedTratamiento()
-      // await this.seedTrabajo()
+      await this.seedTrabajo()
+      await this.seedVenta()
       
     } catch (error) {
       this.errorHandleService.errorHandle(error)
@@ -118,11 +127,16 @@ export class SeedService {
   
   }
   private async seedTrabajo() {
-    for (const trabajo of seedTrabajos) {
+    for (const trabajo of seedTrabajo) {
       await this.trabajoService.create(trabajo);
     }
   }
-
-  
+  private async seedVenta() {
+    const user = await this.usuarioRepository.findOne({
+    where: { nombre_usuario: 'admin' },
+  });
+    for (const venta of seedVenta) {
+      await this.ventaService.create(venta, user);
+    }
+  } 
 }
-

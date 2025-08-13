@@ -1,4 +1,4 @@
-import { IsUUID, IsEnum, IsNumber, Min } from 'class-validator';
+import { IsUUID, IsEnum, IsNumber, Min, IsISO8601, IsOptional } from 'class-validator';
 import { ConceptoEnum } from '../entities/pmp.entity';
 
 export class CreatePmpDto {
@@ -11,4 +11,8 @@ export class CreatePmpDto {
 
   @IsEnum(ConceptoEnum)
   concepto: ConceptoEnum;
+
+  @IsISO8601()
+  @IsOptional()
+  fecha_venta?: string;
 }

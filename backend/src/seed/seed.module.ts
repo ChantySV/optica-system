@@ -10,6 +10,7 @@ import { CommonModule } from 'src/common/common.module';
 import { TratamientosModule } from 'src/mtrabajos/tratamientos/tratamientos.module';
 import { ColoresModule } from 'src/mtrabajos/colores/colores.module';
 import { TrabajosModule } from 'src/mtrabajos/trabajos/trabajos.module';
+import { VentasModule } from 'src/ventas/ventas.module';
 
 @Module({
   imports: [ 
@@ -21,7 +22,8 @@ import { TrabajosModule } from 'src/mtrabajos/trabajos/trabajos.module';
     CommonModule,
     TratamientosModule,
     ColoresModule,
-    TrabajosModule
+    TrabajosModule, 
+    VentasModule,
    ],
   controllers: [SeedController],
   providers: [SeedService],

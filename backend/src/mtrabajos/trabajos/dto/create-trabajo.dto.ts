@@ -43,7 +43,7 @@ class DetalleTrabajoDto {
 
   @IsUUID()
   @IsOptional()
-  id_tratamiento: string;
+  id_tratamiento?: string;
 
   @IsUUID()
   id_producto: string;

@@ -96,7 +96,7 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue';
-import { getVentas, searchVentas } from '../actions/venta.action';
+import { getVentaForUpdate, getVentas, searchVentas } from '../actions/venta.action';
 import DetalleVentaModal from './DetalleVenta.vue';
 import UpdateVentaModal from './UpdateVenta.vue';
 import { useToast } from 'vue-toastification';
@@ -109,11 +109,10 @@ const totalItems = ref(0);
 const itemsPerPage = 10;
 const currentPage = ref(1);
 const searchQuery = ref('');
-const detalle = ref(null);
 const showDetalleModal = ref(false);
 const selectedVentaId = ref<string | null>(null);
 const showUpdateModal = ref(false);
-const selectedVenta = ref<Datum | null>(null);
+const selectedVenta = ref<string | null>(null);
 
 const toast = useToast();
 
@@ -210,9 +209,31 @@ const closeDetalleModal = () => {
   selectedVentaId.value = null;
 };
 
-const openUpdateModal = (venta: Datum) => {
-  selectedVenta.value = venta;
-  showUpdateModal.value = true;
+
+const openUpdateModal = async (venta: any) => {
+  console.log("Venta recibida (cruda):", venta);
+  console.log("Propiedades disponibles:", Object.keys(venta));
+
+  // Intenta acceder de varias formas
+  console.log("venta.id_venta:", venta.id_venta);
+  console.log("venta?.value?.id_venta:", venta?.value?.id_venta);
+  console.log("venta?.dataValues?.id_venta:", venta?.dataValues?.id_venta);
+
+  const id = venta.id_venta || venta?.value?.id_venta || venta?.dataValues?.id_venta;
+
+  if (!id) {
+    console.error("No se encontró un id_venta válido");
+    return;
+  }
+
+  try {
+    const ventaData = await getVentaForUpdate(id);
+    selectedVenta.value = ventaData;
+    showUpdateModal.value = true;
+  } catch (error) {
+    console.error("Error al abrir modal de actualización:", error);
+    alert("No se pudo obtener la información de esta venta.");
+  }
 };
 
 const closeUpdateModal = () => {

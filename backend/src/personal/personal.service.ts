@@ -176,11 +176,10 @@ export class PersonalService {
           },
           {
             activo: true,
-            // Se busca también en el apellido y no distingue entre mayúsculas y minúsculas
             apellido_paterno: ILike(`%${search.toLowerCase()}%`),
           },
         ],
-        select: ['id_personal', 'nombres', 'apellido_paterno'],  // Seleccionamos los campos necesarios
+        select: ['id_personal', 'nombres', 'apellido_paterno'], 
       });
     } catch (error) {
       this.errorHandleService.errorHandle(error);

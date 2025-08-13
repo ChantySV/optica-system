@@ -39,12 +39,6 @@
         </div>
       </div>
 
-      <!-- Detalle de Venta (si existe) -->
-      <div v-if="trabajo.detalleVenta" class="mt-4 bg-gray-50 p-4 rounded-lg">
-        <h3 class="text-lg font-semibold text-gray-700 mb-2">Detalle de Venta</h3>
-        <p><strong>ID Detalle Venta:</strong> {{ trabajo.detalleVenta.id_detalleVenta }}</p>
-      </div>
-
       <!-- Botón de Cierre -->
       <div class="flex justify-end mt-6">
         <button @click="$emit('close')" class="px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600">

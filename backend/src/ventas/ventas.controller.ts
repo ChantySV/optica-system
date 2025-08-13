@@ -4,7 +4,6 @@ import { CreateVentaDto } from './dto/create-venta.dto';
 import { UpdateVentaDto } from './dto/update-venta.dto';
 import { Auth } from 'src/auth/usuarios/decorators/get-usuario.decorator';
 import { ValidRoles } from 'src/auth/usuarios/interfaces/valid-roles.interface';
-import { IsUUID } from 'class-validator';
 import { PaginationDto } from 'src/common/pagination-dto';
 import { QueryGetDto } from 'src/common/QueryGet-dto';
 import { QueryVentaDto } from './dto/query-venta.dto';
@@ -51,7 +50,12 @@ export class VentasController {
   findPrecioVenta(@Param('id') id: string) {
     return this.ventasService.findPrecioVenta(id);
   }
-  
+
+  @Get('update-data/:id')
+  findOneForUpdate(@Param('id') id: string) {
+    return this.ventasService.findOneForUpdate(id);
+  }
+
   @Get(':id')
   @Auth(ValidRoles.encargadoVentas)
   findOne(@Param('id') id: string) {

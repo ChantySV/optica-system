@@ -69,7 +69,6 @@ const props = defineProps({
   },
 });
 
-// Emitir evento para cerrar el modal
 const emit = defineEmits(['close']);
 
 // Datos del Detalle de Venta
@@ -78,7 +77,7 @@ const detalle = ref<DetalleResponseInterfaceTs | null>(null);
 // Función para cerrar el modal
 const closeModal = () => {
   emit('close');
-  detalle.value = null; // Limpiar datos del modal al cerrarlo
+  detalle.value = null;
 };
 
 // Formatear Fecha

@@ -5,51 +5,87 @@
 
       <!-- Barra de búsqueda para personal -->
       <div class="mb-6">
-        <label for="buscar-personal" class="block text-gray-700 font-semibold mb-2">Buscar Personal</label>
-        <input
-          id="buscar-personal"
-          v-model="busquedaPersonal"
-          @input="buscarPersonal"
-          type="text"
-          class="w-full border rounded-lg p-3"
-          placeholder="Escribe el nombre del personal..."
-        />
-        <ul v-if="resultadosBusqueda.length" class="mt-2 bg-white border rounded-lg">
-          <li
-            v-for="persona in resultadosBusqueda"
-            :key="persona.id_personal"
-            @click="seleccionarPersona(persona)"
-            class="px-4 py-2 hover:bg-gray-100 cursor-pointer"
-          >
-            {{ persona.nombres }}
-          </li>
-        </ul>
-        <p v-if="formData.id_persona" class="mt-2 text-gray-700">Comprador: {{ formData.nombre_persona }}</p>
-        <p v-if="v$.id_persona.$error" class="text-red-500 text-sm">{{ v$.id_persona.$errors[0].$message }}</p>
-      </div>
+        <label for="buscar-personal" class="block text-gray-700 font-semibold mb-2">
+          Buscar Personal
+        </label>
+        <div class="relative">
+          <input
+            id="buscar-personal"
+            v-model="busquedaPersonal"
+            @input="buscarPersonal"
+            type="text"
+            class="w-full border rounded-lg p-3 pl-10 focus:ring-2 focus:ring-orange-400 outline-none"
+            placeholder="Escribe el nombre del personal..."
+          />
+          <svg class="w-5 h-5 text-gray-400 absolute left-3 top-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-4.35-4.35M17 10a7 7 0 11-14 0 7 7 0 0114 0z" />
+          </svg>
 
-      <!-- Lista de trabajos pendientes con scroll -->
-      <div>
-        <h3 class="text-lg font-semibold text-gray-700 mb-2">Trabajos Pendientes</h3>
-        <div v-if="loading" class="text-gray-500">Cargando trabajos...</div>
-        <div v-else class="max-h-56 overflow-y-auto border rounded-lg p-2">
-          <ul class="space-y-2">
+          <!-- Lista de resultados -->
+          <ul v-if="resultadosBusqueda.length"
+              class="absolute z-10 mt-1 w-full bg-white border rounded-lg shadow-lg max-h-56 overflow-y-auto">
             <li
-              v-for="trabajo in trabajosPendientes"
-              :key="trabajo.id_trabajo"
-              class="flex justify-between items-center border-b pb-2"
+              v-for="persona in resultadosBusqueda"
+              :key="persona.id_personal"
+              @click="seleccionarPersona(persona)"
+              class="px-4 py-2 hover:bg-orange-100 cursor-pointer"
             >
-              <span class="text-gray-700">
-                <strong>Numero Trabajo: {{ trabajo.numero_trabajo }}</strong> - {{ trabajo.personal }}
-              </span>
-              <button
-                @click="seleccionarTrabajo(trabajo)"
-                class="px-4 py-2 bg-orange-500 text-white rounded hover:bg-orange-600"
-              >
-                Agregar
-              </button>
+              {{ persona.nombres }}
             </li>
           </ul>
+        </div>
+        <p v-if="formData.id_persona" class="mt-2 text-gray-700">
+          Comprador: <span class="font-semibold">{{ formData.nombre_persona }}</span>
+        </p>
+        <p v-if="v$.id_persona.$error" class="text-red-500 text-sm">
+          {{ v$.id_persona.$errors[0].$message }}
+        </p>
+      </div>
+
+      <!-- Barra de búsqueda para trabajos pendientes -->
+      <div class="mb-4">
+        <label for="buscar-trabajo" class="block text-gray-700 font-semibold mb-2">
+          Buscar Trabajo por Número
+        </label>
+        <input
+          id="buscar-trabajo"
+          v-model="busquedaTrabajo"
+          type="text"
+          class="w-full border rounded-lg p-3 focus:ring-2 focus:ring-orange-400 outline-none"
+          placeholder="Escribe el número del trabajo..."
+        />
+      </div>
+
+      <!-- Lista de trabajos pendientes -->
+      <div>
+        <h3 class="text-lg font-semibold text-gray-700 mb-3 flex items-center gap-2">
+          Trabajos Pendientes
+          <span v-if="loading" class="text-sm text-gray-500 animate-pulse">(Cargando...)</span>
+        </h3>
+
+        <div v-if="!loading && trabajosPendientesFiltrados.length === 0" class="text-gray-500">
+          No hay trabajos pendientes disponibles.
+        </div>
+
+        <div v-else class="grid grid-cols-1 md:grid-cols-2 gap-3 max-h-80 overflow-y-auto">
+          <div
+            v-for="trabajo in trabajosPendientesFiltrados"
+            :key="trabajo.id_trabajo"
+            class="border rounded-lg p-4 flex justify-between items-center shadow-sm hover:shadow-md transition"
+          >
+            <div>
+              <p class="font-semibold text-gray-800">
+                Nº {{ trabajo.numero_trabajo }}
+              </p>
+              <p class="text-sm text-gray-600">Personal: {{ trabajo.personal }}</p>
+            </div>
+            <button
+              @click="seleccionarTrabajo(trabajo)"
+              class="px-3 py-1.5 bg-orange-500 text-white rounded hover:bg-orange-600 text-sm"
+            >
+              Agregar
+            </button>
+          </div>
         </div>
       </div>
 
@@ -66,7 +102,7 @@
             :key="trabajo.id_trabajo"
             class="flex justify-between items-center border-b pb-2"
           >
-          <p v-if="v$.trabajosSeleccionados.$error" class="text-red-500 text-sm">{{ v$.trabajosSeleccionados.$errors[0].$message }}</p>
+            <p v-if="v$.trabajosSeleccionados.$error" class="text-red-500 text-sm">{{ v$.trabajosSeleccionados.$errors[0].$message }}</p>
             <span class="text-gray-700">
               <strong>{{ trabajo.numero_trabajo }}</strong> - Precio sugerido: {{ trabajo.precio_sugerido }}
             </span>
@@ -111,7 +147,6 @@
   </div>
 </template>
 
-
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue';
 import useVuelidate from '@vuelidate/core';
@@ -130,16 +165,14 @@ const formData = ref({
   trabajosSeleccionados: [] as { id_trabajo: string; numero_trabajo: number; precio_sugerido: number }[],
 });
 
-
 const decimalNumber = helpers.withMessage(
   "Debe ser un número válido con hasta 2 decimales.",
   (value: number | null) => value === null || /^\d+(\.\d{1,2})?$/.test(String(value))
 );
 
 const rules = {
-
-    id_persona: {
-    required: helpers.withMessage("Debe Selecionar al Comprador", required)
+  id_persona: {
+    required: helpers.withMessage("Debe Selecionar al Comprador", required),
   },
   trabajosSeleccionados: {
     required: helpers.withMessage("Debe haber al menos un trabajo seleccionado.", required),
@@ -150,6 +183,7 @@ const rules = {
     minValue: helpers.withMessage("El monto total no puede ser negativo.", minValue(1)),
   },
 };
+
 const v$ = useVuelidate(rules, formData);
 
 const toast = useToast();
@@ -162,10 +196,14 @@ const busquedaPersonal = ref('');
 const resultadosBusqueda = ref([]);
 const buscandoPersonal = ref(false);
 
+// NUEVA variable para búsqueda de trabajos
+const busquedaTrabajo = ref('');
+
 const precioSugeridoTotal = computed(() =>
   formData.value.trabajosSeleccionados.reduce((total, trabajo) => total + trabajo.precio_sugerido, 0)
 );
 
+// Carga todos los trabajos pendientes
 const loadTrabajosPendientes = async () => {
   try {
     loading.value = true;
@@ -182,6 +220,16 @@ const loadTrabajosPendientes = async () => {
     loading.value = false;
   }
 };
+
+// Filtro reactivo local para trabajos pendientes según busquedaTrabajo
+const trabajosPendientesFiltrados = computed(() => {
+  if (!busquedaTrabajo.value.trim()) {
+    return trabajosPendientes.value;
+  }
+  return trabajosPendientes.value.filter(trabajo =>
+    String(trabajo.numero_trabajo).includes(busquedaTrabajo.value.trim())
+  );
+});
 
 const seleccionarTrabajo = async (trabajo: any) => {
   try {
@@ -241,7 +289,7 @@ const closeModal = () => {
 };
 
 const onSubmit = async () => {
-    try {
+  try {
     const response = await createVenta({
       monto_total: formData.value.monto_total,
       id_persona: formData.value.id_persona,
@@ -252,7 +300,7 @@ const onSubmit = async () => {
 
     if (response.ok) {
       toast.success('Venta creada con éxito.');
-      emit('ventaCreada'); // Para notificar al componente padre que se creó la venta
+      emit('ventaCreada');
       closeModal();
     } else {
       toast.error(response.message || 'Error al crear la venta.');

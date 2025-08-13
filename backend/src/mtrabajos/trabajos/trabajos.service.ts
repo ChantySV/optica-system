@@ -1,6 +1,6 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Not, Repository, SelectQueryBuilder } from 'typeorm';
+import { ILike, Not, Repository, SelectQueryBuilder } from 'typeorm';
 import { ErrorHandleService } from 'src/common/services/error-handle/error-handle.service';
 
 import { Trabajo } from './entities/trabajo.entity';
@@ -194,16 +194,23 @@ export class TrabajosService {
     };
   }
 
-  async findPendientes() {
+  async findPendientes(numero_trabajo?: string) {
     try {
+      const where: any = { estado: 'pendiente', activo: true };
+
+      if (numero_trabajo) {
+        where.numero_trabajo = ILike(`%${numero_trabajo}%`);
+      }
+
       const [trabajos, total] = await this.trabajoRepository.findAndCount({
-        where: { estado: 'pendiente', activo: true },
+        where,
         relations: ['detalleTrabajo', 'personal'],
       });
+
       const data = trabajos.map((trabajo) => ({
         id_trabajo: trabajo.id_trabajo,
         numero_trabajo: trabajo.numero_trabajo,
-        fecha_entrada: trabajo.fecha_entrada,        
+        fecha_entrada: trabajo.fecha_entrada,
         estado: trabajo.estado,
         personal: `${trabajo.personal.nombres} ${trabajo.personal.apellido_paterno}`,
         detalleTrabajo: trabajo.detalleTrabajo,

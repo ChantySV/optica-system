@@ -95,7 +95,11 @@ async create(createVentaDto: CreateVentaDto, user: Usuario) {
       await this.pmpService.createPmp(producto.id_producto, cantidad, ConceptoEnum.VENTA);
     }
 
-    return savedVenta;
+    return {
+      ok: true,
+      data: savedVenta
+    };
+
   } catch (error) {
     this.errorHandleService.errorHandle(error);
     throw new BadRequestException('Hubo un error al crear la venta.');
@@ -233,6 +237,48 @@ async create(createVentaDto: CreateVentaDto, user: Usuario) {
       this.errorHandleService.errorHandle(error);
     }
   }
+
+  async findOneForUpdate(id: string) {
+  try {
+    const venta = await this.ventaRepository.findOne({
+      where: { id_venta: id, activo: true },
+      relations: [
+        'personal',
+        'detalleVentas',
+        'detalleVentas.trabajo',
+        'detalleVentas.trabajo.detalleTrabajo',
+        'detalleVentas.trabajo.detalleTrabajo.producto',
+      ],
+    });
+
+    if (!venta) {
+      throw new NotFoundException(`Venta con ID "${id}" no encontrada`);
+    }
+
+    return {
+      id_venta: venta.id_venta,
+      monto_total: venta.monto_total,
+      fecha_venta: venta.fecha_venta,
+      id_persona: venta.personal.id_personal,
+      nombres: venta.personal.nombres,
+      apellido_paterno: venta.personal.apellido_paterno,
+      detalleVentas: venta.detalleVentas.map((detalle) => ({
+        id_trabajo: detalle.trabajo.id_trabajo,
+        numero_trabajo: detalle.trabajo.numero_trabajo,
+        estado: detalle.trabajo.estado,
+        producto: {
+          id_producto: detalle.trabajo.detalleTrabajo?.producto?.id_producto,
+          nombre_producto: detalle.trabajo.detalleTrabajo?.producto?.nombre,
+          precio_venta: detalle.trabajo.detalleTrabajo?.producto?.precio_venta,
+        },
+      })),
+    };
+  } catch (error) {
+    this.errorHandleService.errorHandle(error);
+    throw error;
+  }
+}
+
 
   async update(id: string, updateVentaDto: UpdateVentaDto): Promise<Venta> {
     try {

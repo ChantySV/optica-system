@@ -160,6 +160,18 @@ export const updateVenta = async (id_venta: string, updateVentaDto: any)  => {
   }
 };
 
+export const getVentaForUpdate = async (id_venta: string) => {
+  try {
+    const response = await backendApi.get(`/ventas/update-data/${id_venta}`);
+    return response.data;
+  } catch (error: any) {
+    if (error.response?.status === 404) {
+      console.error(`Venta con id ${id_venta} no encontrada`);
+    }
+    throw error;
+  }
+};
+
 // Eliminar (desactivar lógicamente) una venta
 export const removeVenta = async (id_venta: string): Promise<{
   ok: boolean;

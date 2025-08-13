@@ -106,13 +106,14 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, computed } from 'vue';
+import { ref, onMounted, computed, watch } from 'vue';
 import { getTrabajos, removeTrabajo } from '../actions/trabajos.action';
 import type { Trabajo, FindAllTrabajoResponse } from '../interfaces/TrabajosResponse.interface';
 import TrabajoDetailModal from './DetalleTrabajos.vue';
 import TrabajoUpdateModal from './UpdateTrabajo.vue';
 import ConfirmDeleteModal from './ConfirmDelete.vue';
 import { useToast } from 'vue-toastification';
+import { trabajoCreadoEvent } from '../actions/event-bus';
 
 const toast = useToast();
 
@@ -210,6 +211,11 @@ const confirmDelete = async (trabajo: Trabajo) => {
     toast.error(response.message);
   }
 };
+
+watch(trabajoCreadoEvent, () => {
+  loadTrabajos();
+});
+
 onMounted(() => {
   loadTrabajos();
 });

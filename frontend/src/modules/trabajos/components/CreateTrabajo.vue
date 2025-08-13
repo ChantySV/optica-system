@@ -180,6 +180,7 @@ import { createTrabajo, findProducto, findTratamiento, findColor, findPersonal }
 import { useToast } from 'vue-toastification';
 import { getValidationRules } from '../validators/CreateTrabajo.validator';
 import useVuelidate from '@vuelidate/core';
+import { triggerTrabajoCreado } from '../actions/event-bus';
 
 const props = defineProps({
   isOpen: {
@@ -304,7 +305,7 @@ const submitForm = async () => {
   }
     if (response.ok) {
       toast.success('Trabajo creado exitosamente.');
-      emit('refreshList');
+      triggerTrabajoCreado();
       closeModal();
     }
   } catch (error) {

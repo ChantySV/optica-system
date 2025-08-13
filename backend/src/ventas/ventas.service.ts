@@ -98,7 +98,7 @@ async create(createVentaDto: CreateVentaDto, user: Usuario) {
       await this.detalleVentaRepository.save(nuevoDetalle);
 
       const producto = trabajo.detalleTrabajo.producto;
-      const cantidad = 1; // Aquí podrías cambiar si manejas múltiples cantidades por trabajo
+      const cantidad = 1; 
 
       // Registrar en PMP
       await this.pmpService.createPmp(

@@ -172,21 +172,3 @@ export const getVentaForUpdate = async (id_venta: string) => {
   }
 };
 
-// Eliminar (desactivar lógicamente) una venta
-export const removeVenta = async (id_venta: string): Promise<{
-  ok: boolean;
-  message?: string;
-}> => {
-  try {
-    await backendApi.delete(`/ventas/${id_venta}`);
-    return {
-      ok: true,
-    };
-  } catch (error) {
-    console.error('Error al eliminar la venta:', error);
-    return {
-      ok: false,
-      message: 'Error al eliminar la venta.',
-    };
-  }
-};

@@ -58,13 +58,9 @@
                 class="px-4 py-2 bg-orange-500 text-white font-medium rounded-lg hover:bg-orange-600 focus:outline-none focus:ring-2 ">
                 Ver Detalle
               </button>
-              <button @click="openUpdateModal(venta)"
-                class="px-4 py-2 bg-gray-800 text-white font-medium rounded-lg hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500">
-                Actualizar
-              </button>
               <!-- <button @click="openUpdateModal(venta)"
                 class="px-4 py-2 bg-gray-800 text-white font-medium rounded-lg hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500">
-                Eliminar
+                Actualizar
               </button> -->
             </td>
           </tr>
@@ -95,12 +91,13 @@
 
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue';
+import { ref, computed, onMounted, watch } from 'vue';
 import { getVentaForUpdate, getVentas, searchVentas } from '../actions/venta.action';
 import DetalleVentaModal from './DetalleVenta.vue';
 import UpdateVentaModal from './UpdateVenta.vue';
 import { useToast } from 'vue-toastification';
 import type { Datum } from '../interfaces/VentasResponse.interface';
+import { ventaCreadaEvent } from '../actions/event-bus';
 
 const ventas = ref<Datum[]>([]);
 const loading = ref(true);
@@ -113,6 +110,7 @@ const showDetalleModal = ref(false);
 const selectedVentaId = ref<string | null>(null);
 const showUpdateModal = ref(false);
 const selectedVenta = ref<string | null>(null);
+const listaVentasRef = ref<InstanceType<typeof ListaVentas> | null>(null);
 
 const toast = useToast();
 
@@ -209,33 +207,6 @@ const closeDetalleModal = () => {
   selectedVentaId.value = null;
 };
 
-
-const openUpdateModal = async (venta: any) => {
-  console.log("Venta recibida (cruda):", venta);
-  console.log("Propiedades disponibles:", Object.keys(venta));
-
-  // Intenta acceder de varias formas
-  console.log("venta.id_venta:", venta.id_venta);
-  console.log("venta?.value?.id_venta:", venta?.value?.id_venta);
-  console.log("venta?.dataValues?.id_venta:", venta?.dataValues?.id_venta);
-
-  const id = venta.id_venta || venta?.value?.id_venta || venta?.dataValues?.id_venta;
-
-  if (!id) {
-    console.error("No se encontró un id_venta válido");
-    return;
-  }
-
-  try {
-    const ventaData = await getVentaForUpdate(id);
-    selectedVenta.value = ventaData;
-    showUpdateModal.value = true;
-  } catch (error) {
-    console.error("Error al abrir modal de actualización:", error);
-    alert("No se pudo obtener la información de esta venta.");
-  }
-};
-
 const closeUpdateModal = () => {
   showUpdateModal.value = false;
   selectedVenta.value = null;
@@ -244,6 +215,12 @@ const closeUpdateModal = () => {
 onMounted(() => {
   loadVentas();
 });
+
+watch(ventaCreadaEvent, () => {
+  loadVentas();
+});
+
+defineExpose({ loadVentas });
 
 const formatDate = (date: Date | string): string => {
   const options = { year: 'numeric', month: 'long', day: 'numeric' };

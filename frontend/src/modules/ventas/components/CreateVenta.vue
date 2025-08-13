@@ -9,27 +9,21 @@
           Buscar Personal
         </label>
         <div class="relative">
-          <input
-            id="buscar-personal"
-            v-model="busquedaPersonal"
-            @input="buscarPersonal"
-            type="text"
+          <input id="buscar-personal" v-model="busquedaPersonal" @input="buscarPersonal" type="text"
             class="w-full border rounded-lg p-3 pl-10 focus:ring-2 focus:ring-orange-400 outline-none"
-            placeholder="Escribe el nombre del personal..."
-          />
-          <svg class="w-5 h-5 text-gray-400 absolute left-3 top-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-4.35-4.35M17 10a7 7 0 11-14 0 7 7 0 0114 0z" />
+            placeholder="Escribe el nombre del personal..." />
+
+          <svg class="w-5 h-5 text-gray-400 absolute left-3 top-3" xmlns="http://www.w3.org/2000/svg" fill="none"
+            viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M21 21l-4.35-4.35M17 10a7 7 0 11-14 0 7 7 0 0114 0z" />
           </svg>
 
           <!-- Lista de resultados -->
           <ul v-if="resultadosBusqueda.length"
-              class="absolute z-10 mt-1 w-full bg-white border rounded-lg shadow-lg max-h-56 overflow-y-auto">
-            <li
-              v-for="persona in resultadosBusqueda"
-              :key="persona.id_personal"
-              @click="seleccionarPersona(persona)"
-              class="px-4 py-2 hover:bg-orange-100 cursor-pointer"
-            >
+            class="absolute z-10 mt-1 w-full bg-white border rounded-lg shadow-lg max-h-56 overflow-y-auto">
+            <li v-for="persona in resultadosBusqueda" :key="persona.id_personal" @click="seleccionarPersona(persona)"
+              class="px-4 py-2 hover:bg-orange-100 cursor-pointer">
               {{ persona.nombres }}
             </li>
           </ul>
@@ -47,13 +41,9 @@
         <label for="buscar-trabajo" class="block text-gray-700 font-semibold mb-2">
           Buscar Trabajo por Número
         </label>
-        <input
-          id="buscar-trabajo"
-          v-model="busquedaTrabajo"
-          type="text"
+        <input id="buscar-trabajo" v-model="busquedaTrabajo" type="text"
           class="w-full border rounded-lg p-3 focus:ring-2 focus:ring-orange-400 outline-none"
-          placeholder="Escribe el número del trabajo..."
-        />
+          placeholder="Escribe el número del trabajo..." />
       </div>
 
       <!-- Lista de trabajos pendientes -->
@@ -68,21 +58,16 @@
         </div>
 
         <div v-else class="grid grid-cols-1 md:grid-cols-2 gap-3 max-h-80 overflow-y-auto">
-          <div
-            v-for="trabajo in trabajosPendientesFiltrados"
-            :key="trabajo.id_trabajo"
-            class="border rounded-lg p-4 flex justify-between items-center shadow-sm hover:shadow-md transition"
-          >
+          <div v-for="trabajo in trabajosPendientesFiltrados" :key="trabajo.id_trabajo"
+            class="border rounded-lg p-4 flex justify-between items-center shadow-sm hover:shadow-md transition">
             <div>
               <p class="font-semibold text-gray-800">
                 Nº {{ trabajo.numero_trabajo }}
               </p>
               <p class="text-sm text-gray-600">Personal: {{ trabajo.personal }}</p>
             </div>
-            <button
-              @click="seleccionarTrabajo(trabajo)"
-              class="px-3 py-1.5 bg-orange-500 text-white rounded hover:bg-orange-600 text-sm"
-            >
+            <button @click="seleccionarTrabajo(trabajo)"
+              class="px-3 py-1.5 bg-orange-500 text-white rounded hover:bg-orange-600 text-sm">
               Agregar
             </button>
           </div>
@@ -97,19 +82,15 @@
         </div>
 
         <ul v-else class="space-y-2">
-          <li
-            v-for="trabajo in formData.trabajosSeleccionados"
-            :key="trabajo.id_trabajo"
-            class="flex justify-between items-center border-b pb-2"
-          >
-            <p v-if="v$.trabajosSeleccionados.$error" class="text-red-500 text-sm">{{ v$.trabajosSeleccionados.$errors[0].$message }}</p>
+          <li v-for="trabajo in formData.trabajosSeleccionados" :key="trabajo.id_trabajo"
+            class="flex justify-between items-center border-b pb-2">
+            <p v-if="v$.trabajosSeleccionados.$error" class="text-red-500 text-sm">{{
+              v$.trabajosSeleccionados.$errors[0].$message }}</p>
             <span class="text-gray-700">
               <strong>{{ trabajo.numero_trabajo }}</strong> - Precio sugerido: {{ trabajo.precio_sugerido }}
             </span>
-            <button
-              @click="quitarTrabajo(trabajo.id_trabajo)"
-              class="px-4 py-2 bg-gray-700 text-white rounded hover:bg-gray-600"
-            >
+            <button @click="quitarTrabajo(trabajo.id_trabajo)"
+              class="px-4 py-2 bg-gray-700 text-white rounded hover:bg-gray-600">
               Quitar
             </button>
           </li>
@@ -124,12 +105,8 @@
         </div>
         <div>
           <label class="block text-gray-700 font-semibold mb-2">Monto Total:</label>
-          <input
-            v-model.number="formData.monto_total"
-            type="number"
-            class="w-full border rounded-lg p-3"
-            placeholder="Escribe el monto total..."
-          />
+          <input v-model.number="formData.monto_total" type="number" class="w-full border rounded-lg p-3"
+            placeholder="Escribe el monto total..." />
           <p v-if="v$.monto_total.$error" class="text-red-500 text-sm">{{ v$.monto_total.$errors[0].$message }}</p>
         </div>
       </div>
@@ -153,6 +130,7 @@ import useVuelidate from '@vuelidate/core';
 import { required, minValue, helpers } from '@vuelidate/validators';
 import { createVenta, findPendientes, findPrecioVenta, searchPersonaVenta } from '../actions/venta.action';
 import { useToast } from 'vue-toastification';
+import { triggerVentaCreada } from '../actions/event-bus';
 
 const props = defineProps({ isOpen: Boolean });
 const emit = defineEmits(['close', 'ventaCreada']);
@@ -170,6 +148,20 @@ const decimalNumber = helpers.withMessage(
   (value: number | null) => value === null || /^\d+(\.\d{1,2})?$/.test(String(value))
 );
 
+const mayorQueSugerido = helpers.withMessage(
+  "El monto total debe ser mayor al precio sugerido.",
+  (value: number) => {
+    if (!formData.value.trabajosSeleccionados || formData.value.trabajosSeleccionados.length === 0) {
+      return true;
+    }
+    const totalSugerido = formData.value.trabajosSeleccionados.reduce(
+      (acc, trabajo) => acc + trabajo.precio_sugerido,
+      0
+    );
+    return value >= totalSugerido;
+  }
+);
+
 const rules = {
   id_persona: {
     required: helpers.withMessage("Debe Selecionar al Comprador", required),
@@ -177,10 +169,11 @@ const rules = {
   trabajosSeleccionados: {
     required: helpers.withMessage("Debe haber al menos un trabajo seleccionado.", required),
   },
-  monto_total: {
+ monto_total: {
     required: helpers.withMessage("El monto total es obligatorio.", required),
     decimalNumber,
-    minValue: helpers.withMessage("El monto total no puede ser negativo.", minValue(1)),
+    minValue: helpers.withMessage("El monto total debe ser mayor que 0.", minValue(1)),
+    mayorQueSugerido,
   },
 };
 
@@ -196,7 +189,6 @@ const busquedaPersonal = ref('');
 const resultadosBusqueda = ref([]);
 const buscandoPersonal = ref(false);
 
-// NUEVA variable para búsqueda de trabajos
 const busquedaTrabajo = ref('');
 
 const precioSugeridoTotal = computed(() =>
@@ -289,6 +281,11 @@ const closeModal = () => {
 };
 
 const onSubmit = async () => {
+  const isValid = await v$.value.$validate();
+  if (!isValid) {
+    toast.error("Corrige los errores antes de enviar el formulario.");
+    return;
+  }
   try {
     const response = await createVenta({
       monto_total: formData.value.monto_total,
@@ -300,7 +297,7 @@ const onSubmit = async () => {
 
     if (response.ok) {
       toast.success('Venta creada con éxito.');
-      emit('ventaCreada');
+      triggerVentaCreada();
       closeModal();
     } else {
       toast.error(response.message || 'Error al crear la venta.');
